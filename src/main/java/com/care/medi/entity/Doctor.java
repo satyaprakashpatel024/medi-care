@@ -1,16 +1,20 @@
 package com.care.medi.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Schema(hidden = true)
 @Entity
 @Table(name = "doctors", indexes = {
         @Index(name = "idx_doctors_user_id", columnList = "user_id"),
@@ -22,13 +26,13 @@ public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true,
             foreignKey = @ForeignKey(name = "fk_doctor_user"))
-    @NotNull(message = "User is required")
-    private User user;
+    @NotNull(message = "Users is required")
+    private Users user;
 
     @NotBlank(message = "First name is required")
     @Size(max = 100)
@@ -73,6 +77,12 @@ public class Doctor {
     @Column(name = "blood_type", length = 5)
     private String bloodType;
 
+    @Builder.Default
+    @Column(name = "is_active", nullable = false)
+    @ColumnDefault("true")
+    private boolean isActive = true;
+
+    @CreatedDate
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -1,8 +1,9 @@
 package com.care.medi.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
-
+@Schema(hidden = true)
 @Entity
 @Table(name = "hospital_departments",
         uniqueConstraints = @UniqueConstraint(

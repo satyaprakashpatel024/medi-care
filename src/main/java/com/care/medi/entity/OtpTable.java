@@ -1,5 +1,6 @@
 package com.care.medi.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
         @Index(name = "idx_otp_email", columnList = "email"),
         @Index(name = "idx_otp_expired_at", columnList = "expired_at")
 })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder@Schema(hidden = true)
 public class OtpTable {
 
     @Id
@@ -34,7 +35,12 @@ public class OtpTable {
     private LocalDateTime createdAt;
 
     @NotNull(message = "Expiry time is required")
-    @Future(message = "Expiry time must be in the future")
     @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.expiredAt = this.createdAt.plusMinutes(5);
+    }
 }

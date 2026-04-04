@@ -9,22 +9,26 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "address", indexes = {
-        @Index(name = "idx_address_user_id", columnList = "user_id")
-})
 @Schema(hidden = true)
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Address {
+@Entity
+@Table(name = "hospital_address")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class HospitalAddress {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ── Link to Hospital ───────────────────────────────
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_address_user"))
-    private Users user;
+    @JoinColumn(name = "hospital_id", nullable = false)
+    private Hospital hospital;
 
+    // ── Address fields ───────────────────────────────
     @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
@@ -40,37 +44,29 @@ public class Address {
 
     @NotBlank(message = "City is required")
     @Size(max = 100)
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String city;
 
     @NotBlank(message = "State is required")
     @Size(max = 100)
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String state;
 
     @NotBlank(message = "Postal code is required")
     @Size(max = 20)
-    @Column(name = "postal_code", nullable = false, length = 20)
+    @Column(name = "postal_code", nullable = false)
     private String postalCode;
 
     @NotBlank(message = "Country is required")
     @Size(max = 100)
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String country;
 
     @Size(max = 255)
     @Column
     private String landmark;
 
-    @Pattern(regexp = "^(HOME|WORK|BILLING|SHIPPING)$",
-            message = "Address type must be HOME, WORK, BILLING, or SHIPPING")
-    @Column(name = "address_type", length = 10)
-    private String addressType;
-
-    @Column(name = "is_default", nullable = false)
-    @Builder.Default
-    private Boolean isDefault = false;
-
+    // ── Timestamps ───────────────────────────────
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -78,5 +74,4 @@ public class Address {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
 }

@@ -1,5 +1,6 @@
 package com.care.medi.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -7,6 +8,7 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Schema(hidden = true)
 @Entity
 @Table(name = "departments")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -14,7 +16,7 @@ public class Department {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Department name is required")
     @Size(max = 150)

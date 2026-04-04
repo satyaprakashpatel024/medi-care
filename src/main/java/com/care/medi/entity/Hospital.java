@@ -1,39 +1,47 @@
 package com.care.medi.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+@Schema(hidden = true)
 @Entity
 @Table(name = "hospitals")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Hospital {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Hospital name is required")
     @Size(max = 255)
     @Column(nullable = false)
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id", foreignKey = @ForeignKey(name = "fk_hospital_address"))
-    private Address address;
-
     @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
     @Column(length = 20)
     private String phone;
 
-    // ── Bidirectional mappings ──────────────────────────────────────────────
+    @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    @BatchSize(size = 3)
+    private Set<HospitalAddress> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Doctor> doctors = new ArrayList<>();
+    private Set<HospitalDepartment> hospitalDepartments = new HashSet<>();
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
@@ -41,9 +49,12 @@ public class Hospital {
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<HospitalDepartment> hospitalDepartments = new ArrayList<>();
+    private List<Doctor> doctors = new ArrayList<>();
 
-    // ── Helper methods ──────────────────────────────────────────────────────
+    public void addAddress(HospitalAddress address) {
+        addresses.add(address);
+        address.setHospital(this);
+    }
 
     public void addDoctor(Doctor doctor) {
         doctors.add(doctor);
@@ -64,6 +75,3 @@ public class Hospital {
         department.getHospitalDepartments().add(hd);
     }
 }
-
-
-

@@ -1,5 +1,6 @@
 package com.care.medi.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Schema(hidden = true)
 @Entity
 @Table(name = "staffs", indexes = {
         @Index(name = "idx_staffs_user_id", columnList = "user_id"),
@@ -24,8 +26,8 @@ public class Staff {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true,
             foreignKey = @ForeignKey(name = "fk_staff_user"))
-    @NotNull(message = "User is required")
-    private User user;
+    @NotNull(message = "Users is required")
+    private Users user;
 
     @NotBlank(message = "First name is required")
     @Size(max = 100)

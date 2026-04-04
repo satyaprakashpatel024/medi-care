@@ -1,5 +1,6 @@
 package com.care.medi.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
         @Index(name = "idx_appt_doctor_id", columnList = "doctor_id"),
         @Index(name = "idx_appt_date", columnList = "appointment_date")
 })
+@Schema(hidden = true)
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 //@NamedEntityGraphs({
 //        // Fetch everything needed for appointment detail view
@@ -43,7 +45,7 @@ public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false,
