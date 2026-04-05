@@ -8,6 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "address", indexes = {
@@ -62,10 +64,10 @@ public class Address {
     @Column
     private String landmark;
 
-    @Pattern(regexp = "^(HOME|WORK|BILLING|SHIPPING)$",
-            message = "Address type must be HOME, WORK, BILLING, or SHIPPING")
+    @Enumerated(EnumType.STRING)
+    @Pattern(regexp = "^(HOME|WORK|HOSPITAL)$", message = "Address type must be HOME, WORK, BILLING, or SHIPPING")
     @Column(name = "address_type", length = 10)
-    private String addressType;
+    private AddressType addressType;
 
     @Column(name = "is_default", nullable = false)
     @Builder.Default

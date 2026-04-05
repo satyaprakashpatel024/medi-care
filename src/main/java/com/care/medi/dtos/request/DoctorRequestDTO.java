@@ -1,4 +1,5 @@
 package com.care.medi.dtos.request;
+
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -7,7 +8,8 @@ import java.time.LocalDate;
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class DoctorRequestDTO {
     @NotNull
-    private Long userId;
+    @Email
+    private String email;
     @NotBlank @Size(max = 100)
     private String firstName;
     @NotBlank @Size(max = 100)

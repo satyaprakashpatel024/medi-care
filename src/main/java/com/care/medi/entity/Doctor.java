@@ -29,8 +29,7 @@ public class Doctor {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true,
-            foreignKey = @ForeignKey(name = "fk_doctor_user"))
+    @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_doctor_user"))
     @NotNull(message = "Users is required")
     private Users user;
 
@@ -50,7 +49,8 @@ public class Doctor {
 
     @Pattern(regexp = "^(MALE|FEMALE|OTHER)$", message = "Gender must be MALE, FEMALE, or OTHER")
     @Column(length = 10)
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
     @Column(length = 20)
@@ -74,8 +74,9 @@ public class Doctor {
     private String emergencyContact;
 
     @Pattern(regexp = "^(A|B|AB|O)[+-]$", message = "Invalid blood type")
-    @Column(name = "blood_type", length = 5)
-    private String bloodType;
+    @Column(name = "blood_type", length = 7)
+    @Enumerated(EnumType.STRING)
+    private BloodType bloodType;
 
     @Builder.Default
     @Column(name = "is_active", nullable = false)
@@ -100,6 +101,11 @@ public class Doctor {
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Prescription> prescriptions = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    private List<Address> addresses = new ArrayList<>();
 
     // ── Helper methods ──────────────────────────────────────────────────────
 

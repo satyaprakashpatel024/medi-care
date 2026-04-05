@@ -22,13 +22,17 @@ public class Patient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true,
             foreignKey = @ForeignKey(name = "fk_patient_user"))
     @NotNull(message = "Users is required")
     private Users user;
+
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Insurance> insurances = new ArrayList<>();
 
     @NotBlank(message = "First name is required")
     @Size(max = 100)
@@ -46,7 +50,8 @@ public class Patient {
 
     @Pattern(regexp = "^(MALE|FEMALE|OTHER)$", message = "Gender must be MALE, FEMALE, or OTHER")
     @Column(length = 10)
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
     @Column(length = 20)
@@ -56,9 +61,9 @@ public class Patient {
     @Column(name = "emergency_contact")
     private String emergencyContact;
 
-    @Pattern(regexp = "^(A|B|AB|O)[+-]$", message = "Invalid blood type")
-    @Column(name = "blood_type", length = 5)
-    private String bloodType;
+    @Column(name = "blood_type", length = 7)
+    @Enumerated(EnumType.STRING)
+    private BloodType bloodType;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -20,15 +20,15 @@ public class HospitalController {
     private final HospitalServiceImpl hospitalService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllHospitals( @RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "5") int size,
-                                                        @RequestParam(defaultValue = "id") String sortBy) {
-        Page<HospitalResponseDTO> allHospitals = hospitalService.getAllHospitals(page,size,sortBy);
+    public ResponseEntity<ApiResponse<Page<HospitalResponseDTO>>> getAllHospitals(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
         return ResponseEntity.ok(
-                ApiResponse.builder()
+                ApiResponse.<Page<HospitalResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message("All hospitals fetched successfully")
-                        .data(allHospitals)
+                        .data(hospitalService.getAllHospitals(page,size,sortBy))
                         .success(true)
                         .build()
         );
@@ -36,40 +36,37 @@ public class HospitalController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getHospitalById(@PathVariable Long id) {
-        HospitalResponseDTO hospitalById = hospitalService.getHospitalById(id);
+    public ResponseEntity<ApiResponse<HospitalResponseDTO>> getHospitalById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
-                ApiResponse.builder()
+                ApiResponse.<HospitalResponseDTO>builder()
                         .status(HttpStatus.OK)
                         .message("Hospital fetched successfully")
-                        .data(hospitalById)
+                        .data(hospitalService.getHospitalById(id))
                         .success(true)
                         .build()
         );
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createHospital(@Valid @RequestBody HospitalRequestDTO request) {
-        HospitalResponseDTO hospital = hospitalService.createHospital(request);
+    public ResponseEntity<ApiResponse<HospitalResponseDTO>> createHospital(@Valid @RequestBody HospitalRequestDTO request) {
         return ResponseEntity.ok(
-                ApiResponse.builder()
+                ApiResponse.<HospitalResponseDTO>builder()
                         .status(HttpStatus.CREATED)
                         .message("Hospital created successfully")
-                        .data(hospital)
+                        .data(hospitalService.createHospital(request))
                         .success(true)
                         .build()
         );
     }
 
     @PutMapping("/{id}")
-    public  ResponseEntity<ApiResponse> updateHospital(@PathVariable Long id,@Valid @RequestBody HospitalUpdateRequestDTO request) {
-        HospitalResponseDTO hospitalResponseDTO = hospitalService.updateHospital(id, request);
+    public  ResponseEntity<ApiResponse<HospitalResponseDTO>> updateHospital(@PathVariable("id") Long id,@Valid @RequestBody HospitalUpdateRequestDTO request) {
         return ResponseEntity.ok(
-                ApiResponse
-                        .builder()
+                ApiResponse.<HospitalResponseDTO>
+                        builder()
                         .status(HttpStatus.ACCEPTED)
                         .message("Hospital updated successfully")
-                        .data(hospitalResponseDTO)
+                        .data(hospitalService.updateHospital(id, request))
                         .success(true)
                         .build()
         );

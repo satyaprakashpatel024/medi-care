@@ -54,16 +54,6 @@ public class HospitalServiceImpl implements HospitalService {
         );
     }
 
-//    @Override
-//    public Page<HospitalResponseDTO> getAllHospitals(int page, int size, String sortBy) {
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-//        Page<Hospital> hospitals = hospitalRepository.findAll(pageable);
-//
-//        return hospitals.stream()
-//                .map(this::toResponse)
-//                .toList();// Modern, concise approach
-//    }
-
     public Page<HospitalResponseDTO> getAllHospitals(int page, int size, String sortBy) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));

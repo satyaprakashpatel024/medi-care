@@ -6,21 +6,22 @@ import lombok.Builder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-public record StaffResponseDTO(
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record DoctorListResponseDTO(
         Long id,
-        Long userId,
         String firstName,
         String lastName,
         LocalDate dateOfBirth,
         String gender,
         String phone,
+        String speciality,
         Long hospitalId,
         String hospitalName,
+        Long departmentId,
+        String departmentName,
         String emergencyContact,
         String bloodType,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) {
+        LocalDateTime updatedAt) {
 }

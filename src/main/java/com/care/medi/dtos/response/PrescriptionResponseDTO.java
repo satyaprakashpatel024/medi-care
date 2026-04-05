@@ -1,17 +1,21 @@
 package com.care.medi.dtos.response;
-import lombok.*;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class PrescriptionResponseDTO {
-    private Long id;
-    private Long patientId;
-    private String patientName;
-    private Long doctorId;
-    private String doctorName;
-    private String medications;
-    private String dosageInstructions;
-    private String notes;
-    private LocalDateTime createdAt;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder
+public record PrescriptionResponseDTO(
+        Long id,
+        Long patientId,
+        String patientName,
+        Long doctorId,
+        String doctorName,
+        String medications,
+        String dosageInstructions,
+        String notes,
+        LocalDateTime createdAt
+) {
 }

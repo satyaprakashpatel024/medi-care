@@ -16,31 +16,6 @@ import java.time.LocalDateTime;
 })
 @Schema(hidden = true)
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-//@NamedEntityGraphs({
-//        // Fetch everything needed for appointment detail view
-//        @NamedEntityGraph(
-//                name = "Appointment.withAll",
-//                attributeNodes = {
-//                        @NamedAttributeNode(value = "patient", subgraph = "patient.user"),
-//                        @NamedAttributeNode(value = "doctor",  subgraph = "doctor.user"),
-//                        @NamedAttributeNode("department"),
-//                        @NamedAttributeNode("prescription")
-//                },
-//                subgraphs = {
-//                        @NamedSubgraph(name = "patient.user", attributeNodes = @NamedAttributeNode("user")),
-//                        @NamedSubgraph(name = "doctor.user",  attributeNodes = @NamedAttributeNode("user"))
-//                }
-//        ),
-//        // Lightweight graph for list views
-//        @NamedEntityGraph(
-//                name = "Appointment.withPatientAndDoctor",
-//                attributeNodes = {
-//                        @NamedAttributeNode("patient"),
-//                        @NamedAttributeNode("doctor"),
-//                        @NamedAttributeNode("department")
-//                }
-//        )
-//})
 public class Appointment {
 
     @Id
@@ -79,7 +54,8 @@ public class Appointment {
     @Pattern(regexp = "^(SCHEDULED|CONFIRMED|COMPLETED|CANCELLED|NO_SHOW)$",
             message = "Invalid appointment status")
     @Column(nullable = false, length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
 
     @Size(max = 500)
     @Column(length = 500)

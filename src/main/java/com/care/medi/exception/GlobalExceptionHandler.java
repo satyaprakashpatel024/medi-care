@@ -1,6 +1,7 @@
 package com.care.medi.exception;
 
 import com.care.medi.dtos.response.ApiResponse;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +16,8 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleGenericException(Exception ex) {
-        ApiResponse response = ApiResponse.builder()
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleGenericException(Exception ex) {
+        ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
                 .message(ex.getMessage())
                 .success(false)
                 .errors("Internal Server Error...")
@@ -27,7 +28,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
 
         // Collect field errors into a simple map
         Map<String, String> errors = new HashMap<>();
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
         );
 
         // Build a clean ApiResponse
-        ApiResponse response = ApiResponse.builder()
+        ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
                 .message("Validation failed")
                 .success(false)
                 .errors(errors)
@@ -47,19 +48,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse> handleConstraintViolation(ConstraintViolationException ex) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleConstraintViolation(ConstraintViolationException ex) {
 
-        // Collect all error messages
-        Map<String, String> errors = ex.getConstraintViolations().stream()
-                .collect(Collectors.toMap(
-                        v -> v.getPropertyPath().toString(),
-                        v -> v.getMessage()
-                ));
-
-        ApiResponse response = ApiResponse.builder()
+        ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
                 .message("Validation failed..")
                 .success(false)
-                .errors(errors)
+                .errors(ex.getConstraintViolations().stream()
+                        .collect(Collectors.toMap(
+                                v -> v.getPropertyPath().toString(),
+                                ConstraintViolation::getMessage
+                        )))
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
 
@@ -67,9 +65,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse> handleNotFound(ResourceNotFoundException ex) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleNotFound(ResourceNotFoundException ex) {
 
-        ApiResponse response = ApiResponse.builder()
+        ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
                 .message(ex.getMessage())
                 .success(false)
                 .errors("Resource not found.")
@@ -80,9 +78,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse> handleBadRequest(IllegalArgumentException ex) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleBadRequest(IllegalArgumentException ex) {
 
-        ApiResponse response = ApiResponse.builder()
+        ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
                 .message(ex.getMessage())
                 .success(false)
                 .errors("Bad request.")
@@ -93,8 +91,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ApiResponse> handleBusinessException(BusinessException ex) {
-        ApiResponse apiResponse = ApiResponse.builder()
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleBusinessException(BusinessException ex) {
+        ApiResponse<Map<String, String>> apiResponse = ApiResponse.<Map<String, String>>builder()
                 .message(ex.getMessage())
                 .success(false)
                 .errors("Business error.")

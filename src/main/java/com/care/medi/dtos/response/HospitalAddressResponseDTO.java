@@ -1,20 +1,22 @@
 package com.care.medi.dtos.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import java.time.LocalDateTime;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class HospitalAddressResponseDTO {
-
-    private Long id;
-    private String phoneNumber;
-    private String addressLine1;
-    private String addressLine2;
-    private String city;
-    private String state;
-    private String postalCode;
-    private String country;
-    private String landmark;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder
+public record HospitalAddressResponseDTO (
+     Long id,
+     String phoneNumber,
+     String addressLine1,
+     String addressLine2,
+     String city,
+     String state,
+     String postalCode,
+     String country,
+     String landmark,
+     LocalDateTime createdAt,
+     LocalDateTime updatedAt
+){
 }
