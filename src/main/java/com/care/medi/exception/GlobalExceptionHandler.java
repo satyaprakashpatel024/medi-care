@@ -30,7 +30,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
 
-        // Collect field errors into a simple map
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
@@ -100,5 +99,16 @@ public class GlobalExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public  ResponseEntity<ApiResponse<Map<String, String>>> handleDuplicateResourceException(DuplicateResourceException ex) {
+        ApiResponse<Map<String,String>> apiResponse = ApiResponse.<Map<String, String>>builder()
+                .message(ex.getMessage())
+                .success(false)
+                .errors("Duplicate resource.")
+                .status(HttpStatus.BAD_REQUEST)
+                .build();
+        return  new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 }

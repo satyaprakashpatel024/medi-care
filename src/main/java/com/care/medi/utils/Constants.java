@@ -11,4 +11,6 @@ public final class Constants {
     public static final String DUPLICATE_HOSPITAL = "Hospital already found with this name : ";
     public static final String DUPLICATE_DEPARTMENT = "Department already found with this name : ";
     public static final String DUPLICATE_SPECIALITY = "Speciality already found with this name : ";
+    private  Constants() {
+    }
 }

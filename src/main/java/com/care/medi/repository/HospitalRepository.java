@@ -22,6 +22,6 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
     Set<Hospital> findAllWithAddressAndDepartments();
 
     @Override @NonNull
-    @EntityGraph(attributePaths = {"addresses", "hospitalDepartments",""})
+    @EntityGraph(attributePaths = {"addresses", "hospitalDepartments"})
     Page<Hospital> findAll(@NonNull Pageable pageable);
 }
