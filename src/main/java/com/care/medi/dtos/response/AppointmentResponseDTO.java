@@ -1,9 +1,12 @@
 package com.care.medi.dtos.response;
-import lombok.*;
+
+import com.care.medi.entity.Appointment;
+import com.care.medi.entity.Prescription;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-@Builder 
+@Builder
 public record AppointmentResponseDTO(
         Long id,
         Long patientId,
@@ -18,4 +21,26 @@ public record AppointmentResponseDTO(
         String diagnosis,
         String treatment,
         String notes,
-        LocalDateTime createdAt) { }
+        LocalDateTime createdAt) {
+
+
+    public static AppointmentResponseDTO fromEntity(Appointment appointment) {
+        return AppointmentResponseDTO.builder()
+                .id(appointment.getId())
+                .patientId(appointment.getPatient().getId())
+                .patientName(STR."\{appointment.getPatient().getFirstName()} \{appointment.getPatient().getLastName()}")
+                .doctorId(appointment.getDoctor().getId())
+                .doctorName(STR."\{appointment.getDoctor().getFirstName()} \{appointment.getDoctor().getLastName()}")
+                .departmentId(appointment.getDepartment().getId())
+                .departmentName(appointment.getDepartment().getName())
+                .prescriptionId(appointment.getPrescription().getId())
+                .appointmentDate(appointment.getAppointmentDate())
+                .status(appointment.getStatus().name())
+                .diagnosis(appointment.getDiagnosis())
+                .treatment(appointment.getTreatment())
+                .notes(appointment.getNotes())
+                .createdAt(appointment.getCreatedAt())
+                .build();
+    }
+
+}

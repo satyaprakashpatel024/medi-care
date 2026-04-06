@@ -26,7 +26,7 @@ public class HospitalServiceImpl implements HospitalService {
     private final HospitalRepository hospitalRepository;
     private final DepartmentRepository departmentRepository;
     private final HospitalDepartmentRepository hospitalDepartmentRepository;
-    private final HospitalAddressService hospitalAddressService;
+    private final HospitalAddressServiceImpl hospitalAddressServiceImpl;
     // ── Create ────────────────────────────────────────────────────────────────
 
     @Override
@@ -49,7 +49,7 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     public HospitalResponseDTO getHospitalById(Long id) {
         return toResponse(
-                 hospitalRepository.findByIdWithDepartments(id)
+                 hospitalRepository.findById(id)
                          .orElseThrow(()-> new ResourceNotFoundException(String.format("Hospital not found with id : %d", id)))
         );
     }
@@ -80,7 +80,7 @@ public class HospitalServiceImpl implements HospitalService {
 
         if (request.getName() != null) hospital.setName(request.getName());
         if (request.getPhone() != null) hospital.setPhone(request.getPhone());
-        if (request.getAddress() != null) hospital.addAddress(hospitalAddressService.createHospitalAddress(id, request.getAddress()));
+        if (request.getAddress() != null) hospital.addAddress(hospitalAddressServiceImpl.createHospitalAddress(id, request.getAddress()));
 
         return toResponse(hospitalRepository.save(hospital));
     }
@@ -89,7 +89,7 @@ public class HospitalServiceImpl implements HospitalService {
     public HospitalResponseDTO assignAddressToHospital(Long id, HospitalAddressRequestDTO addressRequest) {
         Hospital hospital = hospitalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Hospital with id %d not found", id)));
-        HospitalAddress hospitalAddress = hospitalAddressService.createHospitalAddress(id, addressRequest);
+        HospitalAddress hospitalAddress = hospitalAddressServiceImpl.createHospitalAddress(id, addressRequest);
         hospital.addAddress(hospitalAddress);
         return toResponse(hospitalRepository.save(hospital));
     }
@@ -166,7 +166,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     private Set<HospitalAddressResponseDTO> toHospitalAddressResponse(Set<HospitalAddress> addresses) {
         return addresses.stream()
-                .map(hospitalAddressService::toHospitalAddressResponse)
+                .map(hospitalAddressServiceImpl::toHospitalAddressResponse)
                 .collect(Collectors.toSet());
     }
 

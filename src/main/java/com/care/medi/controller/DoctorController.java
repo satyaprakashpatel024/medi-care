@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/doctors")
+@RequestMapping("/api/v1/doctors")
 @RequiredArgsConstructor
 public class DoctorController {
     private final DoctorServiceImpl doctorService;
@@ -85,56 +85,5 @@ public class DoctorController {
                         .message("Doctor deleted successfully...")
                         .success(true)
                         .build());
-    }
-
-    @GetMapping("dept/{departmentId}/hospital/{hospitalId}")
-    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorsByDepartmentId(
-            @PathVariable("departmentId") Long departmentId,
-            @PathVariable("hospitalId") Long hospitalId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(
-                ApiResponse.<Page<DoctorListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(STR."Doctors fetched successfully by DepartmentId : \{departmentId}")
-                        .data(doctorService.getDoctorsByDepartmentAndHospital(departmentId, hospitalId, page, size, sortBy))
-                        .success(true)
-                        .build()
-        );
-    }
-
-    @GetMapping("speciality")
-    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorBySpeciality(
-            @RequestParam("speciality") String speciality,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "id") String sortBy
-    ) {
-        return ResponseEntity.ok(
-                ApiResponse.<Page<DoctorListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(STR."Doctors fetched successfully by Speciality : \{speciality}")
-                        .data(doctorService.getDoctorsBySpeciality(speciality, page, size, sortBy))
-                        .success(true)
-                        .build()
-        );
-    }
-
-    @GetMapping("hospital/{hospitalId}")
-    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorsByHospital(
-            @PathVariable("hospitalId") Long hospitalId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "id") String sortBy
-    ) {
-        return ResponseEntity.ok(
-                ApiResponse.<Page<DoctorListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(STR."Doctors fetched successfully by HospitalId : \{hospitalId}")
-                        .data(doctorService.getDoctorsByHospital(hospitalId, page, size, sortBy))
-                        .success(true)
-                        .build()
-        );
     }
 }
