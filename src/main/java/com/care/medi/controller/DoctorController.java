@@ -2,9 +2,7 @@ package com.care.medi.controller;
 
 import com.care.medi.dtos.request.DoctorRequestDTO;
 import com.care.medi.dtos.request.DoctorUpdateRequestDTO;
-import com.care.medi.dtos.response.ApiResponse;
-import com.care.medi.dtos.response.DoctorListResponseDTO;
-import com.care.medi.dtos.response.DoctorResponseDTO;
+import com.care.medi.dtos.response.*;
 import com.care.medi.services.DoctorServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -85,5 +83,24 @@ public class DoctorController {
                         .message("Doctor deleted successfully...")
                         .success(true)
                         .build());
+    }
+
+    @GetMapping("/{id}/appointments")
+    public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByDoctor(
+            @PathVariable("id") Long id,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "5") Integer size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+
+        Page<AppointmentListResponseDTO> appointments = doctorService.getAppointmentsByDoctor(id, page, size, sortBy);
+
+        return ResponseEntity.ok(
+                ApiResponse.<Page<AppointmentListResponseDTO>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Doctor's appointments fetched successfully...")
+                        .data(appointments)
+                        .success(true)
+                        .build()
+        );
     }
 }

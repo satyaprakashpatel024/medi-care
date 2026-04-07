@@ -2,9 +2,7 @@ package com.care.medi.services;
 
 import com.care.medi.dtos.request.DoctorRequestDTO;
 import com.care.medi.dtos.request.DoctorUpdateRequestDTO;
-import com.care.medi.dtos.response.AddressResponseDTO;
-import com.care.medi.dtos.response.DoctorListResponseDTO;
-import com.care.medi.dtos.response.DoctorResponseDTO;
+import com.care.medi.dtos.response.*;
 import com.care.medi.entity.*;
 import com.care.medi.exception.DuplicateResourceException;
 import com.care.medi.exception.ResourceNotFoundException;
@@ -31,6 +29,7 @@ public class DoctorServiceImpl implements DoctorService {
     private final HospitalRepository hospitalRepository;
     private final DepartmentRepository departmentRepository;
     private final AddressServiceImpl addressService;
+    private final AppointmentService appointmentService;
 
     // ── Create ────────────────────────────────────────────────────────────────
 
@@ -228,5 +227,11 @@ public class DoctorServiceImpl implements DoctorService {
                 .createdAt(d.getCreatedAt())
                 .updatedAt(d.getUpdatedAt())
                 .build();
+    }
+
+    @Override
+    public Page<AppointmentListResponseDTO> getAppointmentsByDoctor(Long id, Integer page, Integer size, String sortBy) {
+        Page<AppointmentListResponseDTO> appointmentsByDoctor = appointmentService.getAppointmentsByDoctor(id, page, size, sortBy);
+        return appointmentsByDoctor;
     }
 }

@@ -2,6 +2,7 @@ package com.care.medi.services;
 
 import com.care.medi.dtos.request.DoctorRequestDTO;
 import com.care.medi.dtos.request.DoctorUpdateRequestDTO;
+import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.DoctorListResponseDTO;
 import com.care.medi.dtos.response.DoctorResponseDTO;
 import org.springframework.data.domain.Page;
@@ -22,4 +23,6 @@ public interface DoctorService {
     DoctorResponseDTO updateDoctor(Long id, DoctorUpdateRequestDTO request);
 
     void deleteDoctor(Long id);
+
+    Page<AppointmentListResponseDTO> getAppointmentsByDoctor(Long id, Integer page, Integer size, String sortBy);
 }

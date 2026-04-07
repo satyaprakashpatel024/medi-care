@@ -1,6 +1,7 @@
 package com.care.medi.services;
 
 import com.care.medi.dtos.request.AppointmentRequestDTO;
+import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
 
 import org.springframework.data.domain.Page;
@@ -16,7 +17,7 @@ public interface AppointmentService {
 
     void deleteAppointment(Long id);
 
-    Page<AppointmentResponseDTO> getAppointmentsByDoctor(Long doctorId, int page, int size, String sortBy);
+    Page<AppointmentListResponseDTO> getAppointmentsByDoctor(Long doctorId, int page, int size, String sortBy);
 
     Page<AppointmentResponseDTO> getAppointmentsByPatient(Long patientId, int page, int size, String sortBy);
 

@@ -53,9 +53,9 @@ public class Appointment {
     @NotBlank(message = "Status is required")
     @Pattern(regexp = "^(SCHEDULED|CONFIRMED|COMPLETED|CANCELLED|NO_SHOW)$",
             message = "Invalid appointment status")
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private AppointmentStatus status;
+    private AppointmentStatus status = AppointmentStatus.SCHEDULED;
 
     @Size(max = 500)
     @Column(length = 500)
