@@ -1,7 +1,6 @@
 package com.care.medi.dtos.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,10 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PrescriptionRequestDTO {
-    @NotNull
-    private Integer patientId;
-    @NotNull
-    private Integer doctorId;
     @NotBlank
     private String medications;
     private String dosageInstructions;

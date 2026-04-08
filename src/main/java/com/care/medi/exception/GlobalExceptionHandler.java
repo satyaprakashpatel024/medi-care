@@ -3,6 +3,7 @@ package com.care.medi.exception;
 import com.care.medi.dtos.response.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -110,5 +111,28 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
         return  new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResourceValidationException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(ResourceValidationException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.<Map<String, String>>builder()
+                        .success(false)
+                        .message("Multiple resources were not found..")
+                        .errors(ex.getErrors())
+                        .build());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public  ResponseEntity<ApiResponse<Map<String, String>>> handleBadRequest(BadRequestException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ApiResponse.<Map<String, String>>builder()
+                                .message(ex.getMessage())
+                                .success(false)
+                                .errors("Bad request.")
+                                .status(HttpStatus.BAD_REQUEST)
+                                .build()
+                );
     }
 }

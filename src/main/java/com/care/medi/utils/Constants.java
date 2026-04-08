@@ -11,6 +11,11 @@ public final class Constants {
     public static final String DUPLICATE_HOSPITAL = "Hospital already found with this name : ";
     public static final String DUPLICATE_DEPARTMENT = "Department already found with this name : ";
     public static final String DUPLICATE_SPECIALITY = "Speciality already found with this name : ";
+    public static final String APPOINTMENT_NOT_FOUND = "Appointment not found with id : ";
+    public static final String PATIENT_NOT_FOUND = "Patient not found with id : ";
+    public static final String PRESCRIPTION_CANNOT_BE_NULL = "Prescription cannot be null";
+    public static final String INVALID_STATUS = "Cannot cancel appointment with status : ";
+
     private  Constants() {
     }
 }

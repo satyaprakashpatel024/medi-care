@@ -6,18 +6,12 @@ import java.time.LocalDateTime;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class AppointmentRequestDTO {
-    @NotNull
-    private Integer patientId;
-    @NotNull
-    private Integer doctorId;
-    private Integer departmentId;
-    @NotNull @Future
+    @NotNull(message = "Patient is required.")
+    private Long patientId;
+    @NotNull(message = "Doctor is required")
+    private Long doctorId;
+    @NotNull(message = "Department is required")
+    private Long departmentId;
+    @NotNull @Future(message = "Appointment date must be in the future")
     private LocalDateTime appointmentDate;
-    @NotBlank @Pattern(regexp = "^(SCHEDULED|CONFIRMED|COMPLETED|CANCELLED|NO_SHOW)$")
-    private String status;
-    @Size(max = 500)
-    private String diagnosis;
-    @Size(max = 500)
-    private String treatment;
-    private String notes;
 }

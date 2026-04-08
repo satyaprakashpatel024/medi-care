@@ -46,20 +46,13 @@ public class Appointment {
     private Prescription prescription;
 
     @NotNull(message = "Appointment date is required")
-    @Future(message = "Appointment date must be in the future")
     @Column(name = "appointment_date", nullable = false)
     private LocalDateTime appointmentDate;
 
-    @NotBlank(message = "Status is required")
-    @Pattern(regexp = "^(SCHEDULED|CONFIRMED|COMPLETED|CANCELLED|NO_SHOW)$",
-            message = "Invalid appointment status")
+    @NotNull(message = "Status is required")
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status = AppointmentStatus.SCHEDULED;
-
-    @Size(max = 500)
-    @Column(length = 500)
-    private String diagnosis;
 
     @Size(max = 500)
     @Column(length = 500)

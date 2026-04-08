@@ -9,6 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 
 @RestController
@@ -45,12 +48,20 @@ public class DoctorController {
                         .build()
         );
     }
-
     @PostMapping
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> createDoctor(@RequestBody DoctorRequestDTO request) {
         DoctorResponseDTO doctor = doctorService.createDoctor(request);
-        return ResponseEntity.ok(
-                ApiResponse.<DoctorResponseDTO>builder()
+
+        // 1. Create a URI for the new resource (e.g., /doctors/5)
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(doctor.id())
+                .toUri();
+
+        // 2. Pass the URI into the .created() method
+        return ResponseEntity.created(location)
+                .body(ApiResponse.<DoctorResponseDTO>builder()
                         .status(HttpStatus.CREATED)
                         .message("Doctor created successfully...")
                         .data(doctor)
