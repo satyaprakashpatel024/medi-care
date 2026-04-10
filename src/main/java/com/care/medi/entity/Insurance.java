@@ -51,11 +51,13 @@ public class Insurance {
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Email format is invalid")
     private String providerContactEmail;
 
-    @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid provider phone number")
+    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+            message = "Invalid phone number, Please provide valid Indian Phone number.")
     private String providerPhoneNumber;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
+    @Column(nullable = false,name = "status")
     private InsuranceStatus status = InsuranceStatus.ACTIVE;
 
     // Relationships

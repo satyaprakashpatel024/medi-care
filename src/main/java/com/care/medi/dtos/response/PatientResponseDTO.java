@@ -6,6 +6,7 @@ import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,7 +21,8 @@ public record PatientResponseDTO(
         String emergencyContact,
         String bloodGroup,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        List<InsuranceResponseDTO> insurances
 ) {
     public static PatientResponseDTO fromEntity(Patient patient) {
         return PatientResponseDTO
@@ -36,6 +38,7 @@ public record PatientResponseDTO(
                 .lastName(patient.getLastName())
                 .createdAt(patient.getCreatedAt())
                 .updatedAt(patient.getUpdatedAt())
+                .insurances(patient.getInsurances().stream().map(InsuranceResponseDTO::fromEntity).toList())
                 .build();
     }
 }

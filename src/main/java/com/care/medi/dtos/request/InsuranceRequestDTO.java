@@ -27,6 +27,10 @@ public class InsuranceRequestDTO {
         @PositiveOrZero(message = "Deductible cannot be negative")
         private Double deductible;
 
+        @NotNull(message = "Insurance status is required")
+        @Pattern(regexp = "^(?:ACTIVE|EXPIRED|CANCELLED|PENDING_VERIFICATION)$", message = "Invalid insurance status")
+        private String insuranceStatus;
+
         @NotNull(message = "Start date is required")
         private LocalDate startDate;
 
@@ -34,9 +38,7 @@ public class InsuranceRequestDTO {
         @Future(message = "Expiry date must be in the future")
         private LocalDate expiryDate;
 
-        @NotBlank(message = "Network type (HMO/PPO) is required")
-        private String networkType;
-
+        @NotNull(message = "Provider contact email is required")
         @Email(message = "Invalid email format")
         private String providerContactEmail;
 

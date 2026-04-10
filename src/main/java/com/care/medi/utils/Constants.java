@@ -15,6 +15,9 @@ public final class Constants {
     public static final String PATIENT_NOT_FOUND = "Patient not found with id : ";
     public static final String PRESCRIPTION_CANNOT_BE_NULL = "Prescription cannot be null";
     public static final String INVALID_STATUS = "Cannot cancel appointment with status : ";
+    public static final String INSURANCE_NOT_FOUND = "Insurance not found with id : ";
+    public static final String DUPLICATE_INSURANCE = "Insurance already found with this policy number : ";
+    public static final String DUPLICATE_EMAIL_ID = "Patient  is already registered with this email : ";
 
     private  Constants() {
     }
