@@ -71,7 +71,7 @@ public class DoctorServiceImpl implements DoctorService {
                 .hospital(hospital)
                 .department(department)
                 .emergencyContact(request.getEmergencyContact())
-                .bloodType(BloodType.valueOf(request.getBloodType()))
+                .bloodGroup(BloodGroup.valueOf(request.getBloodType()))
                 .build();
 
         return toResponse(doctorRepository.save(doctor));
@@ -155,7 +155,7 @@ public class DoctorServiceImpl implements DoctorService {
         if (request.getPhone() != null) doctor.setPhone(request.getPhone());
         if (request.getSpeciality() != null) doctor.setSpeciality(request.getSpeciality());
         if (request.getEmergencyContact() != null) doctor.setEmergencyContact(request.getEmergencyContact());
-        if (request.getBloodType() != null) doctor.setBloodType(BloodType.valueOf(request.getBloodType()));
+        if (request.getBloodType() != null) doctor.setBloodGroup(BloodGroup.valueOf(request.getBloodType()));
 
         if (request.getHospitalId() != null) {
             Hospital hospital = hospitalRepository.findById(request.getHospitalId())
@@ -197,7 +197,7 @@ public class DoctorServiceImpl implements DoctorService {
                 .departmentId(d.getDepartment() != null ? d.getDepartment().getId() : null)
                 .departmentName(d.getDepartment() != null ? d.getDepartment().getName() : null)
                 .emergencyContact(d.getEmergencyContact())
-                .bloodType(d.getBloodType().toString())
+                .bloodType(d.getBloodGroup().toString())
                 .createdAt(d.getCreatedAt())
                 .updatedAt(d.getUpdatedAt())
                 .addresses(toAddressResponse(d.getAddresses()))
@@ -223,7 +223,6 @@ public class DoctorServiceImpl implements DoctorService {
                 .departmentId(d.getDepartment() != null ? d.getDepartment().getId() : null)
                 .departmentName(d.getDepartment() != null ? d.getDepartment().getName() : null)
                 .emergencyContact(d.getEmergencyContact())
-                .bloodType(d.getBloodType().toString())
                 .createdAt(d.getCreatedAt())
                 .updatedAt(d.getUpdatedAt())
                 .build();

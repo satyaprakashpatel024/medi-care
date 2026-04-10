@@ -4,8 +4,8 @@ import com.care.medi.dtos.request.AppointmentRequestDTO;
 import com.care.medi.dtos.request.AppointmentRescheduleDTO;
 import com.care.medi.dtos.request.AppointmentUpdateRequestDTO;
 import com.care.medi.dtos.response.ApiResponse;
+import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
-import com.care.medi.services.AppointmentService;
 import com.care.medi.services.AppointmentServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class AppointmentController {
     private final AppointmentServiceImpl appointmentService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(@PathVariable("id") Long id){
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(@PathVariable("id") Long id) {
         AppointmentResponseDTO appointmentById = appointmentService.getAppointmentById(id);
         return ResponseEntity.ok(
                 ApiResponse.<AppointmentResponseDTO>builder()
@@ -38,9 +38,9 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAll(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "5") Integer size, @RequestParam(defaultValue = "id") String sortBy) {
+    public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAll(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "5") Integer size, @RequestParam(defaultValue = "id") String sortBy) {
         return ResponseEntity.ok(
-                ApiResponse.<Page<AppointmentResponseDTO>>builder()
+                ApiResponse.<Page<AppointmentListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message("All appointments fetched successfully...")
                         .data(appointmentService.getAllAppointments(page, size, sortBy))
@@ -86,7 +86,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/reschedule/{id}")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(@PathVariable("id") Long id ,@RequestBody @Valid AppointmentRescheduleDTO request) {
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(@PathVariable("id") Long id, @RequestBody @Valid AppointmentRescheduleDTO request) {
         AppointmentResponseDTO response = appointmentService.rescheduleAppointment(id, request);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
@@ -112,12 +112,29 @@ public class AppointmentController {
     }
 
     @PutMapping("{id}/cancel")
-    public  ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(@PathVariable("id") Long id) {
         appointmentService.cancelAppointment(id);
-        return  ResponseEntity.accepted().body(
+        return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
                         .status(HttpStatus.ACCEPTED)
                         .message("Appointment cancelled successfully...")
+                        .success(true)
+                        .build()
+        );
+    }
+
+    @GetMapping("/patient/{id}")
+    public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllByPatientId(
+            @PathVariable("id") Long patientId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "5") Integer size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        Page<AppointmentResponseDTO> appointmentsByPatient = appointmentService.getAppointmentsByPatient(patientId, page, size, sortBy);
+        return ResponseEntity.ok(
+                ApiResponse.<Page<AppointmentResponseDTO>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Appointments fetched by patient id successfully...")
+                        .data(appointmentsByPatient)
                         .success(true)
                         .build()
         );

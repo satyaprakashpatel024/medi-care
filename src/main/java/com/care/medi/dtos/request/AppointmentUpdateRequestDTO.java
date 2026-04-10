@@ -1,9 +1,6 @@
 package com.care.medi.dtos.request;
-import com.care.medi.entity.Prescription;
 import jakarta.validation.constraints.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class AppointmentUpdateRequestDTO {

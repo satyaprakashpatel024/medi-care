@@ -36,10 +36,10 @@ public class AppointmentServiceImpl implements AppointmentService{
     private final DepartmentRepository departmentRepository;
 
     @Override
-    public Page<AppointmentResponseDTO> getAllAppointments(int page, int size, String sortBy) {
+    public Page<AppointmentListResponseDTO> getAllAppointments(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Appointment> all = appointmentRepository.findAll(pageable);
-        return all.map(AppointmentResponseDTO::fromEntity);
+        return all.map(AppointmentListResponseDTO::fromEntity);
     }
 
     @Override
@@ -169,7 +169,9 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     @Override
     public Page<AppointmentResponseDTO> getAppointmentsByPatient(Long patientId, int page, int size, String sortBy) {
-        return null;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<Appointment> byPatientId = appointmentRepository.findByPatientId(patientId, pageable);
+        return byPatientId.map(AppointmentResponseDTO::fromEntity);
     }
 
     @Override

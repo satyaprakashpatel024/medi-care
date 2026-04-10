@@ -46,7 +46,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     """)
     Page<AppointmentListResponseDTO> findByDoctorId(Long doctorId, Pageable pageable);
 
-//    Page<Appointment> findByPatientId(Long patientId,Pageable pageable);
+    @EntityGraph(attributePaths = {"patient","department","doctor","prescription"})
+    Page<Appointment> findByPatientId(Long patientId, Pageable pageable);
+
 //
 //    Page<Appointment> findByDepartmentId(Long departmentId,Pageable pageable);
 //

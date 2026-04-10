@@ -4,14 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "users", indexes = {
@@ -36,15 +35,16 @@ public class Users {
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
+    @NotNull(message = "Role is required")
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Role is required")
-    @Pattern(regexp = "^(PATIENT|DOCTOR|STAFF|ADMIN|RECEPTIONIST)$", message = "Role must be one of: PATIENT, DOCTOR, STAFF, ADMIN, RECEPTIONIST")
     @Column(nullable = false, length = 20)
-    private Role role;
+    @Builder.Default
+    private Role role = Role.GUEST;
 
+    @NotNull
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
@@ -53,10 +53,20 @@ public class Users {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // Automatically updates whenever the entity is modified
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-    //    --- for Bidirectional Mapping
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Address> addresses = new LinkedHashSet<>();
+    /**
+     * Logic-based constraints:
+     * This ensures that when a user is first created, lastLogin is null
+     * until their first successful authentication.
+     */
+    public void markLogin() {
+        this.lastLogin = LocalDateTime.now();
+    }
 }

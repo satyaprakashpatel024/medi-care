@@ -30,22 +30,23 @@ public class Staff {
     private Users user;
 
     @NotBlank(message = "First name is required")
-    @Size(max = 100)
+    @Size(min = 5, max = 100,message = "First name must be between 5 and 100 characters")
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
     @NotBlank(message = "Last name is required")
-    @Size(max = 100)
+    @Size(min = 5, max = 100,message = "Last name must be between 5 and 100 characters")
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
     @Past(message = "Date of birth must be in the past")
     @Column(name = "date_of_birth")
+    @NotNull(message = "Date of birth is required")
     private LocalDate dateOfBirth;
 
-    @Pattern(regexp = "^(MALE|FEMALE|OTHER)$", message = "Gender must be MALE, FEMALE, or OTHER")
+    @Enumerated(EnumType.STRING)
     @Column(length = 10)
-    private String gender;
+    private Gender gender;
 
     @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
     @Column(length = 20)
@@ -59,9 +60,9 @@ public class Staff {
     @Column(name = "emergency_contact")
     private String emergencyContact;
 
-    @Pattern(regexp = "^(A|B|AB|O)[+-]$", message = "Invalid blood type")
-    @Column(name = "blood_type", length = 5)
-    private String bloodType;
+    @Column(name = "blood_group", length = 7)
+    @Enumerated(EnumType.STRING)
+    private BloodGroup bloodType;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

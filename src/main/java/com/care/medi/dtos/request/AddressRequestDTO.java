@@ -5,23 +5,32 @@ import lombok.*;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class AddressRequestDTO {
-    @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$")
-    private String phoneNumber;
-    @NotBlank @Size(max = 255)
+    @Pattern(
+            regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+            message = "Invalid Indian phone number"
+    )
+    private String phone;
+    @NotBlank(message = "Address line 1 is required.")
+    @Size(max = 255)
     private String addressLine1;
     @Size(max = 255)
     private String addressLine2;
-    @NotBlank @Size(max = 100)
+    @NotBlank(message = "City is required.")
+    @Size(max = 100)
     private String city;
-    @NotBlank @Size(max = 100)
+    @NotBlank(message = "State is required.")
+    @Size(max = 100)
     private String state;
-    @NotBlank @Size(max = 20)
+    @NotBlank(message = "Postal code is required.")
+    @Size(max = 6,message = "Invalid postal code.")
     private String postalCode;
-    @NotBlank @Size(max = 100)
+    @NotBlank
+    @Size(max = 100)
     private String country;
     @Size(max = 255)
+    @NotBlank(message = "Landmark is required.")
     private String landmark;
-    @Pattern(regexp = "^(HOME|WORK|BILLING|SHIPPING)$")
+    @Pattern(regexp = "^(HOME|WORK)$")
     private String addressType;
     private Boolean isDefault;
 }

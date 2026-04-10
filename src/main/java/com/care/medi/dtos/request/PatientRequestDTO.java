@@ -13,22 +13,26 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientRequestDTO {
-    @NotNull
-    private Integer userId;
-    @NotBlank
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Invalid email format.")
+    @Size(max = 255, message = "Email must be at most 255 characters long")
+    private String email;
+    @NotBlank(message = "First name is required.")
     @Size(max = 100)
     private String firstName;
-    @NotBlank
+    @NotBlank(message = "Last name is required.")
     @Size(max = 100)
     private String lastName;
-    @Past
+    @Past(message = "Date of birth must be in the past.")
+    @NotNull(message = "Date of birth is required.")
     private LocalDate dateOfBirth;
     @Pattern(regexp = "^(MALE|FEMALE|OTHER)$")
     private String gender;
-    @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$")
+    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+            message = "Invalid phone number, Please provide valid Indian Phone number.")
     private String phone;
     @Size(max = 255)
     private String emergencyContact;
-    @Pattern(regexp = "^(A|B|AB|O)[+-]$")
-    private String bloodType;
+    @Pattern(regexp = "^(A_POS|B_POS|AB_POS|O_POS|A_NEG|B_NEG|AB_NEG|O_NEG)$")
+    private String bloodGroup;
 }

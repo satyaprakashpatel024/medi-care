@@ -21,7 +21,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     Page<Doctor> findAll(@NonNull Pageable pageable);
 
     @Override @NonNull
-    @EntityGraph(attributePaths = {"user", "user.addresses", "hospital", "department"})
+    @EntityGraph(attributePaths = {"user", "hospital", "department"})
     Optional<Doctor> findById(@NonNull Long id);
 
     boolean existsByUserId(@NotNull Long userId);

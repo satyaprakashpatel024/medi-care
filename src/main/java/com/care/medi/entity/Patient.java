@@ -48,12 +48,12 @@ public class Patient {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @Pattern(regexp = "^(MALE|FEMALE|OTHER)$", message = "Gender must be MALE, FEMALE, or OTHER")
     @Column(length = 10)
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
+    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+            message = "Invalid phone number, Please provide valid Indian Phone number.")
     @Column(length = 20)
     private String phone;
 
@@ -61,9 +61,9 @@ public class Patient {
     @Column(name = "emergency_contact")
     private String emergencyContact;
 
-    @Column(name = "blood_type", length = 7)
+    @Column(name = "blood_group", length = 7)
     @Enumerated(EnumType.STRING)
-    private BloodType bloodType;
+    private BloodGroup bloodGroup;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -94,4 +94,5 @@ public class Patient {
         prescriptions.add(prescription);
         prescription.setPatient(this);
     }
+
 }

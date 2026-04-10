@@ -8,7 +8,8 @@ import lombok.*;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class HospitalAddressRequestDTO {
 
-    @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number format")
+    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+            message = "Invalid phone number, Please provide valid Indian Phone number.")
     private String phoneNumber;
 
     @NotBlank(message = "Address line 1 is required")

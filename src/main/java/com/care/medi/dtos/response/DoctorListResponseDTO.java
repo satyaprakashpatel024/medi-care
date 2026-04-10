@@ -21,7 +21,6 @@ public record DoctorListResponseDTO(
         Long departmentId,
         String departmentName,
         String emergencyContact,
-        String bloodType,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {
 }

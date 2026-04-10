@@ -40,5 +40,4 @@ public record AppointmentResponseDTO(
                 .createdAt(appointment.getCreatedAt())
                 .build();
     }
-
 }

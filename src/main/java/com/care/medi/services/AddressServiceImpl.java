@@ -32,7 +32,7 @@ public class AddressServiceImpl implements AddressService {
 
         Address address = Address.builder()
                 .user(user)
-                .phoneNumber(request.getPhoneNumber())
+                .phoneNumber(request.getPhone())
                 .addressLine1(request.getAddressLine1())
                 .addressLine2(request.getAddressLine2())
                 .city(request.getCity())
@@ -81,7 +81,7 @@ public class AddressServiceImpl implements AddressService {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.ADDRESS_NOT_FOUND + id));
 
-        if (request.getPhoneNumber() != null) address.setPhoneNumber(request.getPhoneNumber());
+        if (request.getPhone() != null) address.setPhoneNumber(request.getPhone());
         if (request.getAddressLine1() != null) address.setAddressLine1(request.getAddressLine1());
         if (request.getAddressLine2() != null) address.setAddressLine2(request.getAddressLine2());
         if (request.getCity() != null) address.setCity(request.getCity());

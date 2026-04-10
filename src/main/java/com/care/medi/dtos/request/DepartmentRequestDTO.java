@@ -5,6 +5,7 @@ import lombok.*;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class DepartmentRequestDTO {
-    @NotBlank @Size(max = 150)
+    @NotBlank(message = "Department Name is required.")
+    @Size(max = 150)
     private String name;
 }

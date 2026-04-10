@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface AppointmentService {
-    Page<AppointmentResponseDTO> getAllAppointments(int page, int size, String sortBy);
+    Page<AppointmentListResponseDTO> getAllAppointments(int page, int size, String sortBy);
 
     AppointmentResponseDTO createAppointment(AppointmentRequestDTO request);
 

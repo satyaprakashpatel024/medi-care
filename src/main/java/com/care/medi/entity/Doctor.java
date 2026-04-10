@@ -34,31 +34,33 @@ public class Doctor {
     private Users user;
 
     @NotBlank(message = "First name is required")
-    @Size(max = 100)
+    @Size(min = 5, max = 100,message = "First name must be between 5 and 100 characters.")
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
     @NotBlank(message = "Last name is required")
-    @Size(max = 100)
+    @Size(min = 5, max = 100,message = "Last name must be between 5 and 100 characters.")
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Past(message = "Date of birth must be in the past")
+    @NotNull(message = "Date of birth is required")
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @Pattern(regexp = "^(MALE|FEMALE|OTHER)$", message = "Gender must be MALE, FEMALE, or OTHER")
+    @NotNull(message = "Gender is required")
     @Column(length = 10)
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
+    @NotNull(message = "Phone number is required")
+    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+            message = "Invalid phone number, Please provide valid Indian Phone number.")
     @Column(length = 20)
     private String phone;
 
     @NotBlank(message = "Speciality is required")
-    @Size(max = 150)
-    @Column(nullable = false, length = 150)
+    @Size(max = 50)
+    @Column(nullable = false, length = 50)
     private String speciality;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -73,10 +75,9 @@ public class Doctor {
     @Column(name = "emergency_contact")
     private String emergencyContact;
 
-    @Pattern(regexp = "^(A|B|AB|O)[+-]$", message = "Invalid blood type")
-    @Column(name = "blood_type", length = 7)
+    @Column(name = "blood_group", length = 7)
     @Enumerated(EnumType.STRING)
-    private BloodType bloodType;
+    private BloodGroup bloodGroup;
 
     @Builder.Default
     @Column(name = "is_active", nullable = false)

@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/hospitals")
+    @RequestMapping("/api/v1/hospitals")
 @RequiredArgsConstructor
 public class HospitalController {
 
@@ -75,7 +75,7 @@ public class HospitalController {
         );
     }
 
-    @GetMapping("hospital/{hospitalId}")
+    @GetMapping("/{hospitalId}/doctors")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorsByHospital(
             @PathVariable("hospitalId") Long hospitalId,
             @RequestParam(defaultValue = "0") int page,
@@ -93,7 +93,7 @@ public class HospitalController {
     }
 
 
-    @GetMapping("speciality")
+    @GetMapping("/speciality")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorBySpeciality(
             @RequestParam("speciality") String speciality,
             @RequestParam(defaultValue = "0") int page,
@@ -110,10 +110,10 @@ public class HospitalController {
         );
     }
 
-    @GetMapping("dept/{departmentId}/hospital/{hospitalId}")
+    @GetMapping("/{hospitalId}/dept/{departmentId}")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorsByDepartmentId(
-            @PathVariable("departmentId") Long departmentId,
             @PathVariable("hospitalId") Long hospitalId,
+            @PathVariable("departmentId") Long departmentId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sortBy) {
