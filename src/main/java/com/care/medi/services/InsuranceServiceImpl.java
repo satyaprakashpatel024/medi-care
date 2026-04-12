@@ -1,4 +1,4 @@
 package com.care.medi.services;
 
-public class InsuranceServiceImpl implements  InsuranceService {
+public class InsuranceServiceImpl implements InsuranceService {
 }

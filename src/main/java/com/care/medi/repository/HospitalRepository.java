@@ -15,14 +15,16 @@ import java.util.Set;
 @Repository
 public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
-    @Override @NonNull
+    @Override
+    @NonNull
     @EntityGraph(attributePaths = {"hospitalDepartments", "hospitalDepartments.department", "addresses"})
     Optional<Hospital> findById(Long id);
 
     @Query("SELECT h FROM Hospital h JOIN FETCH h.addresses a JOIN FETCH h.hospitalDepartments hd JOIN FETCH hd.department d")
     Set<Hospital> findAllWithAddressAndDepartments();
 
-    @Override @NonNull
+    @Override
+    @NonNull
     @EntityGraph(attributePaths = {"addresses", "hospitalDepartments"})
     Page<Hospital> findAll(@NonNull Pageable pageable);
 }

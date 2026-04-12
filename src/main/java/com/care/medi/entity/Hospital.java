@@ -2,7 +2,9 @@ package com.care.medi.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
@@ -26,12 +28,13 @@ public class Hospital {
     private Long id;
 
     @NotBlank(message = "Hospital name is required")
-    @Size(max = 255)
+    @Size(min = 10, max = 255, message = "Hospital name must be between 10 and 255 characters")
     @Column(nullable = false)
     private String name;
 
-    @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
-    @Column(length = 20)
+    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+            message = "Invalid phone number, Please provide valid Indian Phone number.")
+    @Column(length = 15)
     private String phone;
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -50,6 +53,11 @@ public class Hospital {
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Doctor> doctors = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    @JoinColumn(name = "hospital_id")
+    private List<Appointment> appointments = new ArrayList<>();
 
     public void addAddress(HospitalAddress address) {
         addresses.add(address);

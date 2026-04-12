@@ -1,7 +1,7 @@
 package com.care.medi.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 

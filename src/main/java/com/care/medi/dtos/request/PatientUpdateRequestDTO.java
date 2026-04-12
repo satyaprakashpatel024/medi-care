@@ -15,9 +15,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientUpdateRequestDTO {
-    @Size(min = 5, max = 100,message = "First name must be between 5 and 100 characters.")
+    @Size(min = 5, max = 100, message = "First name must be between 5 and 100 characters.")
     private String firstName;
-    @Size(min = 5, max = 100,message = "Last name must be between 5 and 100 characters.")
+    @Size(min = 5, max = 100, message = "Last name must be between 5 and 100 characters.")
     private String lastName;
     @Past(message = "Date of birth must be in the past.")
     private LocalDate dateOfBirth;

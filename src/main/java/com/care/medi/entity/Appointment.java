@@ -2,7 +2,8 @@ package com.care.medi.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -15,7 +16,11 @@ import java.time.LocalDateTime;
         @Index(name = "idx_appt_date", columnList = "appointment_date")
 })
 @Schema(hidden = true)
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Appointment {
 
     @Id
@@ -60,6 +65,12 @@ public class Appointment {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_appt_hospital"))
+    @NotNull(message = "Hospital is required")
+    private Hospital hospital;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

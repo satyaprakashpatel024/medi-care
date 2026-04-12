@@ -12,10 +12,16 @@ import java.util.List;
 
 public interface PatientService {
     Page<PatientListResponseDTO> getAllPatients(int page, int size, String sortBy);
+
     PatientResponseDTO getPatientById(Long id);
+
     PatientResponseDTO createPatient(PatientRequestDTO patient);
+
     PatientResponseDTO updatePatient(Long id, PatientUpdateRequestDTO patient);
+
     void deletePatient(Long id);
+
     InsuranceResponseDTO assignInsurance(Long patientId, InsuranceRequestDTO insurance);
+
     List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId);
 }

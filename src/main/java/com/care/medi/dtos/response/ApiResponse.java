@@ -10,7 +10,7 @@ public record ApiResponse<T>(
         String message,
         boolean success,
         T data,
-        Object errors,
+        T errors,
         HttpStatus status
 ) {
 }

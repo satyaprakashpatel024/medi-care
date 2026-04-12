@@ -2,16 +2,22 @@ package com.care.medi.controller;
 
 import com.care.medi.dtos.request.DoctorRequestDTO;
 import com.care.medi.dtos.request.DoctorUpdateRequestDTO;
-import com.care.medi.dtos.response.*;
+import com.care.medi.dtos.response.ApiResponse;
+import com.care.medi.dtos.response.AppointmentListResponseDTO;
+import com.care.medi.dtos.response.DoctorListResponseDTO;
+import com.care.medi.dtos.response.DoctorResponseDTO;
 import com.care.medi.services.DoctorServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 
 @RestController
@@ -21,11 +27,12 @@ public class DoctorController {
     private final DoctorServiceImpl doctorService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getAllDoctors(
+    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getAllActiveDoctors(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        Page<DoctorListResponseDTO> allDoctors = doctorService.getAllDoctors(page, size, sortBy);
+            @RequestParam(defaultValue = "id") String sortBy
+    ) {
+        Page<DoctorListResponseDTO> allDoctors = doctorService.getAllActiveDoctors( page, size, sortBy);
         return ResponseEntity.ok(
                 ApiResponse.<Page<DoctorListResponseDTO>>builder()
                         .status(HttpStatus.OK)
@@ -48,6 +55,7 @@ public class DoctorController {
                         .build()
         );
     }
+
     @PostMapping
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> createDoctor(@RequestBody DoctorRequestDTO request) {
         DoctorResponseDTO doctor = doctorService.createDoctor(request);
@@ -101,14 +109,19 @@ public class DoctorController {
             @PathVariable("id") Long id,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
-            @RequestParam(defaultValue = "id") String sortBy) {
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
 
-        Page<AppointmentListResponseDTO> appointments = doctorService.getAppointmentsByDoctor(id, page, size, sortBy);
+        LocalDate filterDate = (date != null) ? date : LocalDate.now();
+        String msg = String.format("Successfully retrieved appointments for Doctor ID %d on %s.",
+                id, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 
+        Page<AppointmentListResponseDTO> appointments = doctorService.getAppointmentsByDoctorAndDate(id, page, size, sortBy, filterDate);
         return ResponseEntity.ok(
                 ApiResponse.<Page<AppointmentListResponseDTO>>builder()
                         .status(HttpStatus.OK)
-                        .message("Doctor's appointments fetched successfully...")
+                        .message(msg)
                         .data(appointments)
                         .success(true)
                         .build()

@@ -28,7 +28,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PatientServiceImpl implements PatientService {
 
-    private  final PatientRepository patientRepository;
+    private final PatientRepository patientRepository;
     private final UserRepository userRepository;
     private final InsuranceRepository insuranceRepository;
 
@@ -42,8 +42,8 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientResponseDTO getPatientById(Long id) {
         Optional<Patient> byId = patientRepository.findById(id);
-        if(byId.isEmpty()) {
-            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND+ id);
+        if (byId.isEmpty()) {
+            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + id);
         }
         return PatientResponseDTO.fromEntity(byId.get());
     }
@@ -52,7 +52,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientResponseDTO createPatient(PatientRequestDTO patient) {
         if (userRepository.existsByEmail(patient.getEmail())) {
-            throw new DuplicateResourceException(Constants.DUPLICATE_EMAIL_ID + patient.getEmail());
+            throw new DuplicateResourceException(Constants.DUPLICATE_EMAIL + patient.getEmail());
         }
         Users user = Users.builder()
                 .email(patient.getEmail())
@@ -122,8 +122,8 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public InsuranceResponseDTO assignInsurance(Long patientId, InsuranceRequestDTO request) {
         Optional<Patient> byId = patientRepository.findById(patientId);
-        if(byId.isEmpty()) {
-            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND+ patientId);
+        if (byId.isEmpty()) {
+            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
         }
 
         Insurance insurance = Insurance.builder()

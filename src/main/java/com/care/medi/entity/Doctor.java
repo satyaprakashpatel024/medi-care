@@ -2,7 +2,10 @@ package com.care.medi.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,7 +24,11 @@ import java.util.List;
         @Index(name = "idx_doctors_hospital_id", columnList = "hospital_id"),
         @Index(name = "idx_doctors_department_id", columnList = "department_id")
 })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Doctor {
 
     @Id
@@ -34,12 +41,12 @@ public class Doctor {
     private Users user;
 
     @NotBlank(message = "First name is required")
-    @Size(min = 5, max = 100,message = "First name must be between 5 and 100 characters.")
+    @Size(min = 5, max = 100, message = "First name must be between 5 and 100 characters.")
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
     @NotBlank(message = "Last name is required")
-    @Size(min = 5, max = 100,message = "Last name must be between 5 and 100 characters.")
+    @Size(min = 5, max = 100, message = "Last name must be between 5 and 100 characters.")
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 

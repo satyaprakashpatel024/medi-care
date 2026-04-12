@@ -1,9 +1,17 @@
 package com.care.medi.dtos.request;
 
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AddressRequestDTO {
     @Pattern(
             regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
@@ -22,7 +30,7 @@ public class AddressRequestDTO {
     @Size(max = 100)
     private String state;
     @NotBlank(message = "Postal code is required.")
-    @Size(max = 6,message = "Invalid postal code.")
+    @Size(max = 6, message = "Invalid postal code.")
     private String postalCode;
     @NotBlank
     @Size(max = 100)

@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-    @RequestMapping("/api/v1/hospitals")
+@RequestMapping("/api/v1/hospitals")
 @RequiredArgsConstructor
 public class HospitalController {
 
@@ -31,7 +31,7 @@ public class HospitalController {
                 ApiResponse.<Page<HospitalResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message("All hospitals fetched successfully")
-                        .data(hospitalService.getAllHospitals(page,size,sortBy))
+                        .data(hospitalService.getAllHospitals(page, size, sortBy))
                         .success(true)
                         .build()
         );
@@ -63,10 +63,10 @@ public class HospitalController {
     }
 
     @PutMapping("/{id}")
-    public  ResponseEntity<ApiResponse<HospitalResponseDTO>> updateHospital(@PathVariable("id") Long id,@Valid @RequestBody HospitalUpdateRequestDTO request) {
+    public ResponseEntity<ApiResponse<HospitalResponseDTO>> updateHospital(@PathVariable("id") Long id, @Valid @RequestBody HospitalUpdateRequestDTO request) {
         return ResponseEntity.ok(
                 ApiResponse.<HospitalResponseDTO>
-                        builder()
+                                builder()
                         .status(HttpStatus.ACCEPTED)
                         .message("Hospital updated successfully")
                         .data(hospitalService.updateHospital(id, request))
@@ -76,7 +76,7 @@ public class HospitalController {
     }
 
     @GetMapping("/{hospitalId}/doctors")
-    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorsByHospital(
+    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getActiveDoctorsByHospital(
             @PathVariable("hospitalId") Long hospitalId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -86,7 +86,7 @@ public class HospitalController {
                 ApiResponse.<Page<DoctorListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(STR."Doctors fetched successfully by HospitalId : \{hospitalId}")
-                        .data(doctorService.getDoctorsByHospital(hospitalId, page, size, sortBy))
+                        .data(doctorService.getActiveDoctorsByHospital(hospitalId, page, size, sortBy))
                         .success(true)
                         .build()
         );
@@ -94,7 +94,7 @@ public class HospitalController {
 
 
     @GetMapping("/speciality")
-    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorBySpeciality(
+    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getActiveDoctorBySpeciality(
             @RequestParam("speciality") String speciality,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -104,7 +104,7 @@ public class HospitalController {
                 ApiResponse.<Page<DoctorListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(STR."Doctors fetched successfully by Speciality : \{speciality}")
-                        .data(doctorService.getDoctorsBySpeciality(speciality, page, size, sortBy))
+                        .data(doctorService.getActiveDoctorsBySpeciality(speciality,  page, size, sortBy))
                         .success(true)
                         .build()
         );
@@ -121,7 +121,7 @@ public class HospitalController {
                 ApiResponse.<Page<DoctorListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(STR."Doctors fetched successfully by DepartmentId : \{departmentId}")
-                        .data(doctorService.getDoctorsByDepartmentAndHospital(departmentId, hospitalId, page, size, sortBy))
+                        .data(doctorService.getActiveDoctorsByDepartmentAndHospital(departmentId, hospitalId, page, size, sortBy))
                         .success(true)
                         .build()
         );

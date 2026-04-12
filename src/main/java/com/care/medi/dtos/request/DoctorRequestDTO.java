@@ -1,20 +1,26 @@
 package com.care.medi.dtos.request;
 
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DoctorRequestDTO {
     @NotNull(message = "Email is required.")
     @Email(message = "Invalid email format.")
     private String email;
     @NotBlank(message = "First name is required.")
-    @Size(min = 5, max = 100,message = "First name must be between 5 and 100 characters.")
+    @Size(min = 5, max = 100, message = "First name must be between 5 and 100 characters.")
     private String firstName;
     @NotBlank(message = "Last name is required.")
-    @Size(min = 5, max = 100,message = "Last name must be between 5 and 100 characters.")
+    @Size(min = 5, max = 100, message = "Last name must be between 5 and 100 characters.")
     private String lastName;
     @Past(message = "Date of birth must be in the past.")
     @NotNull(message = "Date of birth is required.")

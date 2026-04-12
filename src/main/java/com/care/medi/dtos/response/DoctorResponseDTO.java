@@ -1,6 +1,7 @@
 package com.care.medi.dtos.response;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,22 +9,22 @@ import java.util.List;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record DoctorResponseDTO (
-     Long id,
-     String firstName,
-     String lastName,
-     LocalDate dateOfBirth,
-     String gender,
-     String phone,
-     String speciality,
-     Long hospitalId,
-     String hospitalName,
-     Long departmentId,
-     String departmentName,
-     String emergencyContact,
-     String bloodType,
-     LocalDateTime createdAt,
-     LocalDateTime updatedAt,
-     List<AddressResponseDTO> addresses
-){
+public record DoctorResponseDTO(
+        Long id,
+        String firstName,
+        String lastName,
+        LocalDate dateOfBirth,
+        String gender,
+        String phone,
+        String speciality,
+        Long hospitalId,
+        String hospitalName,
+        Long departmentId,
+        String departmentName,
+        String emergencyContact,
+        String bloodType,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        List<AddressResponseDTO> addresses
+) {
 }

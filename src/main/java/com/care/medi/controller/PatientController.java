@@ -75,7 +75,7 @@ public class PatientController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(@PathVariable("id") Long id,@RequestBody @Valid PatientUpdateRequestDTO patientUpdateRequestDTO) {
+    public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(@PathVariable("id") Long id, @RequestBody @Valid PatientUpdateRequestDTO patientUpdateRequestDTO) {
         PatientResponseDTO patientResponseDTO = patientService.updatePatient(id, patientUpdateRequestDTO);
         return ResponseEntity.accepted().body(
                 ApiResponse.<PatientResponseDTO>builder()
@@ -103,7 +103,7 @@ public class PatientController {
     }
 
     @GetMapping("{id}/insurances")
-    public  ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurances(@PathVariable("id") Long id){
+    public ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurances(@PathVariable("id") Long id) {
         List<InsuranceResponseDTO> insuranceByPatientId = patientService.getInsuranceByPatientId(id);
         return ResponseEntity.ok(
                 ApiResponse.<List<InsuranceResponseDTO>>builder()

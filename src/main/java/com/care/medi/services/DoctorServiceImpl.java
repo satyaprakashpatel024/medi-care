@@ -2,7 +2,10 @@ package com.care.medi.services;
 
 import com.care.medi.dtos.request.DoctorRequestDTO;
 import com.care.medi.dtos.request.DoctorUpdateRequestDTO;
-import com.care.medi.dtos.response.*;
+import com.care.medi.dtos.response.AddressResponseDTO;
+import com.care.medi.dtos.response.AppointmentListResponseDTO;
+import com.care.medi.dtos.response.DoctorListResponseDTO;
+import com.care.medi.dtos.response.DoctorResponseDTO;
 import com.care.medi.entity.*;
 import com.care.medi.exception.DuplicateResourceException;
 import com.care.medi.exception.ResourceNotFoundException;
@@ -17,7 +20,9 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +34,7 @@ public class DoctorServiceImpl implements DoctorService {
     private final HospitalRepository hospitalRepository;
     private final DepartmentRepository departmentRepository;
     private final AddressServiceImpl addressService;
-    private final AppointmentService appointmentService;
+    private final AppointmentServiceImpl appointmentService;
 
     // ── Create ────────────────────────────────────────────────────────────────
 
@@ -80,9 +85,9 @@ public class DoctorServiceImpl implements DoctorService {
     // ── Read ──────────────────────────────────────────────────────────────────
 
     @Override
-    public Page<DoctorListResponseDTO> getDoctorsByHospital(Long hospitalId, int page, int size, String sortBy) {
+    public Page<DoctorListResponseDTO> getActiveDoctorsByHospital(Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Doctor> byHospitalId = doctorRepository.findByHospitalId(hospitalId, pageable);
+        Page<Doctor> byHospitalId = doctorRepository.findByHospitalIdAndIsActiveTrue(hospitalId, pageable);
         List<DoctorListResponseDTO> list = byHospitalId.stream()
                 .map(this::toDoctorListResponse)
                 .toList();
@@ -94,9 +99,9 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public Page<DoctorListResponseDTO> getDoctorsByDepartmentAndHospital(Long departmentId, Long hospitalId, int page, int size, String sortBy) {
+    public Page<DoctorListResponseDTO> getActiveDoctorsByDepartmentAndHospital(Long departmentId, Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Doctor> byDepartmentId = doctorRepository.findByDepartmentIdAndHospitalId(departmentId, hospitalId, pageable);
+        Page<Doctor> byDepartmentId = doctorRepository.findByDepartmentIdAndHospitalIdAndIsActiveTrue(departmentId, hospitalId, pageable);
         List<DoctorListResponseDTO> list = byDepartmentId.stream()
                 .map(this::toDoctorListResponse)
                 .toList();
@@ -108,9 +113,9 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public Page<DoctorListResponseDTO> getDoctorsBySpeciality(String speciality, int page, int size, String sortBy) {
+    public Page<DoctorListResponseDTO> getActiveDoctorsBySpeciality(String speciality, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Doctor> bySpeciality = doctorRepository.findBySpecialityContainingIgnoreCase(speciality, pageable);
+        Page<Doctor> bySpeciality = doctorRepository.findBySpecialityContainingIgnoreCaseAndIsActiveTrue(speciality, pageable);
         List<DoctorListResponseDTO> list1 = bySpeciality.stream()
                 .map(this::toDoctorListResponse)
                 .toList();
@@ -123,15 +128,15 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public DoctorResponseDTO getDoctorById(Long id) {
-        Doctor doctor = doctorRepository.findById(id)
+        Doctor doctor = doctorRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
         return toResponse(doctor);
     }
 
     @Override
-    public Page<DoctorListResponseDTO> getAllDoctors(int page, int size, String sortBy) {
+    public Page<DoctorListResponseDTO> getAllActiveDoctors(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Doctor> doctors = doctorRepository.findAll(pageable);
+        Page<Doctor> doctors = doctorRepository.findByIsActiveTrue(pageable);
         List<DoctorListResponseDTO> list = doctors.stream().map(this::toDoctorListResponse).toList();
         return new PageImpl<>(
                 list,
@@ -140,12 +145,20 @@ public class DoctorServiceImpl implements DoctorService {
         );
     }
 
+
+    @Override
+    public Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndDate(Long id, Integer page, Integer size, String sortBy, LocalDate date) {
+        boolean b = doctorRepository.existsById(id);
+        if (!b) throw new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id);
+        return appointmentService.getAppointmentsByDoctorAndDate(id, page, size, sortBy, date);
+    }
+
     // ── Update ────────────────────────────────────────────────────────────────
 
     @Transactional
     @Override
     public DoctorResponseDTO updateDoctor(Long id, DoctorUpdateRequestDTO request) {
-        Doctor doctor = doctorRepository.findByIdWithDetails(id)
+        Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
 
         if (request.getFirstName() != null) doctor.setFirstName(request.getFirstName());
@@ -173,12 +186,11 @@ public class DoctorServiceImpl implements DoctorService {
 
     // ── Delete ────────────────────────────────────────────────────────────────
 
+    @Transactional
     @Override
     public void deleteDoctor(Long id) {
-        if (!doctorRepository.existsById(id)) {
-            throw new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id);
-        }
-        doctorRepository.deleteById(id);
+        Doctor byId = doctorRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
+        byId.setActive(false);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -204,11 +216,6 @@ public class DoctorServiceImpl implements DoctorService {
                 .build();
     }
 
-    private List<AddressResponseDTO> toAddressResponse(List<Address> a) {
-        return a.stream().map(addressService::toAddressResponse)
-                .toList();
-    }
-
     private DoctorListResponseDTO toDoctorListResponse(Doctor d) {
         return DoctorListResponseDTO.builder()
                 .id(d.getId())
@@ -228,9 +235,9 @@ public class DoctorServiceImpl implements DoctorService {
                 .build();
     }
 
-    @Override
-    public Page<AppointmentListResponseDTO> getAppointmentsByDoctor(Long id, Integer page, Integer size, String sortBy) {
-        Page<AppointmentListResponseDTO> appointmentsByDoctor = appointmentService.getAppointmentsByDoctor(id, page, size, sortBy);
-        return appointmentsByDoctor;
+
+    private List<AddressResponseDTO> toAddressResponse(List<Address> a) {
+        return a.stream().map(addressService::toAddressResponse)
+                .toList();
     }
 }

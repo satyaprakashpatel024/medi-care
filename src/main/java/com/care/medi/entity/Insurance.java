@@ -57,7 +57,7 @@ public class Insurance {
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    @Column(nullable = false,name = "status")
+    @Column(nullable = false, name = "status")
     private InsuranceStatus status = InsuranceStatus.ACTIVE;
 
     // Relationships

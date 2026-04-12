@@ -5,10 +5,15 @@ import com.care.medi.dtos.request.HospitalRequestDTO;
 import com.care.medi.dtos.request.HospitalUpdateRequestDTO;
 import com.care.medi.dtos.response.HospitalAddressResponseDTO;
 import com.care.medi.dtos.response.HospitalResponseDTO;
-import com.care.medi.entity.*;
+import com.care.medi.entity.Department;
+import com.care.medi.entity.Hospital;
+import com.care.medi.entity.HospitalAddress;
+import com.care.medi.entity.HospitalDepartment;
 import com.care.medi.exception.BusinessException;
 import com.care.medi.exception.ResourceNotFoundException;
-import com.care.medi.repository.*;
+import com.care.medi.repository.DepartmentRepository;
+import com.care.medi.repository.HospitalDepartmentRepository;
+import com.care.medi.repository.HospitalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -49,8 +54,8 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     public HospitalResponseDTO getHospitalById(Long id) {
         return toResponse(
-                 hospitalRepository.findById(id)
-                         .orElseThrow(()-> new ResourceNotFoundException(String.format("Hospital not found with id : %d", id)))
+                hospitalRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException(String.format("Hospital not found with id : %d", id)))
         );
     }
 
@@ -80,7 +85,8 @@ public class HospitalServiceImpl implements HospitalService {
 
         if (request.getName() != null) hospital.setName(request.getName());
         if (request.getPhone() != null) hospital.setPhone(request.getPhone());
-        if (request.getAddress() != null) hospital.addAddress(hospitalAddressServiceImpl.createHospitalAddress(id, request.getAddress()));
+        if (request.getAddress() != null)
+            hospital.addAddress(hospitalAddressServiceImpl.createHospitalAddress(id, request.getAddress()));
 
         return toResponse(hospitalRepository.save(hospital));
     }

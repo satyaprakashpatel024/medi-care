@@ -17,7 +17,11 @@ import java.util.List;
 @Table(name = "patients", indexes = {
         @Index(name = "idx_patients_user_id", columnList = "user_id")
 })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Patient {
 
     @Id

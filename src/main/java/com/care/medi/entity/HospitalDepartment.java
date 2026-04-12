@@ -3,6 +3,7 @@ package com.care.medi.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
+
 @Schema(hidden = true)
 @Entity
 @Table(name = "hospital_departments",
@@ -11,7 +12,11 @@ import lombok.*;
                 columnNames = {"hospital_id", "department_id"}
         )
 )
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class HospitalDepartment {
 
     @Id

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -98,7 +97,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public void setDefaultAddress(Long addressId, Long userId) {
         Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.ADDRESS_NOT_FOUND+addressId));
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.ADDRESS_NOT_FOUND + addressId));
 
         // Clear existing default, then mark the requested address as default
         addressRepository.clearDefaultByUserId(userId);

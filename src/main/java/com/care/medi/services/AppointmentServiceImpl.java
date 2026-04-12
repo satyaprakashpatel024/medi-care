@@ -1,56 +1,65 @@
 package com.care.medi.services;
 
-import com.care.medi.dtos.request.AppointmentRequestDTO;
-import com.care.medi.dtos.request.AppointmentRescheduleDTO;
-import com.care.medi.dtos.request.AppointmentUpdateRequestDTO;
-import com.care.medi.dtos.request.PrescriptionRequestDTO;
+import com.care.medi.dtos.request.*;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
+import com.care.medi.dtos.response.PatientResponseDTO;
 import com.care.medi.entity.*;
+import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.exception.ResourceValidationException;
 import com.care.medi.repository.*;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class AppointmentServiceImpl implements AppointmentService{
+@RestControllerAdvice
+public class AppointmentServiceImpl implements AppointmentService {
 
-    private  final AppointmentRepository appointmentRepository;
+    private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
     private final DepartmentRepository departmentRepository;
+    private final PatientServiceImpl patientService;
+    private final HospitalRepository hospitalRepository;
 
     @Override
-    public Page<AppointmentListResponseDTO> getAllAppointments(int page, int size, String sortBy) {
+    public Page<AppointmentListResponseDTO> getAllAppointmentsByHospitalAndDate(
+            Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date) {
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Appointment> all = appointmentRepository.findAll(pageable);
+
+        // Convert LocalDate to the start and end of that specific day
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+        Page<Appointment> all = appointmentRepository.findByHospitalIdAndAppointmentDateBetween(
+                hospitalId, startOfDay, endOfDay, pageable);
         return all.map(AppointmentListResponseDTO::fromEntity);
     }
 
+    @Transactional
     @Override
     public AppointmentResponseDTO createAppointment(AppointmentRequestDTO request) {
         Map<String, String> errorMap = new HashMap<>();
 
-        // 1. Validate Patient
-        Optional<Patient> patientOpt = patientRepository.findById(request.getPatientId());
-        if (patientOpt.isEmpty()) {
-            errorMap.put("patientId", Constants.PATIENT_NOT_FOUND + request.getPatientId());
-        }
+        // 1. Create Patient
+        PatientResponseDTO patient = patientService.createPatient(request.getPatient());
 
         // 2. Validate Doctor
         Optional<Doctor> doctorOpt = doctorRepository.findById(request.getDoctorId());
@@ -64,16 +73,25 @@ public class AppointmentServiceImpl implements AppointmentService{
             errorMap.put("departmentId", Constants.DEPARTMENT_NOT_FOUND + request.getDepartmentId());
         }
 
+        Optional<Hospital> byId = hospitalRepository.findById(request.getHospitalId());
+        if (byId.isEmpty()) {
+            errorMap.put("hospitalId", Constants.HOSPITAL_NOT_FOUND + request.getHospitalId());
+        }
+
         // 4. If the map has errors, throw a custom exception
         if (!errorMap.isEmpty()) {
             throw new ResourceValidationException(errorMap);
         }
 
+        // 4. Get Patient
+        Patient patient1 = patientRepository.findById(patient.id()).get();
+
         // 5. Proceed with creation if no errors
         Appointment appointment = Appointment.builder()
-                .patient(patientOpt.orElse(null))
-                .doctor(doctorOpt.orElse(null))
-                .department(departmentOpt.orElse(null))
+                .patient(patient1)
+                .doctor(doctorOpt.get())
+                .department(departmentOpt.get())
+                .hospital(byId.get())
                 .appointmentDate(request.getAppointmentDate())
                 .status(AppointmentStatus.SCHEDULED)
                 .createdAt(LocalDateTime.now())
@@ -99,16 +117,17 @@ public class AppointmentServiceImpl implements AppointmentService{
             throw new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id);
         }
         Appointment appointment = byId.get();
-        if(request.getAppointmentDate()!=null) {
+        if (request.getAppointmentDate() != null) {
             appointment.setAppointmentDate(request.getAppointmentDate());
         }
-        if(request.getStatus()!=null) {
+        if (request.getStatus() != null) {
             appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
         }
-            appointment = appointmentRepository.saveAndFlush(appointment);
+        appointment = appointmentRepository.saveAndFlush(appointment);
         return AppointmentResponseDTO.fromEntity(appointment);
     }
 
+    @Transactional
     @Override
     public AppointmentResponseDTO updateAppointment(Long id, AppointmentUpdateRequestDTO request) {
         Appointment appointment = appointmentRepository.findById(id)
@@ -144,52 +163,61 @@ public class AppointmentServiceImpl implements AppointmentService{
     }
 
     @Transactional
-    @SneakyThrows
     @Override
     public void cancelAppointment(Long id) {
-        Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
-        if(appointment.getStatus().equals(AppointmentStatus.SCHEDULED)||appointment.getStatus().equals(AppointmentStatus.NO_SHOW)){
-            appointment.setStatus(AppointmentStatus.CANCELLED);
-        }else{
-            throw new ResourceNotFoundException(Constants.INVALID_STATUS + appointment.getStatus().name());
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
+
+        switch (appointment.getStatus()) {
+            case SCHEDULED, NO_SHOW -> {
+                appointment.setStatus(AppointmentStatus.CANCELLED);
+                appointmentRepository.save(appointment); // saveAndFlush is usually overkill here
+            }
+            default -> throw new InvalidRequestException(Constants.INVALID_APPOINTMENT_STATUS + appointment.getStatus().name());
         }
-        appointmentRepository.saveAndFlush(appointment);
     }
 
+    @Transactional
     @Override
     public void deleteAppointment(Long id) {
-        appointmentRepository.deleteById(id);
+        Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
+        appointment.setStatus(AppointmentStatus.CANCELLED);
     }
 
-    @Override
-    public Page<AppointmentListResponseDTO> getAppointmentsByDoctor(Long doctorId, int page, int size, String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return appointmentRepository.findByDoctorId(doctorId, pageable);
-    }
 
     @Override
-    public Page<AppointmentResponseDTO> getAppointmentsByPatient(Long patientId, int page, int size, String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Appointment> byPatientId = appointmentRepository.findByPatientId(patientId, pageable);
-        return byPatientId.map(AppointmentResponseDTO::fromEntity);
-    }
-
-    @Override
-    public Page<AppointmentResponseDTO> getAppointmentsByDate(Long date, int page, int size, String sortBy) {
-        return null;
-    }
-
-    @Override
-    public Page<AppointmentResponseDTO> getAppointmentsByStatus(String status, int page, int size, String sortBy) {
+    public Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId,Long patientId, int page, int size, String sortBy) {
+        boolean b = patientRepository.existsById(patientId);
+        if (!b) {
+            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
+        }
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return appointmentRepository
-                .findByStatus(AppointmentStatus.valueOf(status), pageable)
+                .findByHospitalAndPatient(hospitalId,patientId, pageable)
                 .map(AppointmentResponseDTO::fromEntity);
     }
 
+
     @Override
-    public Page<AppointmentResponseDTO> getAppointmentsByDoctorAndDate(Long doctorId, Long date, int page, int size, String sortBy) {
-        return null;
+    public Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, String status, int page, int size, String sortBy, LocalDate date) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        return appointmentRepository
+                .findByHospitalAndStatusAndAppointmentDateBetween(hospitalId,AppointmentStatus.valueOf(status), startOfDay, endOfDay, pageable)
+                .map(AppointmentListResponseDTO::fromEntity);
+    }
+
+    @Override
+    public Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndDate(Long doctorId, int page, int size, String sortBy, LocalDate date) {
+
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+
+        return appointmentRepository
+                .findByDoctorIdAndAppointmentDateBetween(doctorId, startOfDay, endOfDay, pageable)
+                .map(AppointmentListResponseDTO::fromEntity);
     }
 
     @Override

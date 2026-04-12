@@ -21,6 +21,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @Override
     @NonNull
-    @EntityGraph(attributePaths = {"user","insurances"})
+    @EntityGraph(attributePaths = {"user", "insurances"})
     Optional<Patient> findById(@NonNull Long id);
 }

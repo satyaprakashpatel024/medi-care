@@ -16,7 +16,11 @@ import java.time.LocalDateTime;
         @Index(name = "idx_staffs_user_id", columnList = "user_id"),
         @Index(name = "idx_staffs_hospital_id", columnList = "hospital_id")
 })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Staff {
 
     @Id
@@ -30,12 +34,12 @@ public class Staff {
     private Users user;
 
     @NotBlank(message = "First name is required")
-    @Size(min = 5, max = 100,message = "First name must be between 5 and 100 characters")
+    @Size(min = 5, max = 100, message = "First name must be between 5 and 100 characters")
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
     @NotBlank(message = "Last name is required")
-    @Size(min = 5, max = 100,message = "Last name must be between 5 and 100 characters")
+    @Size(min = 5, max = 100, message = "Last name must be between 5 and 100 characters")
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
