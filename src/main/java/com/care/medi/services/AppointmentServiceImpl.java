@@ -89,20 +89,25 @@ public class AppointmentServiceImpl implements AppointmentService {
             errorMap.put("hospitalId", Constants.HOSPITAL_NOT_FOUND + request.getHospitalId());
         }
 
-        // 4. If the map has errors, throw a custom exception
+        // 4. Get Patient
+        Optional<Patient> patientOpt = patientRepository.findById(patient.id());
+        if (patientOpt.isEmpty()) {
+            errorMap.put("patientId", Constants.PATIENT_NOT_FOUND + patient.id());
+        }
+
+        // 5. If the map has errors, throw a custom exception
         if (!errorMap.isEmpty()) {
             throw new ResourceValidationException(errorMap);
         }
 
-        // 4. Get Patient
-        Patient patient1 = patientRepository.findById(patient.id()).get();
+        Patient patient1 = patientOpt.orElse(null);
 
         // 5. Proceed with creation if no errors
         Appointment appointment = Appointment.builder()
                 .patient(patient1)
-                .doctor(doctorOpt.get())
-                .department(departmentOpt.get())
-                .hospital(byId.get())
+                .doctor(doctorOpt.orElse(null))
+                .department(departmentOpt.orElse(null))
+                .hospital(byId.orElse(null))
                 .appointmentDate(request.getAppointmentDate())
                 .status(AppointmentStatus.SCHEDULED)
                 .createdAt(OffsetDateTime.now())
@@ -211,7 +216,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 
     @Override
-    public Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, String status, int page, int size, String sortBy, LocalDate date) {
+    public Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, AppointmentStatus status, int page, int size, String sortBy, LocalDate date) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         // 1. Create the start of the day in IST
         OffsetDateTime startOfDay = date.atStartOfDay()
@@ -223,7 +228,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .atZone(ZoneId.of(Constants.TIME_ZONE))
                 .toOffsetDateTime();
         return appointmentRepository
-                .findByHospitalAndStatusAndAppointmentDateBetween(hospitalId, AppointmentStatus.valueOf(status), startOfDay, endOfDay, pageable)
+                .findByHospitalAndStatusAndAppointmentDateBetween(hospitalId,status, startOfDay, endOfDay, pageable)
                 .map(AppointmentListResponseDTO::fromEntity);
     }
 

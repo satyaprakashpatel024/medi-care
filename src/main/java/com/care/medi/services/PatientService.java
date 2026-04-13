@@ -13,7 +13,7 @@ import java.util.List;
 public interface PatientService {
     Page<PatientListResponseDTO> getAllPatients(int page, int size, String sortBy);
 
-    PatientResponseDTO getPatientById(Long id);
+    PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId,Long id);
 
     PatientResponseDTO createPatient(PatientRequestDTO patient);
 

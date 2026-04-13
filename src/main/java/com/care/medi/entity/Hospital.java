@@ -69,6 +69,10 @@ public class Hospital {
     @Builder.Default
     private List<Appointment> appointments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Patient> patients = new ArrayList<>();
+
     public void addAddress(HospitalAddress address) {
         addresses.add(address);
         address.setHospital(this);

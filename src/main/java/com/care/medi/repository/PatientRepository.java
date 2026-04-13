@@ -22,10 +22,10 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     @EntityGraph(attributePaths = {"user"})
     Page<Patient> findAll(Pageable pageable);
 
-    @Override
+
     @NonNull
     @EntityGraph(attributePaths = {"user", "insurances"})
-    Optional<Patient> findById(@NonNull Long id);
+    Optional<Patient> findByIdAndHospitalId(@NonNull Long id, @NonNull Long hospitalId);
 
     @Query("SELECT DISTINCT new com.care.medi.dtos.response.PatientListResponseDTO(" +
             "p.id, p.user.id, p.firstName, p.lastName, p.dateOfBirth, " +

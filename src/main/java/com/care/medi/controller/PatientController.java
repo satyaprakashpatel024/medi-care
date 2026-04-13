@@ -9,6 +9,7 @@ import com.care.medi.dtos.response.PatientListResponseDTO;
 import com.care.medi.dtos.response.PatientResponseDTO;
 import com.care.medi.services.PatientServiceImpl;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class PatientController {
 
     private final PatientServiceImpl patientService;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<ApiResponse<Page<PatientListResponseDTO>>> getAllPatients(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
@@ -35,44 +36,55 @@ public class PatientController {
         return ResponseEntity.ok(
                 ApiResponse.<Page<PatientListResponseDTO>>builder()
                         .data(patientService.getAllPatients(page, size, sortBy))
-                        .message("Success")
+                        .message("Successfully retrieved all Patients details.")
                         .status(HttpStatus.OK)
                         .success(true)
                         .build()
         );
     }
 
-    @GetMapping("/hospital/{id}")
+    @GetMapping
     public ResponseEntity<ApiResponse<Page<PatientListResponseDTO>>> getAllPatientsByHospital(
-            @PathVariable("id") Long hospitalId,
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
             @RequestParam(defaultValue = "id") String sortBy
     ) {
+        String msg = String.format("Successfully retrieved patients details for Hospital ID : %d.", hospitalId);
         return ResponseEntity.ok(
                 ApiResponse.<Page<PatientListResponseDTO>>builder()
                         .data(patientService.getAllPatientsByHospital(hospitalId, page, size, sortBy))
-                        .message("Success")
+                        .message(msg)
                         .status(HttpStatus.OK)
                         .success(true)
                         .build()
         );
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<ApiResponse<PatientResponseDTO>> getPatientById(@PathVariable("id") Long id) {
-        PatientResponseDTO patientById = patientService.getPatientById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<PatientResponseDTO>> getPatientById(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @PathVariable("id") Long id
+    ) {
+        PatientResponseDTO patientById = patientService.getPatientByIdAndHospitalId(hospitalId,id);
+        String msg = String.format("Successfully retrieved patient details for id : %d.", id);
         return ResponseEntity.ok(
                 ApiResponse.<PatientResponseDTO>builder()
                         .data(patientById)
                         .success(true)
-                        .message("Patient fetched successfully")
+                        .message(msg)
                         .build()
         );
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PatientResponseDTO>> savePatient(@RequestBody @Valid PatientRequestDTO patientRequestDTO) {
+    public ResponseEntity<ApiResponse<PatientResponseDTO>> savePatient(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @RequestBody @Valid PatientRequestDTO patientRequestDTO
+    ) {
         PatientResponseDTO patient = patientService.createPatient(patientRequestDTO);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -86,33 +98,42 @@ public class PatientController {
                                 .<PatientResponseDTO>builder()
                                 .data(patient)
                                 .success(true)
-                                .message("Patient created successfully")
+                                .message("Patient created successfully.")
                                 .build()
                 );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(@PathVariable("id") Long id, @RequestBody @Valid PatientUpdateRequestDTO patientUpdateRequestDTO) {
+    public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @PathVariable("id") Long id,
+            @RequestBody @Valid PatientUpdateRequestDTO patientUpdateRequestDTO
+    ) {
         PatientResponseDTO patientResponseDTO = patientService.updatePatient(id, patientUpdateRequestDTO);
+        String msg = String.format("Successfully updated patient details for id : %d.", id);
         return ResponseEntity.accepted().body(
                 ApiResponse.<PatientResponseDTO>builder()
                         .status(HttpStatus.ACCEPTED)
                         .data(patientResponseDTO)
                         .success(true)
-                        .message("Patient updated successfully")
+                        .message(msg)
                         .build()
         );
     }
 
     @PostMapping("/{id}/insurance")
     public ResponseEntity<ApiResponse<InsuranceResponseDTO>> assignInsuranceToPatient(
-            @PathVariable("id") Long id,
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @PathVariable("id") Long patientId,
             @RequestBody @Valid InsuranceRequestDTO insuranceRequestDTO) {
-        InsuranceResponseDTO insurance = patientService.assignInsurance(id, insuranceRequestDTO);
+        InsuranceResponseDTO insurance = patientService.assignInsurance(patientId, insuranceRequestDTO);
+        String msg = String.format("Successfully assigned insurance to patient for id : %d.", patientId);
         return ResponseEntity.accepted().body(
                 ApiResponse.<InsuranceResponseDTO>builder()
                         .status(HttpStatus.ACCEPTED)
-                        .message("Insurance assigned successfully")
+                        .message(msg)
                         .success(true)
                         .data(insurance)
                         .build()
@@ -120,13 +141,18 @@ public class PatientController {
     }
 
     @GetMapping("{id}/insurances")
-    public ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurances(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurancesOfPatient(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @PathVariable("id") Long id
+    ) {
         List<InsuranceResponseDTO> insuranceByPatientId = patientService.getInsuranceByPatientId(id);
+        String msg = String.format("Successfully retrieved insurances for id : %d.", id);
         return ResponseEntity.ok(
                 ApiResponse.<List<InsuranceResponseDTO>>builder()
                         .data(insuranceByPatientId)
                         .success(true)
-                        .message("Insurances found for this provided patient id.")
+                        .message(msg)
                         .status(HttpStatus.OK)
                         .build()
         );

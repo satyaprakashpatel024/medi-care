@@ -6,9 +6,11 @@ import com.care.medi.dtos.request.AppointmentUpdateRequestDTO;
 import com.care.medi.dtos.response.ApiResponse;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
+import com.care.medi.entity.AppointmentStatus;
 import com.care.medi.services.AppointmentServiceImpl;
 import com.care.medi.utils.Constants;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,7 +34,10 @@ public class AppointmentController {
     private final AppointmentServiceImpl appointmentService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @PathVariable("id") Long id) {
         AppointmentResponseDTO appointmentById = appointmentService.getAppointmentById(id);
         String msg = String.format("Successfully retrieved appointments for Appointment ID : %d.", id);
         return ResponseEntity.ok(
@@ -45,9 +50,10 @@ public class AppointmentController {
         );
     }
 
-    @GetMapping("/hospital/{id}")
+    @GetMapping("/hospital")
     public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByHospitalAndDate(
-            @PathVariable("id") Long id,
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -55,43 +61,57 @@ public class AppointmentController {
 
         LocalDate filterDate = (date != null) ? date : LocalDate.now(ZoneId.of(Constants.TIME_ZONE));
         String msg = String.format("Successfully retrieved appointments for Hospital ID %d on %s.",
-                id, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+                hospitalId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 
         return ResponseEntity.ok(
                 ApiResponse.<Page<AppointmentListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(msg)
-                        .data(appointmentService.getAllAppointmentsByHospitalAndDate(id, page, size, sortBy, filterDate))
+                        .data(appointmentService.getAllAppointmentsByHospitalAndDate(hospitalId, page, size, sortBy, filterDate))
                         .success(true)
                         .build()
         );
     }
 
-    @GetMapping("/hospital/{id}/status")
+    @GetMapping("/status")
     public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAppointmentByHospitalAndStatusAndDate(
-            @PathVariable("id") Long id,
-            @RequestParam String status,
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @RequestParam("status") AppointmentStatus status,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
+        // 1. Handle Date Logic (Keep the logic but consider moving it to Service later)
         LocalDate filterDate = (date != null) ? date : LocalDate.now(ZoneId.of(Constants.TIME_ZONE));
-        String msg = String.format("Successfully retrieved %s appointments for %s.",
-                status,
+
+        // 2. Fetch Data
+        Page<AppointmentListResponseDTO> appointmentPage = appointmentService
+                .getAppointmentsByHospitalAndStatusAndDate(hospitalId, status, page, size, sortBy, filterDate);
+
+        // 3. Build Dynamic Message
+        String msg = String.format("Found %d %s appointments for %s.",
+                appointmentPage.getNumberOfElements(),
+                status.name().toLowerCase(),
                 filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+
         return ResponseEntity.ok(
                 ApiResponse.<Page<AppointmentListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(msg)
-                        .data(appointmentService.getAppointmentsByHospitalAndStatusAndDate(id, status, page, size, sortBy, filterDate))
+                        .data(appointmentPage)
                         .success(true)
                         .build()
         );
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAnAppointment(@RequestBody @Valid AppointmentRequestDTO request) {
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAnAppointment(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @RequestBody @Valid AppointmentRequestDTO request
+    ) {
         AppointmentResponseDTO appointment = appointmentService.createAppointment(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -110,7 +130,12 @@ public class AppointmentController {
     }
 
     @PatchMapping("/reschedule/{id}")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(@PathVariable("id") Long id, @RequestBody @Valid AppointmentRescheduleDTO request) {
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @PathVariable("id") Long id,
+            @RequestBody @Valid AppointmentRescheduleDTO request
+    ) {
         AppointmentResponseDTO response = appointmentService.rescheduleAppointment(id, request);
         String msg = String.format("Successfully rescheduled appointment for Appointment ID : %d.", id);
         return ResponseEntity.accepted().body(
@@ -124,7 +149,12 @@ public class AppointmentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateAppointment(@PathVariable("id") Long id, @RequestBody @Valid AppointmentUpdateRequestDTO request) {
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateAppointment(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @PathVariable("id") Long id,
+            @RequestBody @Valid AppointmentUpdateRequestDTO request
+    ) {
         AppointmentResponseDTO appointment = appointmentService.updateAppointment(id, request);
         String msg = String.format("Successfully updated appointment for Appointment ID : %d.", id);
         return ResponseEntity.accepted().body(
@@ -138,7 +168,11 @@ public class AppointmentController {
     }
 
     @PutMapping("{id}/cancel")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @PathVariable("id") Long id) {
+
         appointmentService.cancelAppointment(id);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
@@ -149,9 +183,10 @@ public class AppointmentController {
         );
     }
 
-    @GetMapping("/hospital/{hospitalId}/patient/{id}")
+    @GetMapping("/patient/{id}")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllAppointmentsByHospitalAndPatientId(
-            @PathVariable("hospitalId") Long hospitalId,
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
             @PathVariable("id") Long patientId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,

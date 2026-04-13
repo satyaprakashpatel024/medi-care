@@ -8,6 +8,7 @@ import com.care.medi.dtos.response.DoctorListResponseDTO;
 import com.care.medi.dtos.response.DoctorResponseDTO;
 import com.care.medi.services.DoctorServiceImpl;
 import com.care.medi.utils.Constants;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,7 +29,7 @@ import java.time.format.DateTimeFormatter;
 public class DoctorController {
     private final DoctorServiceImpl doctorService;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getAllActiveDoctors(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -46,7 +47,10 @@ public class DoctorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<DoctorResponseDTO>> getDoctorById(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<DoctorResponseDTO>> getDoctorById(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @PathVariable("id") Long id) {
         DoctorResponseDTO doctorById = doctorService.getDoctorById(id);
         return ResponseEntity.ok(
                 ApiResponse.<DoctorResponseDTO>builder()
@@ -58,8 +62,30 @@ public class DoctorController {
         );
     }
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getActiveDoctorsByHospital(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.<Page<DoctorListResponseDTO>>builder()
+                        .status(HttpStatus.OK)
+                        .message(STR."Doctors fetched successfully by HospitalId : \{hospitalId}")
+                        .data(doctorService.getActiveDoctorsByHospital(hospitalId, page, size, sortBy))
+                        .success(true)
+                        .build()
+        );
+    }
+
     @PostMapping
-    public ResponseEntity<ApiResponse<DoctorResponseDTO>> createDoctor(@RequestBody DoctorRequestDTO request) {
+    public ResponseEntity<ApiResponse<DoctorResponseDTO>> createDoctor(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @RequestBody DoctorRequestDTO request
+    ) {
         DoctorResponseDTO doctor = doctorService.createDoctor(request);
 
         // 1. Create a URI for the new resource (e.g., /doctors/5)
@@ -81,6 +107,8 @@ public class DoctorController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> updateDoctor(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
             @PathVariable("id") Long id, @RequestBody DoctorUpdateRequestDTO request) {
         DoctorResponseDTO doctorResponseDTO = doctorService.updateDoctor(id, request);
         return ResponseEntity.accepted().body(
@@ -94,7 +122,10 @@ public class DoctorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteDoctor(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<String>> deleteDoctor(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @PathVariable("id") Long id) {
         doctorService.deleteDoctor(id);
         return ResponseEntity
                 .accepted()
@@ -108,7 +139,9 @@ public class DoctorController {
 
     @GetMapping("/{id}/appointments")
     public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByDoctor(
-            @PathVariable("id") Long id,
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @PathVariable("id") Long doctorId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -117,14 +150,51 @@ public class DoctorController {
 
         LocalDate filterDate = (date != null) ? date : LocalDate.now(ZoneId.of(Constants.TIME_ZONE));
         String msg = String.format("Successfully retrieved appointments for Doctor ID %d on %s.",
-                id, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+                doctorId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 
-        Page<AppointmentListResponseDTO> appointments = doctorService.getAppointmentsByDoctorAndDate(id, page, size, sortBy, filterDate);
+        Page<AppointmentListResponseDTO> appointments = doctorService.getAppointmentsByDoctorAndDate(doctorId, page, size, sortBy, filterDate);
         return ResponseEntity.ok(
                 ApiResponse.<Page<AppointmentListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(msg)
                         .data(appointments)
+                        .success(true)
+                        .build()
+        );
+    }
+
+    @GetMapping("/dept/{departmentId}")
+    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorsByDepartmentId(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @PathVariable("departmentId") Long departmentId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(
+                ApiResponse.<Page<DoctorListResponseDTO>>builder()
+                        .status(HttpStatus.OK)
+                        .message(STR."Doctors fetched successfully by DepartmentId : \{departmentId}")
+                        .data(doctorService.getActiveDoctorsByDepartmentAndHospital(departmentId, hospitalId, page, size, sortBy))
+                        .success(true)
+                        .build()
+        );
+    }
+
+    @GetMapping("/speciality")
+    public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getActiveDoctorBySpeciality(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @RequestParam("speciality") String speciality,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.<Page<DoctorListResponseDTO>>builder()
+                        .status(HttpStatus.OK)
+                        .message(STR."Doctors fetched successfully by Speciality : \{speciality}")
+                        .data(doctorService.getActiveDoctorsBySpeciality(speciality, page, size, sortBy))
                         .success(true)
                         .build()
         );

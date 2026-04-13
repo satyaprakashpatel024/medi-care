@@ -1,6 +1,7 @@
 package com.care.medi.exception;
 
 import com.care.medi.dtos.response.ApiResponse;
+import com.care.medi.entity.AppointmentStatus;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.coyote.BadRequestException;
@@ -9,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -148,5 +151,19 @@ public class GlobalExceptionHandler {
                                 .status(HttpStatus.BAD_REQUEST)
                                 .build()
                 );
+    }
+
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String message = STR."\{ex.getName()} should be one of: \{Arrays.toString(AppointmentStatus.values())}";
+
+        return ResponseEntity.badRequest().body(
+                ApiResponse.<Void>builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message(message)
+                        .success(false)
+                        .build()
+        );
     }
 }

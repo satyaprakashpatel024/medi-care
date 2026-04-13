@@ -40,10 +40,10 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientResponseDTO getPatientById(Long id) {
-        Optional<Patient> byId = patientRepository.findById(id);
+    public PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId,Long patientId) {
+        Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId,hospitalId);
         if (byId.isEmpty()) {
-            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + id);
+            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
         }
         return PatientResponseDTO.fromEntity(byId.get());
     }
@@ -77,10 +77,10 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional
     @Override
-    public PatientResponseDTO updatePatient(Long id, PatientUpdateRequestDTO patientDTO) {
+    public PatientResponseDTO updatePatient(Long patientId, PatientUpdateRequestDTO patientDTO) {
         // 1. Fetch the existing entity
-        Patient existingPatient = patientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + id));
+        Patient existingPatient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
 
         // 2. Conditionally update fields (Check for null before setting)
         if (patientDTO.getFirstName() != null) {
@@ -107,15 +107,15 @@ public class PatientServiceImpl implements PatientService {
 
         // 3. Save the updated entity
         // Note: With @Transactional, changes are auto-flushed, but calling save is clear practice.
-        Patient updatedPatient = patientRepository.save(existingPatient);
+        Patient updatedPatient = patientRepository.saveAndFlush(existingPatient);
 
         // 4. Return the converted Response DTO
         return PatientResponseDTO.fromEntity(updatedPatient);
     }
 
     @Override
-    public void deletePatient(Long id) {
-        patientRepository.deleteById(id);
+    public void deletePatient(Long patientId) {
+        patientRepository.deleteById(patientId);
     }
 
     @Transactional
@@ -126,7 +126,12 @@ public class PatientServiceImpl implements PatientService {
             throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
         }
 
-        Insurance insurance = Insurance.builder()
+        boolean insurance = insuranceRepository.existsByPolicyNumber(request.getPolicyNumber());
+        if (insurance) {
+            throw new DuplicateResourceException(Constants.DUPLICATE_POLICY);
+        }
+
+         Insurance insurance1 = Insurance.builder()
                 .providerName(request.getProviderName())
                 .policyNumber(request.getPolicyNumber())
                 .patient(byId.get())
@@ -139,8 +144,8 @@ public class PatientServiceImpl implements PatientService {
                 .expiryDate(request.getExpiryDate())
                 .startDate(request.getStartDate())
                 .build();
-        insurance = insuranceRepository.save(insurance);
-        return InsuranceResponseDTO.fromEntity(insurance);
+        insurance1 = insuranceRepository.save(insurance1);
+        return InsuranceResponseDTO.fromEntity(insurance1);
     }
 
     @Override
