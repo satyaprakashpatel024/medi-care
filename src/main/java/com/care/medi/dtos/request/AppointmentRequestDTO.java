@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -24,5 +24,5 @@ public class AppointmentRequestDTO {
     private Long hospitalId;
     @NotNull(message = "Appointment date is required")
     @Future(message = "Appointment date must be in the future")
-    private LocalDateTime appointmentDate;
+    private OffsetDateTime appointmentDate;
 }

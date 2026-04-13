@@ -26,6 +26,9 @@ public final class Constants {
     public static final String VALIDATION_ERROR = "One or more validation errors occurred.";
     public static final String ADDRESS_NOT_FOUND = "Address not found with ID: ";
 
+    // Set Time Zone
+    public static final String TIME_ZONE = "Asia/Kolkata";
+
     private Constants() {
         // Prevent instantiation
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

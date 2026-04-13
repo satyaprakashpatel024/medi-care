@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -21,6 +21,6 @@ public record DoctorListResponseDTO(
         Long departmentId,
         String departmentName,
         String emergencyContact,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt) {
 }

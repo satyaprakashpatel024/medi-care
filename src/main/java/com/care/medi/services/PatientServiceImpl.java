@@ -149,4 +149,8 @@ public class PatientServiceImpl implements PatientService {
         return byPatientId.stream().map(InsuranceResponseDTO::fromEntity).toList();
     }
 
+    @Override
+    public Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy) {
+        return patientRepository.findAllByHospitalId(hospitalId, PageRequest.of(page, size, Sort.by(sortBy)));
+    }
 }

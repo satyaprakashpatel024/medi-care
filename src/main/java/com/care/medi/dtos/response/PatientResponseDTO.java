@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Builder
@@ -20,8 +20,8 @@ public record PatientResponseDTO(
         String phone,
         String emergencyContact,
         String bloodGroup,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt,
         List<InsuranceResponseDTO> insurances
 ) {
     public static PatientResponseDTO fromEntity(Patient patient) {

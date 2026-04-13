@@ -9,7 +9,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "address", indexes = {
@@ -69,7 +69,6 @@ public class Address {
     private String landmark;
 
     @Enumerated(EnumType.STRING)
-    @Pattern(regexp = "^(HOME|WORK|HOSPITAL)$", message = "Address type must be HOME, WORK, BILLING, or SHIPPING")
     @Column(name = "address_type", length = 10)
     private AddressType addressType;
 
@@ -78,11 +77,11 @@ public class Address {
     private Boolean isDefault = false;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime updatedAt;
 
 }

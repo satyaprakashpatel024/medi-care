@@ -7,6 +7,7 @@ import com.care.medi.dtos.response.ApiResponse;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.services.AppointmentServiceImpl;
+import com.care.medi.utils.Constants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @RestController
@@ -44,14 +46,14 @@ public class AppointmentController {
     }
 
     @GetMapping("/hospital/{id}")
-    public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByHospital(
+    public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByHospitalAndDate(
             @PathVariable("id") Long id,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        LocalDate filterDate = (date != null) ? date : LocalDate.now();
+        LocalDate filterDate = (date != null) ? date : LocalDate.now(ZoneId.of(Constants.TIME_ZONE));
         String msg = String.format("Successfully retrieved appointments for Hospital ID %d on %s.",
                 id, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 
@@ -74,7 +76,7 @@ public class AppointmentController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        LocalDate filterDate = (date != null) ? date : LocalDate.now();
+        LocalDate filterDate = (date != null) ? date : LocalDate.now(ZoneId.of(Constants.TIME_ZONE));
         String msg = String.format("Successfully retrieved %s appointments for %s.",
                 status,
                 filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
@@ -82,7 +84,7 @@ public class AppointmentController {
                 ApiResponse.<Page<AppointmentListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(msg)
-                        .data(appointmentService.getAppointmentsByHospitalAndStatusAndDate(id,status, page, size, sortBy, filterDate))
+                        .data(appointmentService.getAppointmentsByHospitalAndStatusAndDate(id, status, page, size, sortBy, filterDate))
                         .success(true)
                         .build()
         );
@@ -154,8 +156,8 @@ public class AppointmentController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
             @RequestParam(defaultValue = "id") String sortBy) {
-        Page<AppointmentResponseDTO> appointmentsByPatient = appointmentService.getAppointmentsByHospitalAndPatient(hospitalId,patientId, page, size, sortBy);
-        String msg = String.format("Successfully retrieved appointments for Patient ID : %d.",patientId);
+        Page<AppointmentResponseDTO> appointmentsByPatient = appointmentService.getAppointmentsByHospitalAndPatient(hospitalId, patientId, page, size, sortBy);
+        String msg = String.format("Successfully retrieved appointments for Patient ID : %d.", patientId);
         return ResponseEntity.ok(
                 ApiResponse.<Page<AppointmentResponseDTO>>builder()
                         .status(HttpStatus.OK)

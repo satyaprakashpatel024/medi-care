@@ -3,7 +3,7 @@ package com.care.medi.dtos.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -20,7 +20,7 @@ public record AddressResponseDTO(
         String landmark,
         String addressType,
         Boolean isDefault,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt) {
 }
 

@@ -7,13 +7,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Schema(hidden = true)
 @Entity
 @Table(name = "prescription", indexes = {
         @Index(name = "idx_prescription_patient_id", columnList = "patient_id"),
-        @Index(name = "idx_prescription_doctor_id", columnList = "doctor_id")
+        @Index(name = "idx_prescription_doctor_id", columnList = "doctor_id"),
 })
 @Getter
 @Setter
@@ -27,14 +27,12 @@ public class Prescription {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_prescription_patient"))
+    @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_prescription_patient"))
     @NotNull(message = "Patient is required")
     private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_prescription_doctor"))
+    @JoinColumn(name = "doctor_id", nullable = false, foreignKey = @ForeignKey(name = "fk_prescription_doctor"))
     @NotNull(message = "Doctor is required")
     private Doctor doctor;
 
@@ -49,8 +47,8 @@ public class Prescription {
     private String notes;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     // ── Bidirectional mapping ───────────────────────────────────────────────
 

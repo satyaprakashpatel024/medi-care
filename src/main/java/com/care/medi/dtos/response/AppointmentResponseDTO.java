@@ -4,7 +4,7 @@ import com.care.medi.entity.Appointment;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -17,11 +17,12 @@ public record AppointmentResponseDTO(
         Long departmentId,
         String departmentName,
         Long prescriptionId,
-        LocalDateTime appointmentDate,
+        OffsetDateTime appointmentDate,
         String status,
         String treatment,
         String notes,
-        LocalDateTime createdAt) {
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt) {
 
 
     public static AppointmentResponseDTO fromEntity(Appointment appointment) {
@@ -38,6 +39,7 @@ public record AppointmentResponseDTO(
                 .treatment(appointment.getTreatment())
                 .notes(appointment.getNotes())
                 .createdAt(appointment.getCreatedAt())
+                .updatedAt(appointment.getUpdatedAt())
                 .build();
     }
 }

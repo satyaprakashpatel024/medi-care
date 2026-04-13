@@ -23,6 +23,13 @@ public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
 
+    public List<AddressResponseDTO> getAddressesByDoctorId(Long id) {
+        addressRepository.findByUserId(id);
+        return addressRepository.findByUserId(id).stream()
+                .map(this::toAddressResponse)
+                .toList();
+    }
+
     // ── Create ────────────────────────────────────────────────────────────────
 
     @Transactional

@@ -2,7 +2,7 @@ package com.care.medi.dtos.response;
 
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Builder
@@ -10,7 +10,7 @@ public record DepartmentResponseDTO(
         Long id,
         String name,
         List<String> hospitalNames,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt
 ) {
 }

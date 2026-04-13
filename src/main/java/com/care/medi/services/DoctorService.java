@@ -20,9 +20,9 @@ public interface DoctorService {
 
     Page<DoctorListResponseDTO> getActiveDoctorsByHospital(Long hospitalId, int page, int size, String sortBy);
 
-    Page<DoctorListResponseDTO> getActiveDoctorsByDepartmentAndHospital(Long departmentId, Long hospitalId,int page, int size, String sortBy);
+    Page<DoctorListResponseDTO> getActiveDoctorsByDepartmentAndHospital(Long departmentId, Long hospitalId, int page, int size, String sortBy);
 
-    Page<DoctorListResponseDTO> getActiveDoctorsBySpeciality(String speciality,int page, int size, String sortBy);
+    Page<DoctorListResponseDTO> getActiveDoctorsBySpeciality(String speciality, int page, int size, String sortBy);
 
     @Transactional
     DoctorResponseDTO updateDoctor(Long id, DoctorUpdateRequestDTO request);

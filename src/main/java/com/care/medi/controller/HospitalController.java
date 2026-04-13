@@ -104,7 +104,7 @@ public class HospitalController {
                 ApiResponse.<Page<DoctorListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(STR."Doctors fetched successfully by Speciality : \{speciality}")
-                        .data(doctorService.getActiveDoctorsBySpeciality(speciality,  page, size, sortBy))
+                        .data(doctorService.getActiveDoctorsBySpeciality(speciality, page, size, sortBy))
                         .success(true)
                         .build()
         );

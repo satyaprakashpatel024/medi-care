@@ -9,16 +9,18 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Schema(hidden = true)
 @Entity
-@Table(name = "hospital_address")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "hospital_address", indexes = {
+        @Index(name = "idx_hosp_addr_hospital", columnList = "hospital_id")
+})
 public class HospitalAddress {
 
     @Id
@@ -27,7 +29,7 @@ public class HospitalAddress {
 
     // ── Link to Hospital ───────────────────────────────
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hospital_id", nullable = false)
+    @JoinColumn(name = "hospital_id", nullable = false, foreignKey = @ForeignKey(name = "fk_hosp_addr_hospital"))
     private Hospital hospital;
 
     // ── Address fields ───────────────────────────────
@@ -70,10 +72,10 @@ public class HospitalAddress {
 
     // ── Timestamps ───────────────────────────────
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime updatedAt;
 }

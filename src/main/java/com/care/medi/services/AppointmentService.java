@@ -27,7 +27,7 @@ public interface AppointmentService {
 
     void deleteAppointment(Long id);
 
-    Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId,Long patientId, int page, int size, String sortBy);
+    Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId, Long patientId, int page, int size, String sortBy);
 
     Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, String status, int page, int size, String sortBy, LocalDate date);
 

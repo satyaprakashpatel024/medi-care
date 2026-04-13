@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -110,6 +109,7 @@ public class DoctorServiceImpl implements DoctorService {
                 pageable,
                 byDepartmentId.getTotalElements()
         );
+//        return byDepartmentId.map(DoctorListResponseDTO::)
     }
 
     @Override
@@ -130,7 +130,8 @@ public class DoctorServiceImpl implements DoctorService {
     public DoctorResponseDTO getDoctorById(Long id) {
         Doctor doctor = doctorRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
-        return toResponse(doctor);
+        List<AddressResponseDTO> addresses = addressService.getAddressesByDoctorId(doctor.getUser().getId());
+        return toResponse(doctor,addresses);
     }
 
     @Override
@@ -189,7 +190,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Transactional
     @Override
     public void deleteDoctor(Long id) {
-        Doctor byId = doctorRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
+        Doctor byId = doctorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
         byId.setActive(false);
     }
 
@@ -212,7 +213,27 @@ public class DoctorServiceImpl implements DoctorService {
                 .bloodType(d.getBloodGroup().toString())
                 .createdAt(d.getCreatedAt())
                 .updatedAt(d.getUpdatedAt())
-                .addresses(toAddressResponse(d.getAddresses()))
+                .build();
+    }
+
+    DoctorResponseDTO toResponse(Doctor d,List<AddressResponseDTO> adddreses) {
+        return DoctorResponseDTO.builder()
+                .id(d.getId())
+                .firstName(d.getFirstName())
+                .lastName(d.getLastName())
+                .dateOfBirth(d.getDateOfBirth())
+                .gender(d.getGender().toString())
+                .phone(d.getPhone())
+                .speciality(d.getSpeciality())
+                .hospitalId(d.getHospital() != null ? d.getHospital().getId() : null)
+                .hospitalName(d.getHospital() != null ? d.getHospital().getName() : null)
+                .departmentId(d.getDepartment() != null ? d.getDepartment().getId() : null)
+                .departmentName(d.getDepartment() != null ? d.getDepartment().getName() : null)
+                .emergencyContact(d.getEmergencyContact())
+                .bloodType(d.getBloodGroup().toString())
+                .createdAt(d.getCreatedAt())
+                .updatedAt(d.getUpdatedAt())
+                .addresses(adddreses)
                 .build();
     }
 

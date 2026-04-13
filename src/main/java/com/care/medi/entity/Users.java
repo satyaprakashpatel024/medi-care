@@ -10,12 +10,17 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "users", indexes = {
-        @Index(name = "idx_users_email", columnList = "email", unique = true)
-})
+@Table(name = "users",
+        indexes = {
+                @Index(name = "idx_users_email", columnList = "email")  // remove unique=true from here
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_users_email", columnNames = "email")
+        }
+)
 @Schema(hidden = true)
 @Getter
 @Setter
@@ -31,7 +36,7 @@ public class Users {
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     @Size(max = 255)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     @NotBlank(message = "Password is required")
@@ -50,16 +55,16 @@ public class Users {
     private Boolean isActive = true;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     // Automatically updates whenever the entity is modified
     @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime updatedAt;
 
-    @Column(name = "last_login")
-    private LocalDateTime lastLogin;
+    @Column(name = "last_login", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime lastLogin;
 
     /**
      * Logic-based constraints:
@@ -67,6 +72,6 @@ public class Users {
      * until their first successful authentication.
      */
     public void markLogin() {
-        this.lastLogin = LocalDateTime.now();
+        this.lastLogin = OffsetDateTime.now();
     }
 }

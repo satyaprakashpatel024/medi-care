@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 @Repository
@@ -23,10 +23,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Optional<Appointment> findById(Long id);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalIdAndAppointmentDateBetween(Long hospitalId, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<Appointment> findByHospitalIdAndAppointmentDateBetween(Long hospitalId, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalAndStatusAndAppointmentDateBetween(Long hospitalId, AppointmentStatus status, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<Appointment> findByHospitalAndStatusAndAppointmentDateBetween(Long hospitalId, AppointmentStatus status, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
     @Query("""
                 SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(
@@ -46,13 +46,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Page<AppointmentListResponseDTO> findByDoctorId(Long doctorId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalAndPatient(Long hospitalId,Long patientId, Pageable pageable);
+    Page<Appointment> findByHospitalAndPatient(Long hospitalId, Long patientId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByDepartmentIdAndAppointmentDateBetween(Long departmentId, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<Appointment> findByDepartmentIdAndAppointmentDateBetween(Long departmentId, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalId(Long hospitalId,Pageable pageable);
+    Page<Appointment> findByHospitalId(Long hospitalId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
     Page<Appointment> findByDoctorIdAndStatus(Long doctorId, AppointmentStatus status, Pageable pageable);
@@ -61,11 +61,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Page<Appointment> findByPatientIdAndStatus(Long patientId, AppointmentStatus status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByDoctorIdAndAppointmentDateBetween(Long doctorId, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<Appointment> findByDoctorIdAndAppointmentDateBetween(Long doctorId, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByDepartmentIdAndStatusAndAppointmentDateBetween(Long departmentId, AppointmentStatus status, LocalDateTime start,LocalDateTime end, Pageable pageable);
+    Page<Appointment> findByDepartmentIdAndStatusAndAppointmentDateBetween(Long departmentId, AppointmentStatus status, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalIdAndStatusAndAppointmentDateBetween(Long hospitalId, AppointmentStatus status, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<Appointment> findByHospitalIdAndStatusAndAppointmentDateBetween(Long hospitalId, AppointmentStatus status, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 }

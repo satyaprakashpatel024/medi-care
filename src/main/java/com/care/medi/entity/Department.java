@@ -11,12 +11,16 @@ import java.util.List;
 
 @Schema(hidden = true)
 @Entity
-@Table(name = "departments")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "departments",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_departments_name", columnNames = "name")
+        }
+)
 public class Department {
 
     @Id
@@ -25,7 +29,7 @@ public class Department {
 
     @NotBlank(message = "Department name is required")
     @Size(max = 150)
-    @Column(nullable = false, unique = true, length = 150)
+    @Column(nullable = false, length = 150)
     private String name;
 
     // ── Bidirectional mappings ──────────────────────────────────────────────

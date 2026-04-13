@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.OffsetDateTime;
+
 @RestController
 @RequestMapping("/api/v1/health")
 public class HealthController {
@@ -14,9 +16,9 @@ public class HealthController {
     public ResponseEntity<ApiResponse<String>> health() {
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
-                        .message("OK")
+                        .message("Server is Healthy and running.")
                         .status(HttpStatus.OK)
-                        .data("Server is Healthy and running.")
+                        .data(OffsetDateTime.now().toString())
                         .success(true)
                         .build()
         );

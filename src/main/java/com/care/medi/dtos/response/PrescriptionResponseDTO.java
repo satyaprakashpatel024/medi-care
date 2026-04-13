@@ -3,7 +3,7 @@ package com.care.medi.dtos.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -16,6 +16,6 @@ public record PrescriptionResponseDTO(
         String medications,
         String dosageInstructions,
         String notes,
-        LocalDateTime createdAt
+        OffsetDateTime createdAt
 ) {
 }

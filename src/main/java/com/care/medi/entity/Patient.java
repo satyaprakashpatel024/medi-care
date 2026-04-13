@@ -8,15 +8,18 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Schema(hidden = true)
 @Entity
-@Table(name = "patients", indexes = {
-        @Index(name = "idx_patients_user_id", columnList = "user_id")
-})
+@Table(name = "patients",
+        indexes = { @Index(name = "idx_patients_user_id", columnList = "user_id") },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_patients_user_id", columnNames = "user_id")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,9 +32,7 @@ public class Patient {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true,
-            foreignKey = @ForeignKey(name = "fk_patient_user"))
-    @NotNull(message = "Users is required")
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_patient_user"))
     private Users user;
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -70,12 +71,12 @@ public class Patient {
     private BloodGroup bloodGroup;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime updatedAt;
 
     // ── Bidirectional mappings ──────────────────────────────────────────────
 

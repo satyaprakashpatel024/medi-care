@@ -7,6 +7,7 @@ import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.DoctorListResponseDTO;
 import com.care.medi.dtos.response.DoctorResponseDTO;
 import com.care.medi.services.DoctorServiceImpl;
+import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 
@@ -32,7 +34,7 @@ public class DoctorController {
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sortBy
     ) {
-        Page<DoctorListResponseDTO> allDoctors = doctorService.getAllActiveDoctors( page, size, sortBy);
+        Page<DoctorListResponseDTO> allDoctors = doctorService.getAllActiveDoctors(page, size, sortBy);
         return ResponseEntity.ok(
                 ApiResponse.<Page<DoctorListResponseDTO>>builder()
                         .status(HttpStatus.OK)
@@ -113,7 +115,7 @@ public class DoctorController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
 
-        LocalDate filterDate = (date != null) ? date : LocalDate.now();
+        LocalDate filterDate = (date != null) ? date : LocalDate.now(ZoneId.of(Constants.TIME_ZONE));
         String msg = String.format("Successfully retrieved appointments for Doctor ID %d on %s.",
                 id, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 

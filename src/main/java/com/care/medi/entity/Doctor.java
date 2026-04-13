@@ -13,31 +13,36 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Schema(hidden = true)
 @Entity
-@Table(name = "doctors", indexes = {
-        @Index(name = "idx_doctors_user_id", columnList = "user_id"),
-        @Index(name = "idx_doctors_hospital_id", columnList = "hospital_id"),
-        @Index(name = "idx_doctors_department_id", columnList = "department_id")
-})
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "doctors",
+        indexes = {
+                @Index(name = "idx_doctors_user_id",       columnList = "user_id"),
+                @Index(name = "idx_doctors_hospital_id",   columnList = "hospital_id"),
+                @Index(name = "idx_doctors_department_id", columnList = "department_id")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_doctors_user_id", columnNames = "user_id")
+        }
+)
 public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_doctor_user"))
     @NotNull(message = "Users is required")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_doctor_user"))
     private Users user;
 
     @NotBlank(message = "First name is required")
@@ -93,12 +98,12 @@ public class Doctor {
 
     @CreatedDate
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime updatedAt;
 
     // ── Bidirectional mappings ──────────────────────────────────────────────
 
@@ -109,11 +114,6 @@ public class Doctor {
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Prescription> prescriptions = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
-    private List<Address> addresses = new ArrayList<>();
 
     // ── Helper methods ──────────────────────────────────────────────────────
 

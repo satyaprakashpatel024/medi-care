@@ -6,21 +6,27 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "appointments", indexes = {
-        @Index(name = "idx_appt_patient_id", columnList = "patient_id"),
-        @Index(name = "idx_appt_doctor_id", columnList = "doctor_id"),
-        @Index(name = "idx_appt_date", columnList = "appointment_date")
-})
 @Schema(hidden = true)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "appointments",
+        indexes = {
+                @Index(name = "idx_appt_patient_id", columnList = "patient_id"),
+                @Index(name = "idx_appt_doctor_id",  columnList = "doctor_id"),
+                @Index(name = "idx_appt_date",       columnList = "appointment_date")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_appt_prescription_id", columnNames = "prescription_id")
+        }
+)
 public class Appointment {
 
     @Id
@@ -28,31 +34,29 @@ public class Appointment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_appt_patient"))
-    @NotNull(message = "Patient is required")
+    @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_patient"))
     private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_appt_doctor"))
-    @NotNull(message = "Doctor is required")
+    @JoinColumn(name = "doctor_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_doctor"))
     private Doctor doctor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id",
-            foreignKey = @ForeignKey(name = "fk_appt_department"))
+    @NotNull(message = "Hospital is required")
+    @JoinColumn(name = "hospital_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_hospital"))
+    private Hospital hospital;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id", foreignKey = @ForeignKey(name = "fk_appointment_department"))
     private Department department;
 
-    // One-to-one: each appointment has at most one prescription
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "prescription_id", unique = true,
-            foreignKey = @ForeignKey(name = "fk_appt_prescription"))
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "prescription_id", foreignKey = @ForeignKey(name = "fk_appointment_prescription"))
     private Prescription prescription;
 
     @NotNull(message = "Appointment date is required")
     @Column(name = "appointment_date", nullable = false)
-    private LocalDateTime appointmentDate;
+    private OffsetDateTime appointmentDate;
 
     @NotNull(message = "Status is required")
     @Column(nullable = false, length = 10)
@@ -66,13 +70,11 @@ public class Appointment {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hospital_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_appt_hospital"))
-    @NotNull(message = "Hospital is required")
-    private Hospital hospital;
-
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime updatedAt;
 }

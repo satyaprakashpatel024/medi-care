@@ -24,4 +24,6 @@ public interface PatientService {
     InsuranceResponseDTO assignInsurance(Long patientId, InsuranceRequestDTO insurance);
 
     List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId);
+
+    Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy);
 }

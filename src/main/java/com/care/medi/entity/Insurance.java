@@ -3,11 +3,17 @@ package com.care.medi.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "insurances")
+@Table(name = "insurances",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_insurances_policy_number", columnNames = "policy_number")
+        }
+)
 @Getter
 @Setter
 @Builder
@@ -21,19 +27,21 @@ public class Insurance {
 
     @NotBlank(message = "Insurance provider name is required")
     @Size(min = 2, max = 100, message = "Provider name must be between 2 and 100 characters")
-    @Column(nullable = false)
+    @Column(name = "provider_name", nullable = false)
     private String providerName;
 
     @NotBlank(message = "Policy number is required")
-    @Column(unique = true, nullable = false)
+    @Column(name = "policy_number", nullable = false)
     private String policyNumber;
 
     @NotBlank(message = "Policy type is required (e.g., Health, Life, Dental)")
+    @Column(name = "policy_type", nullable = false)
     private String policyType;
 
     // Financial Fields
     @NotNull(message = "Coverage amount is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "Coverage must be greater than 0")
+    @Column(name = "coverage_amount", nullable = false)
     private Double coverageAmount;
 
     @DecimalMin(value = "0.0", message = "Deductible cannot be negative")
@@ -60,9 +68,13 @@ public class Insurance {
     @Column(nullable = false, name = "status")
     private InsuranceStatus status = InsuranceStatus.ACTIVE;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
+
     // Relationships
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id")
+    @JoinColumn(name = "patient_id", foreignKey = @ForeignKey(name = "fk_insurance_patient"))
     private Patient patient;
 
     // Helper method to check if the policy is currently valid

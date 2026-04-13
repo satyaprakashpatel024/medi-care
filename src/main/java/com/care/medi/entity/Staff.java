@@ -9,13 +9,19 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Schema(hidden = true)
 @Entity
-@Table(name = "staffs", indexes = {
-        @Index(name = "idx_staffs_user_id", columnList = "user_id"),
-        @Index(name = "idx_staffs_hospital_id", columnList = "hospital_id")
-})
+@Table(name = "staffs",
+        indexes = {
+                @Index(name = "idx_staffs_user_id",     columnList = "user_id"),
+                @Index(name = "idx_staffs_hospital_id", columnList = "hospital_id")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_staffs_user_id", columnNames = "user_id")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,10 +33,9 @@ public class Staff {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true,
-            foreignKey = @ForeignKey(name = "fk_staff_user"))
     @NotNull(message = "Users is required")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_staff_user"))
     private Users user;
 
     @NotBlank(message = "First name is required")
@@ -52,7 +57,8 @@ public class Staff {
     @Column(length = 10)
     private Gender gender;
 
-    @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
+    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+            message = "Invalid phone number, Please provide valid Indian Phone number.")
     @Column(length = 20)
     private String phone;
 
@@ -66,14 +72,14 @@ public class Staff {
 
     @Column(name = "blood_group", length = 7)
     @Enumerated(EnumType.STRING)
-    private BloodGroup bloodType;
+    private BloodGroup bloodGroup;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private LocalDateTime updatedAt;
 }
 

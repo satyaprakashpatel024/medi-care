@@ -1,6 +1,9 @@
 package com.care.medi.services;
 
-import com.care.medi.dtos.request.*;
+import com.care.medi.dtos.request.AppointmentRequestDTO;
+import com.care.medi.dtos.request.AppointmentRescheduleDTO;
+import com.care.medi.dtos.request.AppointmentUpdateRequestDTO;
+import com.care.medi.dtos.request.PrescriptionRequestDTO;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.dtos.response.PatientResponseDTO;
@@ -20,8 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -45,8 +49,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
         // Convert LocalDate to the start and end of that specific day
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        // 1. Create the start of the day in IST
+        OffsetDateTime startOfDay = date.atStartOfDay()
+                .atZone(ZoneId.of(Constants.TIME_ZONE))
+                .toOffsetDateTime();
+
+        // 2. Create the end of the day in IST
+        OffsetDateTime endOfDay = date.atTime(LocalTime.MAX)
+                .atZone(ZoneId.of(Constants.TIME_ZONE))
+                .toOffsetDateTime();
 
         Page<Appointment> all = appointmentRepository.findByHospitalIdAndAppointmentDateBetween(
                 hospitalId, startOfDay, endOfDay, pageable);
@@ -94,7 +105,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .hospital(byId.get())
                 .appointmentDate(request.getAppointmentDate())
                 .status(AppointmentStatus.SCHEDULED)
-                .createdAt(LocalDateTime.now())
+                .createdAt(OffsetDateTime.now())
                 .build();
 
         return AppointmentResponseDTO.fromEntity(appointmentRepository.save(appointment));
@@ -143,7 +154,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                     .doctor(appointment.getDoctor())
                     .patient(appointment.getPatient())
                     .appointment(appointment)
-                    .createdAt(LocalDateTime.now())
+                    .createdAt(OffsetDateTime.now())
                     .build();
         }
 
@@ -173,7 +184,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.setStatus(AppointmentStatus.CANCELLED);
                 appointmentRepository.save(appointment); // saveAndFlush is usually overkill here
             }
-            default -> throw new InvalidRequestException(Constants.INVALID_APPOINTMENT_STATUS + appointment.getStatus().name());
+            default ->
+                    throw new InvalidRequestException(Constants.INVALID_APPOINTMENT_STATUS + appointment.getStatus().name());
         }
     }
 
@@ -186,14 +198,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 
     @Override
-    public Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId,Long patientId, int page, int size, String sortBy) {
+    public Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId, Long patientId, int page, int size, String sortBy) {
         boolean b = patientRepository.existsById(patientId);
         if (!b) {
             throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return appointmentRepository
-                .findByHospitalAndPatient(hospitalId,patientId, pageable)
+                .findByHospitalAndPatient(hospitalId, patientId, pageable)
                 .map(AppointmentResponseDTO::fromEntity);
     }
 
@@ -201,18 +213,32 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, String status, int page, int size, String sortBy, LocalDate date) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        // 1. Create the start of the day in IST
+        OffsetDateTime startOfDay = date.atStartOfDay()
+                .atZone(ZoneId.of(Constants.TIME_ZONE))
+                .toOffsetDateTime();
+
+        // 2. Create the end of the day in IST
+        OffsetDateTime endOfDay = date.atTime(LocalTime.MAX)
+                .atZone(ZoneId.of(Constants.TIME_ZONE))
+                .toOffsetDateTime();
         return appointmentRepository
-                .findByHospitalAndStatusAndAppointmentDateBetween(hospitalId,AppointmentStatus.valueOf(status), startOfDay, endOfDay, pageable)
+                .findByHospitalAndStatusAndAppointmentDateBetween(hospitalId, AppointmentStatus.valueOf(status), startOfDay, endOfDay, pageable)
                 .map(AppointmentListResponseDTO::fromEntity);
     }
 
     @Override
     public Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndDate(Long doctorId, int page, int size, String sortBy, LocalDate date) {
 
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        // 1. Create the start of the day in IST
+        OffsetDateTime startOfDay = date.atStartOfDay()
+                .atZone(ZoneId.of(Constants.TIME_ZONE))
+                .toOffsetDateTime();
+
+        // 2. Create the end of the day in IST
+        OffsetDateTime endOfDay = date.atTime(LocalTime.MAX)
+                .atZone(ZoneId.of(Constants.TIME_ZONE))
+                .toOffsetDateTime();
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
         return appointmentRepository

@@ -3,6 +3,9 @@ package com.care.medi.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.OffsetDateTime;
 
 @Schema(hidden = true)
 @Entity
@@ -32,4 +35,8 @@ public class HospitalDepartment {
     @JoinColumn(name = "department_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_hd_department"))
     private Department department;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 }

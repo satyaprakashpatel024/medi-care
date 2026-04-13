@@ -5,7 +5,7 @@ import com.care.medi.entity.AppointmentStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -14,7 +14,7 @@ public record AppointmentListResponseDTO(
         String patientName,
         String doctorName,
         String departmentName,
-        LocalDateTime appointmentDate,
+        OffsetDateTime appointmentDate,
         AppointmentStatus status
 ) {
 

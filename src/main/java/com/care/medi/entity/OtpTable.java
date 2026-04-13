@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "otp_tables", indexes = {
@@ -40,15 +40,15 @@ public class OtpTable {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     @NotNull(message = "Expiry time is required")
     @Column(name = "expired_at", nullable = false)
-    private LocalDateTime expiredAt;
+    private OffsetDateTime expiredAt;
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = OffsetDateTime.now();
         this.expiredAt = this.createdAt.plusMinutes(5);
     }
 }

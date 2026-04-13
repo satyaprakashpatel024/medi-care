@@ -42,6 +42,23 @@ public class PatientController {
         );
     }
 
+    @GetMapping("/hospital/{id}")
+    public ResponseEntity<ApiResponse<Page<PatientListResponseDTO>>> getAllPatientsByHospital(
+            @PathVariable("id") Long hospitalId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "5") Integer size,
+            @RequestParam(defaultValue = "id") String sortBy
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.<Page<PatientListResponseDTO>>builder()
+                        .data(patientService.getAllPatientsByHospital(hospitalId, page, size, sortBy))
+                        .message("Success")
+                        .status(HttpStatus.OK)
+                        .success(true)
+                        .build()
+        );
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> getPatientById(@PathVariable("id") Long id) {
         PatientResponseDTO patientById = patientService.getPatientById(id);
