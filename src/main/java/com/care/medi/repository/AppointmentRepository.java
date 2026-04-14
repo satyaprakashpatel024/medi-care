@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
@@ -17,55 +18,52 @@ import java.util.Optional;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    @Override
-    @NonNull
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Optional<Appointment> findById(Long id);
-
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
     Page<Appointment> findByHospitalIdAndAppointmentDateBetween(Long hospitalId, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalAndStatusAndAppointmentDateBetween(Long hospitalId, AppointmentStatus status, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
+    Page<Appointment> findByHospitalIdAndStatusAndAppointmentDateBetween(Long hospitalId, AppointmentStatus status, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
     @Query("""
-                SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(
-                    a.id,
-                    concat(p.firstName, ' ', p.lastName),
-                    concat(d.firstName, ' ', d.lastName),
-                    dept.name,
-                    a.appointmentDate,
-                    a.status
-                )
-                FROM Appointment a
-                JOIN a.patient p
-                JOIN a.doctor d
-                JOIN d.department dept
-                WHERE d.id = :doctorId
-            """)
-    Page<AppointmentListResponseDTO> findByDoctorId(Long doctorId, Pageable pageable);
+    SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(
+        a.id, 
+        concat(p.firstName, ' ', p.lastName), 
+        concat(d.firstName, ' ', d.lastName), 
+        dept.name, 
+        a.appointmentDate, 
+        a.status
+    )
+    FROM Appointment a
+    JOIN a.patient p
+    JOIN a.doctor d
+    JOIN d.department dept
+    WHERE d.id = :doctorId
+    AND d.hospital.id = :hospitalId
+""")
+    Page<AppointmentListResponseDTO> findByDoctorIdAndHospitalId(@Param("doctorId") Long doctorId, @Param("hospitalId") Long hospitalId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalAndPatient(Long hospitalId, Long patientId, Pageable pageable);
+    Page<Appointment> findByHospitalIdAndPatientId(@Param("hospitalId") Long hospitalId, @Param("patientId") Long patientId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByDepartmentIdAndAppointmentDateBetween(Long departmentId, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
+    Page<Appointment> findByDepartmentIdAndAppointmentDateBetween(@Param("departmentId") Long departmentId, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalId(Long hospitalId, Pageable pageable);
+    Page<Appointment> findByHospitalId(@Param("hospitalId") Long hospitalId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByDoctorIdAndStatus(Long doctorId, AppointmentStatus status, Pageable pageable);
+    Page<Appointment> findByDoctorIdAndStatus(@Param("doctorId") Long doctorId, AppointmentStatus status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByPatientIdAndStatus(Long patientId, AppointmentStatus status, Pageable pageable);
+    Page<Appointment> findByPatientIdAndStatus(@Param("patientId") Long patientId, AppointmentStatus status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByDoctorIdAndAppointmentDateBetween(Long doctorId, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
+    Page<Appointment> findByDoctorIdAndAppointmentDateBetween(@Param("doctorId") Long doctorId, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByDepartmentIdAndStatusAndAppointmentDateBetween(Long departmentId, AppointmentStatus status, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
+    Page<Appointment> findByDepartmentIdAndStatusAndAppointmentDateBetween(@Param("departmentId") Long departmentId, AppointmentStatus status, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalIdAndStatusAndAppointmentDateBetween(Long hospitalId, AppointmentStatus status, OffsetDateTime start, OffsetDateTime end, Pageable pageable);
+    @NonNull
+    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+    Optional<Appointment> findByIdAndHospitalId(@Param("id") Long id,@Param("hospitalId") Long hospitalId);
 }

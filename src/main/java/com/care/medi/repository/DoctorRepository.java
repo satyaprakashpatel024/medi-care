@@ -13,10 +13,6 @@ import java.util.Optional;
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
-    @NonNull
-    @EntityGraph(attributePaths = {"hospital", "department"})
-    Page<Doctor> findByIsActiveTrue(Pageable pageable);
-
     @Override
     @NonNull
     @EntityGraph(attributePaths = {"hospital", "department"})
@@ -24,14 +20,17 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     @NonNull
     @EntityGraph(attributePaths = {"user", "hospital", "department"})
-    Optional<Doctor> findByIdAndIsActiveTrue(@NonNull Long id);
+    Optional<Doctor> findByIdAndHospitalIdAndIsActiveTrue(@NonNull Long id, @NonNull Long hospitalId);
 
     @EntityGraph(attributePaths = {"hospital", "department"})
     Page<Doctor> findByHospitalIdAndIsActiveTrue(Long hospitalId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"hospital", "department"})
-    Page<Doctor> findByDepartmentIdAndHospitalIdAndIsActiveTrue(Long hospitalId, Long departmentId, Pageable pageable);
+    Page<Doctor> findByHospitalIdAndDepartmentIdAndIsActiveTrue(Long hospitalId, Long departmentId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"hospital", "department"})
-    Page<Doctor> findBySpecialityContainingIgnoreCaseAndIsActiveTrue(String speciality, Pageable pageable);
+    Page<Doctor> findByHospitalAndSpecialityContainingIgnoreCaseAndIsActiveTrue(Long hospitalId, String speciality, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"hospital", "department"})
+    Page<Doctor> findByIsActiveTrue(Pageable pageable);
 }

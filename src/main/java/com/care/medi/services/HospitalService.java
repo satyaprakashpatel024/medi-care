@@ -22,4 +22,6 @@ public interface HospitalService {
     void removeDepartment(Long hospitalId, Long departmentId) throws BusinessException;
 
     void deleteHospital(Long id);
+
+    boolean existsById(Long id);
 }

@@ -14,19 +14,20 @@ import java.time.LocalDate;
 public interface AppointmentService {
     Page<AppointmentListResponseDTO> getAllAppointmentsByHospitalAndDate(Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date);
 
-    AppointmentResponseDTO createAppointment(AppointmentRequestDTO request);
+    AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request);
 
-    AppointmentResponseDTO getAppointmentById(Long id);
-
-    @Transactional
-    AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request);
+    AppointmentResponseDTO getAppointmentByIdAndHospital(Long id,Long hospitalId);
 
     @Transactional
-    AppointmentResponseDTO updateAppointment(Long id, AppointmentUpdateRequestDTO request);
+    AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request,Long hospitalId);
 
-    void cancelAppointment(Long id);
 
-    void deleteAppointment(Long id);
+    @Transactional
+    AppointmentResponseDTO updateAppointment(Long id, Long hospitalId, AppointmentUpdateRequestDTO request);
+
+    void cancelAppointment(Long id, Long hospitalId);
+
+    void deleteAppointment(Long id,Long hospitalId);
 
     Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId, Long patientId, int page, int size, String sortBy);
 

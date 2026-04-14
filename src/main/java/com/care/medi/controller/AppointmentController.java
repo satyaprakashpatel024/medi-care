@@ -38,7 +38,7 @@ public class AppointmentController {
             @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
-        AppointmentResponseDTO appointmentById = appointmentService.getAppointmentById(id);
+        AppointmentResponseDTO appointmentById = appointmentService.getAppointmentByIdAndHospital(id,hospitalId);
         String msg = String.format("Successfully retrieved appointments for Appointment ID : %d.", id);
         return ResponseEntity.ok(
                 ApiResponse.<AppointmentResponseDTO>builder()
@@ -112,7 +112,7 @@ public class AppointmentController {
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestBody @Valid AppointmentRequestDTO request
     ) {
-        AppointmentResponseDTO appointment = appointmentService.createAppointment(request);
+        AppointmentResponseDTO appointment = appointmentService.createAppointment(hospitalId,request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -136,7 +136,7 @@ public class AppointmentController {
             @PathVariable("id") Long id,
             @RequestBody @Valid AppointmentRescheduleDTO request
     ) {
-        AppointmentResponseDTO response = appointmentService.rescheduleAppointment(id, request);
+        AppointmentResponseDTO response = appointmentService.rescheduleAppointment(id, request,hospitalId);
         String msg = String.format("Successfully rescheduled appointment for Appointment ID : %d.", id);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
@@ -155,14 +155,14 @@ public class AppointmentController {
             @PathVariable("id") Long id,
             @RequestBody @Valid AppointmentUpdateRequestDTO request
     ) {
-        AppointmentResponseDTO appointment = appointmentService.updateAppointment(id, request);
+
         String msg = String.format("Successfully updated appointment for Appointment ID : %d.", id);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
                         .status(HttpStatus.ACCEPTED)
                         .message(msg)
                         .success(true)
-                        .data(appointment)
+                        .data(appointmentService.updateAppointment(id,hospitalId, request))
                         .build()
         );
     }
@@ -173,7 +173,7 @@ public class AppointmentController {
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
 
-        appointmentService.cancelAppointment(id);
+        appointmentService.cancelAppointment(id,hospitalId);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
                         .status(HttpStatus.ACCEPTED)

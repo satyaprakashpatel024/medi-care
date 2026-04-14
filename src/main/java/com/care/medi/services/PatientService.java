@@ -7,6 +7,7 @@ import com.care.medi.dtos.response.InsuranceResponseDTO;
 import com.care.medi.dtos.response.PatientListResponseDTO;
 import com.care.medi.dtos.response.PatientResponseDTO;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,11 +16,13 @@ public interface PatientService {
 
     PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId,Long id);
 
-    PatientResponseDTO createPatient(PatientRequestDTO patient);
+    @Transactional
+    PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient);
 
-    PatientResponseDTO updatePatient(Long id, PatientUpdateRequestDTO patient);
+    @Transactional
+    PatientResponseDTO updatePatientInHospital(Long patientId, Long hospitalId, PatientUpdateRequestDTO patientDTO);
 
-    void deletePatient(Long id);
+    void deletePatientFromHospital(Long patientId, Long hospitalId);
 
     InsuranceResponseDTO assignInsurance(Long patientId, InsuranceRequestDTO insurance);
 

@@ -31,6 +31,7 @@ public class PatientServiceImpl implements PatientService {
     private final PatientRepository patientRepository;
     private final UserRepository userRepository;
     private final InsuranceRepository insuranceRepository;
+    private final HospitalService hospitalService;
 
     @Override
     public Page<PatientListResponseDTO> getAllPatients(int page, int size, String sortBy) {
@@ -50,7 +51,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional
     @Override
-    public PatientResponseDTO createPatient(PatientRequestDTO patient) {
+    public PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient) {
         if (userRepository.existsByEmail(patient.getEmail())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_EMAIL + patient.getEmail());
         }
@@ -77,9 +78,9 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional
     @Override
-    public PatientResponseDTO updatePatient(Long patientId, PatientUpdateRequestDTO patientDTO) {
+    public PatientResponseDTO updatePatientInHospital(Long patientId, Long hospitalId, PatientUpdateRequestDTO patientDTO) {
         // 1. Fetch the existing entity
-        Patient existingPatient = patientRepository.findById(patientId)
+        Patient existingPatient = patientRepository.findByIdAndHospitalId(patientId,hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
 
         // 2. Conditionally update fields (Check for null before setting)
@@ -114,8 +115,8 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public void deletePatient(Long patientId) {
-        patientRepository.deleteById(patientId);
+    public void deletePatientFromHospital(Long patientId, Long hospitalId) {
+        patientRepository.deleteByIdAndHospitalId(patientId,hospitalId);
     }
 
     @Transactional
@@ -156,6 +157,9 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy) {
+        if(!hospitalService.existsById(hospitalId)) {
+            throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId);
+        }
         return patientRepository.findAllByHospitalId(hospitalId, PageRequest.of(page, size, Sort.by(sortBy)));
     }
 }

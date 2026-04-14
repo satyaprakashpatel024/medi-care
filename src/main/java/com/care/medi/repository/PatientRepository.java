@@ -38,4 +38,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
             @Param("hospitalId") Long hospitalId,
             Pageable pageable
     );
+
+    void deleteByIdAndHospitalId(Long patientId,Long hospitalId);
 }

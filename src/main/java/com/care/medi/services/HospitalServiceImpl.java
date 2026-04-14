@@ -139,6 +139,10 @@ public class HospitalServiceImpl implements HospitalService {
         hospitalRepository.deleteById(id);
     }
 
+    public boolean existsById(Long hospitalId){
+        return hospitalRepository.existsById(hospitalId);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private HospitalAddress buildHospitalAddress(HospitalAddressRequestDTO req) {
@@ -175,5 +179,7 @@ public class HospitalServiceImpl implements HospitalService {
                 .map(hospitalAddressServiceImpl::toHospitalAddressResponse)
                 .collect(Collectors.toSet());
     }
+
+
 
 }
