@@ -4,7 +4,6 @@ import com.care.medi.dtos.request.HospitalRequestDTO;
 import com.care.medi.dtos.request.HospitalUpdateRequestDTO;
 import com.care.medi.dtos.response.ApiResponse;
 import com.care.medi.dtos.response.HospitalResponseDTO;
-import com.care.medi.services.DoctorServiceImpl;
 import com.care.medi.services.HospitalServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class HospitalController {
 
     private final HospitalServiceImpl hospitalService;
-    private final DoctorServiceImpl doctorService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<HospitalResponseDTO>>> getAllHospitals(

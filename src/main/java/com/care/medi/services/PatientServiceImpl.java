@@ -121,8 +121,8 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional
     @Override
-    public InsuranceResponseDTO assignInsurance(Long patientId, InsuranceRequestDTO request) {
-        Optional<Patient> byId = patientRepository.findById(patientId);
+    public InsuranceResponseDTO assignInsurance(Long patientId,Long hospitalId, InsuranceRequestDTO request) {
+        Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId,hospitalId);
         if (byId.isEmpty()) {
             throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
         }
@@ -150,8 +150,15 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId) {
+    public List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId,Long hospitalId) {
+        boolean b = patientRepository.existsById(patientId);
+        if (!b) {
+            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
+        }
         List<Insurance> byPatientId = insuranceRepository.findByPatientId(patientId);
+        if (byPatientId.isEmpty()) {
+            throw  new ResourceNotFoundException(Constants.INSURANCE_NOT_FOUND);
+        }
         return byPatientId.stream().map(InsuranceResponseDTO::fromEntity).toList();
     }
 
@@ -162,4 +169,5 @@ public class PatientServiceImpl implements PatientService {
         }
         return patientRepository.findAllByHospitalId(hospitalId, PageRequest.of(page, size, Sort.by(sortBy)));
     }
+
 }

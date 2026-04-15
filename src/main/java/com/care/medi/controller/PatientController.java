@@ -146,7 +146,7 @@ public class PatientController {
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
             @PathVariable("id") Long patientId,
             @RequestBody @Valid InsuranceRequestDTO insuranceRequestDTO) {
-        InsuranceResponseDTO insurance = patientService.assignInsurance(patientId, insuranceRequestDTO);
+        InsuranceResponseDTO insurance = patientService.assignInsurance(patientId,hospitalId, insuranceRequestDTO);
         String msg = String.format("Successfully assigned insurance to patient for id : %d.", patientId);
         return ResponseEntity.accepted().body(
                 ApiResponse.<InsuranceResponseDTO>builder()
@@ -164,8 +164,8 @@ public class PatientController {
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
             @PathVariable("id") Long id
     ) {
-        List<InsuranceResponseDTO> insuranceByPatientId = patientService.getInsuranceByPatientId(id);
-        String msg = String.format("Successfully retrieved insurances for id : %d.", id);
+        List<InsuranceResponseDTO> insuranceByPatientId = patientService.getInsuranceByPatientId(id,hospitalId);
+        String msg = String.format("Successfully retrieved insurances for PatientId : %d.", id);
         return ResponseEntity.ok(
                 ApiResponse.<List<InsuranceResponseDTO>>builder()
                         .data(insuranceByPatientId)

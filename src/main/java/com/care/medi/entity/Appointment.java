@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Schema(hidden = true)
@@ -56,7 +57,7 @@ public class Appointment {
 
     @NotNull(message = "Appointment date is required")
     @Column(name = "appointment_date", nullable = false)
-    private OffsetDateTime appointmentDate;
+    private ZonedDateTime appointmentDate;
 
     @NotNull(message = "Status is required")
     @Column(nullable = false, length = 10)

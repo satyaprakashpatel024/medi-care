@@ -22,7 +22,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @RestController
@@ -59,7 +58,7 @@ public class AppointmentController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        LocalDate filterDate = (date != null) ? date : LocalDate.now(ZoneId.of(Constants.TIME_ZONE));
+        LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
         String msg = String.format("Successfully retrieved appointments for Hospital ID %d on %s.",
                 hospitalId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 
@@ -84,7 +83,7 @@ public class AppointmentController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         // 1. Handle Date Logic (Keep the logic but consider moving it to Service later)
-        LocalDate filterDate = (date != null) ? date : LocalDate.now(ZoneId.of(Constants.TIME_ZONE));
+        LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
 
         // 2. Fetch Data
         Page<AppointmentListResponseDTO> appointmentPage = appointmentService
@@ -198,6 +197,21 @@ public class AppointmentController {
                         .status(HttpStatus.OK)
                         .message(msg)
                         .data(appointmentsByPatient)
+                        .success(true)
+                        .build()
+        );
+    }
+
+    @DeleteMapping("{id}")
+    public  ResponseEntity<ApiResponse<AppointmentResponseDTO>> deleteAppointment(
+            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @PathVariable("id") Long id) {
+        appointmentService.deleteAppointmentById(id,hospitalId);
+        return  ResponseEntity.accepted().body(
+                ApiResponse.<AppointmentResponseDTO>builder()
+                        .status(HttpStatus.ACCEPTED)
+                        .message("Appointment deleted successfully")
                         .success(true)
                         .build()
         );

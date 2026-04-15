@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientRequestDTO {
+    private Long id;
     @NotBlank(message = "Email is required.")
     @Email(message = "Invalid email format.")
     @Size(max = 255, message = "Email must be at most 255 characters long")

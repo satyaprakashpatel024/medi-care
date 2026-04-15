@@ -24,9 +24,9 @@ public interface PatientService {
 
     void deletePatientFromHospital(Long patientId, Long hospitalId);
 
-    InsuranceResponseDTO assignInsurance(Long patientId, InsuranceRequestDTO insurance);
+    InsuranceResponseDTO assignInsurance(Long patientId,Long hospitalId, InsuranceRequestDTO insurance);
 
-    List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId);
+    List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId,Long hospitalId);
 
     Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy);
 }

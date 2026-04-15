@@ -1,10 +1,14 @@
 package com.care.medi.dtos.response;
 
 import com.care.medi.entity.Appointment;
+import com.care.medi.utils.Constants;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -17,7 +21,7 @@ public record AppointmentResponseDTO(
         Long departmentId,
         String departmentName,
         Long prescriptionId,
-        OffsetDateTime appointmentDate,
+        String appointmentDate,
         String status,
         String treatment,
         String notes,
@@ -26,6 +30,7 @@ public record AppointmentResponseDTO(
 
 
     public static AppointmentResponseDTO fromEntity(Appointment appointment) {
+        ZonedDateTime zonedDateTime = appointment.getAppointmentDate().withZoneSameInstant(Constants.ZONE_ID);
         return AppointmentResponseDTO.builder()
                 .id(appointment.getId())
                 .patientId(appointment.getPatient().getId())
@@ -34,7 +39,7 @@ public record AppointmentResponseDTO(
                 .doctorName(STR."\{appointment.getDoctor().getFirstName()} \{appointment.getDoctor().getLastName()}")
                 .departmentId(appointment.getDepartment().getId())
                 .departmentName(appointment.getDepartment().getName())
-                .appointmentDate(appointment.getAppointmentDate())
+                .appointmentDate(zonedDateTime.format(Constants.HUMAN_DATETIME_FORMAT))
                 .status(appointment.getStatus().name())
                 .treatment(appointment.getTreatment())
                 .notes(appointment.getNotes())

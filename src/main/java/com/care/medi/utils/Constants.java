@@ -1,5 +1,6 @@
 package com.care.medi.utils;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public final class Constants {
@@ -31,6 +32,8 @@ public final class Constants {
     // Set Time Zone
     public static final String TIME_ZONE = "Asia/Kolkata";
     public static final DateTimeFormatter HUMAN_DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+    public static final ZoneId ZONE_ID = ZoneId.of(TIME_ZONE);              // 10:30 AM
+    public static final DateTimeFormatter HUMAN_DATETIME_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a");    // 15 April 2025, 10:30 AM
 
     private Constants() {
         // Prevent instantiation
