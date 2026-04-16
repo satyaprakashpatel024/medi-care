@@ -112,7 +112,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public Page<DoctorListResponseDTO> getActiveDoctorsBySpecialityAndHospital(String speciality, Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Doctor> bySpeciality = doctorRepository.findByHospitalAndSpecialityContainingIgnoreCaseAndIsActiveTrue(hospitalId,speciality, pageable);
+        Page<Doctor> bySpeciality = doctorRepository.findByHospitalIdAndSpecialityContainingIgnoreCaseAndIsActiveTrue(hospitalId,speciality, pageable);
         List<DoctorListResponseDTO> list1 = bySpeciality.stream()
                 .map(this::toDoctorListResponse)
                 .toList();

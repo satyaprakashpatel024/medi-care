@@ -9,14 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 
 @RestController
 @RequestMapping("/api/v1/health")
 public class HealthController {
     @GetMapping
     public ResponseEntity<ApiResponse<String>> health() {
-        String dateStr = OffsetDateTime.now(ZoneId.of(Constants.TIME_ZONE)).format(Constants.HUMAN_DATE_FORMAT);
+        String dateStr = OffsetDateTime.now(Constants.ZONE_ID).format(Constants.HUMAN_DATE_FORMAT);
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
                         .message("Server is Healthy and running.")

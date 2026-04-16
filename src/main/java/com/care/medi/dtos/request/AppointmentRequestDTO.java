@@ -7,9 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-import java.time.ZonedDateTime;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,6 +19,5 @@ public class AppointmentRequestDTO {
     @NotNull(message = "Department is required")
     private Long departmentId;
     @NotNull(message = "Appointment date is required")
-    @Future(message = "Appointment date must be in the future")
-    private ZonedDateTime appointmentDate;
+    private String appointmentDate;
 }

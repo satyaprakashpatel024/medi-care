@@ -29,7 +29,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     Page<Doctor> findByHospitalIdAndDepartmentIdAndIsActiveTrue(Long hospitalId, Long departmentId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"hospital", "department"})
-    Page<Doctor> findByHospitalAndSpecialityContainingIgnoreCaseAndIsActiveTrue(Long hospitalId, String speciality, Pageable pageable);
+    Page<Doctor> findByHospitalIdAndSpecialityContainingIgnoreCaseAndIsActiveTrue(Long hospitalId, String speciality, Pageable pageable);
 
     @EntityGraph(attributePaths = {"hospital", "department"})
     Page<Doctor> findByIsActiveTrue(Pageable pageable);

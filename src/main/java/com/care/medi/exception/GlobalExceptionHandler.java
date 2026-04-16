@@ -156,14 +156,19 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String message = STR."\{ex.getName()} should be one of: \{Arrays.toString(AppointmentStatus.values())}";
+    public ResponseEntity<ApiResponse<String>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String name = ex.getName();
+        String expectedFormat = name.contains("date")
+                ? "dd MMMM yyyy, hh:mm am/pm (e.g., 17 April 2026, 10:30 am)"
+                : Arrays.toString(AppointmentStatus.values());
 
+        String message = STR."Invalid input for '\{name}'. Expected: \{expectedFormat}";
         return ResponseEntity.badRequest().body(
-                ApiResponse.<Void>builder()
+                ApiResponse.<String>builder()
                         .status(HttpStatus.BAD_REQUEST)
                         .message(message)
                         .success(false)
+                        .errors(ex.toString())
                         .build()
         );
     }

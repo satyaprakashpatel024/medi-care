@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -57,64 +59,40 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     // Appointment slots are every 10 minutes: 09:00, 09:10, 09:20 ...
-    @Transactional // Always use Transactional when saving multiple entities
+    @Transactional
     public AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request) {
         Map<String, String> errorMap = new HashMap<>();
 
-        // 1. Normalize time
-        ZonedDateTime normalizedTime = roundToNearestTenMinutes(request.getAppointmentDate());
+        // 1. Resolve Patient (Existing or New)
+        Patient patientEntity = resolvePatient(hospitalId, request.getPatient(), errorMap);
 
-        // 2. Resolve Patient (Existing vs New)
-        Patient patientEntity = null;
-        try {
-            if (request.getPatient().getId() != null) {
-                patientEntity = patientRepository.findByIdAndHospitalId(request.getPatient().getId(),hospitalId)
-                        .orElseThrow(() -> new ResourceNotFoundException(STR."Patient not found with ID: \{request.getPatient().getId()}"));
-            } else {
-                // Create new patient and get the entity
-                PatientResponseDTO newPatientResp = patientService.createPatientInHospital(hospitalId, request.getPatient());
-                patientEntity = patientRepository.findById(newPatientResp.id()).orElse(null);
-            }
-        } catch (Exception e) {
-            errorMap.put("patient", e.getMessage());
-        }
+        // 2. Validate Domain Entities (Doctor, Department, Hospital)
+        Doctor doctor = validateDoctor(hospitalId, request.getDoctorId(), errorMap);
+        Department department = validateDepartment(request.getDepartmentId(), errorMap);
+        Hospital hospital = validateHospital(hospitalId, errorMap);
 
-        // 3. Validate Doctor
-        Doctor doctor = request.getDoctorId() == null ? null :
-                doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(request.getDoctorId(),hospitalId).orElse(null);
-        if (doctor == null) errorMap.put("doctorId", Constants.DOCTOR_NOT_FOUND + request.getDoctorId());
+        // 3. Parse and Normalize Date
+        ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(),errorMap);
 
-        // 4. Validate Department
-        Department department = request.getDepartmentId() == null ? null :
-                departmentRepository.findById(request.getDepartmentId()).orElse(null);
-        if (department == null) errorMap.put("departmentId", Constants.DEPARTMENT_NOT_FOUND + request.getDepartmentId());
-
-        // 5. Validate Hospital
-        Hospital hospital = hospitalRepository.findById(hospitalId).orElse(null);
-        if (hospital == null) errorMap.put("hospitalId", Constants.HOSPITAL_NOT_FOUND + hospitalId);
-
-        // 6. Final Check: Throw if any errors collected
+        // 4. Guard Clause: Throw if any errors collected
         if (!errorMap.isEmpty() || patientEntity == null) {
-            if (patientEntity == null && !errorMap.containsKey("patient")) {
-                errorMap.put("patient", "Patient could not be resolved.");
-            }
             throw new ResourceValidationException(errorMap);
         }
 
-        // 7. Build and persist
+
+        // 5. Build and persist
         Appointment appointment = Appointment.builder()
                 .patient(patientEntity)
                 .doctor(doctor)
                 .department(department)
                 .hospital(hospital)
-                .appointmentDate(normalizedTime)
+                .appointmentDate(rawTime)
                 .status(AppointmentStatus.SCHEDULED)
-                .createdAt(OffsetDateTime.now())
+                .createdAt(ZonedDateTime.now(Constants.ZONE_ID).toOffsetDateTime())
                 .build();
 
         return AppointmentResponseDTO.fromEntity(appointmentRepository.save(appointment));
     }
-
     @Override
     public AppointmentResponseDTO getAppointmentByIdAndHospital(Long id,Long hospitalId) {
         Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id,hospitalId);
@@ -128,15 +106,20 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request,Long hospitalId) {
         Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id,hospitalId);
+        Map<String, String> errorMap = new HashMap<>();
         if (byId.isEmpty()) {
-            throw new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id);
+            errorMap.put("appointmentId", Constants.APPOINTMENT_NOT_FOUND + id);
         }
         Appointment appointment = byId.get();
         if (request.getAppointmentDate() != null) {
-            appointment.setAppointmentDate(request.getAppointmentDate());
+            ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(),errorMap);
+            appointment.setAppointmentDate(rawTime);
         }
         if (request.getStatus() != null) {
             appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
+        }
+        if (!errorMap.isEmpty()) {
+            throw new ResourceValidationException(errorMap);
         }
         appointment = appointmentRepository.saveAndFlush(appointment);
         return AppointmentResponseDTO.fromEntity(appointment);
@@ -260,22 +243,44 @@ public class AppointmentServiceImpl implements AppointmentService {
         return byPatientIdAndAppointmentDateBetween.map(AppointmentResponseDTO::fromEntity);
     }
 
-    /**
-     * Rounds a given datetime to the nearest 10-minute boundary.
-     * Examples:
-     *   10:07 → 10:10
-     *   10:04 → 10:00
-     *   10:05 → 10:10  (rounds up on exact half)
-     */
-    private ZonedDateTime roundToNearestTenMinutes(ZonedDateTime dateTime) {
-        int minute = dateTime.getMinute();
-        int roundedMinute = (int) (Math.round(minute / 10.0) * 10);
-
-        if (roundedMinute == 60) {
-            // e.g. 10:55 rounds to 11:00
-            return dateTime.withMinute(0).withSecond(0).withNano(0).plusHours(1);
+    private Patient resolvePatient(Long hospitalId, PatientRequestDTO patientReq, Map<String, String> errorMap) {
+        try {
+            if (patientReq.getId() != null) {
+                return patientRepository.findByIdAndHospitalId(patientReq.getId(), hospitalId)
+                        .orElseThrow(() -> new ResourceNotFoundException(STR."Patient not found with ID: \{patientReq.getId()}"));
+            } else {
+                PatientResponseDTO newPatient = patientService.createPatientInHospital(hospitalId, patientReq);
+                return patientRepository.findById(newPatient.id()).orElse(null);
+            }
+        } catch (Exception e) {
+            errorMap.put("patient", e.getMessage());
+            return null;
         }
+    }
 
-        return dateTime.withMinute(roundedMinute).withSecond(0).withNano(0);
+    private Doctor validateDoctor(Long hospitalId, Long doctorId, Map<String, String> errorMap) {
+        if (doctorId == null) return null;
+        return doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(doctorId, hospitalId)
+                .orElseGet(() -> {
+                    errorMap.put("doctorId", Constants.DOCTOR_NOT_FOUND + doctorId);
+                    return null;
+                });
+    }
+
+    private Department validateDepartment(Long deptId, Map<String, String> errorMap) {
+        if (deptId == null) return null;
+        return departmentRepository.findById(deptId)
+                .orElseGet(() -> {
+                    errorMap.put("departmentId", Constants.DEPARTMENT_NOT_FOUND + deptId);
+                    return null;
+                });
+    }
+
+    private Hospital validateHospital(Long hospitalId, Map<String, String> errorMap) {
+        return hospitalRepository.findById(hospitalId)
+                .orElseGet(() -> {
+                    errorMap.put("hospitalId", Constants.HOSPITAL_NOT_FOUND + hospitalId);
+                    return null;
+                });
     }
 }

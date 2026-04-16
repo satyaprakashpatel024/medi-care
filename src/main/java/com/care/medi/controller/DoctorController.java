@@ -19,8 +19,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 
 @RestController
@@ -150,9 +148,9 @@ public class DoctorController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
 
-        LocalDate filterDate = (date != null) ? date : LocalDate.now(ZoneId.of(Constants.TIME_ZONE));
+        LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
         String msg = String.format("Successfully retrieved appointments for Doctor ID %d on %s.",
-                doctorId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+                doctorId, filterDate.format(Constants.HUMAN_DATE_FORMAT));
 
         Page<AppointmentListResponseDTO> appointments = doctorService.getAppointmentsByDoctorAndHospitalAndDate(doctorId,hospitalId,filterDate, page, size, sortBy);
         return ResponseEntity.ok(
@@ -170,7 +168,7 @@ public class DoctorController {
             @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
             @PathVariable("departmentId") Long departmentId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue  = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sortBy) {
         return ResponseEntity.ok(

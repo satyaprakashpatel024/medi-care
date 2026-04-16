@@ -26,7 +26,6 @@ public final class Constants {
     // --- Validation & Business Logic Messages ---
     public static final String INVALID_APPOINTMENT_STATUS = "Action denied: Cannot cancel an appointment that is already ";
     public static final String PRESCRIPTION_REQUIRED = "Medical prescription is mandatory for this action.";
-    public static final String VALIDATION_ERROR = "One or more validation errors occurred.";
     public static final String ADDRESS_NOT_FOUND = "Address not found with ID: ";
 
     // Set Time Zone

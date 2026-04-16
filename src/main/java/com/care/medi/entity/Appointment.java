@@ -1,5 +1,6 @@
 package com.care.medi.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -56,7 +57,8 @@ public class Appointment {
     private Prescription prescription;
 
     @NotNull(message = "Appointment date is required")
-    @Column(name = "appointment_date", nullable = false)
+    @Column(name = "appointment_date", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Asia/Kolkata")
     private ZonedDateTime appointmentDate;
 
     @NotNull(message = "Status is required")
