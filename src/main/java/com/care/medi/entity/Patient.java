@@ -15,7 +15,7 @@ import java.util.List;
 @Schema(hidden = true)
 @Entity
 @Table(name = "patients",
-        indexes = { @Index(name = "idx_patients_user_id", columnList = "user_id") },
+        indexes = {@Index(name = "idx_patients_user_id", columnList = "user_id")},
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_patients_user_id", columnNames = "user_id")
         }

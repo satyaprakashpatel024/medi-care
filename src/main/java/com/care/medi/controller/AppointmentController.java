@@ -37,7 +37,7 @@ public class AppointmentController {
             @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
-        AppointmentResponseDTO appointmentById = appointmentService.getAppointmentByIdAndHospital(id,hospitalId);
+        AppointmentResponseDTO appointmentById = appointmentService.getAppointmentByIdAndHospital(id, hospitalId);
         String msg = String.format("Successfully retrieved appointments for Appointment ID : %d.", id);
         return ResponseEntity.ok(
                 ApiResponse.<AppointmentResponseDTO>builder()
@@ -111,7 +111,7 @@ public class AppointmentController {
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestBody @Valid AppointmentRequestDTO request
     ) {
-        AppointmentResponseDTO appointment = appointmentService.createAppointment(hospitalId,request);
+        AppointmentResponseDTO appointment = appointmentService.createAppointment(hospitalId, request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -135,7 +135,7 @@ public class AppointmentController {
             @PathVariable("id") Long id,
             @RequestBody @Valid AppointmentRescheduleDTO request
     ) {
-        AppointmentResponseDTO response = appointmentService.rescheduleAppointment(id, request,hospitalId);
+        AppointmentResponseDTO response = appointmentService.rescheduleAppointment(id, request, hospitalId);
         String msg = String.format("Successfully rescheduled appointment for Appointment ID : %d.", id);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
@@ -161,7 +161,7 @@ public class AppointmentController {
                         .status(HttpStatus.ACCEPTED)
                         .message(msg)
                         .success(true)
-                        .data(appointmentService.updateAppointment(id,hospitalId, request))
+                        .data(appointmentService.updateAppointment(id, hospitalId, request))
                         .build()
         );
     }
@@ -172,7 +172,7 @@ public class AppointmentController {
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
 
-        appointmentService.cancelAppointment(id,hospitalId);
+        appointmentService.cancelAppointment(id, hospitalId);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
                         .status(HttpStatus.ACCEPTED)
@@ -185,7 +185,7 @@ public class AppointmentController {
     @GetMapping("/patient/{id}")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllAppointmentsByHospitalAndPatientId(
             @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")Long hospitalId,
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long patientId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
@@ -203,12 +203,12 @@ public class AppointmentController {
     }
 
     @DeleteMapping("{id}")
-    public  ResponseEntity<ApiResponse<AppointmentResponseDTO>> deleteAppointment(
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> deleteAppointment(
             @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
-        appointmentService.deleteAppointmentById(id,hospitalId);
-        return  ResponseEntity.accepted().body(
+        appointmentService.deleteAppointmentById(id, hospitalId);
+        return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
                         .status(HttpStatus.ACCEPTED)
                         .message("Appointment deleted successfully")

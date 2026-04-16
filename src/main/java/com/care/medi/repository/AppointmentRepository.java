@@ -25,21 +25,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Page<Appointment> findByHospitalIdAndStatusAndAppointmentDateBetween(Long hospitalId, AppointmentStatus status, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
 
     @Query("""
-    SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(
-        a.id,
-        concat(p.firstName, ' ', p.lastName),
-        concat(d.firstName, ' ', d.lastName),
-        dept.name,
-        a.appointmentDate,
-        a.status
-    )
-    FROM Appointment a
-    JOIN a.patient p
-    JOIN a.doctor d
-    JOIN d.department dept
-    WHERE d.id = :doctorId
-    AND d.hospital.id = :hospitalId
-""")
+                SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(
+                    a.id,
+                    concat(p.firstName, ' ', p.lastName),
+                    concat(d.firstName, ' ', d.lastName),
+                    dept.name,
+                    a.appointmentDate,
+                    a.status
+                )
+                FROM Appointment a
+                JOIN a.patient p
+                JOIN a.doctor d
+                JOIN d.department dept
+                WHERE d.id = :doctorId
+                AND d.hospital.id = :hospitalId
+            """)
     Page<AppointmentListResponseDTO> findByDoctorIdAndHospitalId(@Param("doctorId") Long doctorId, @Param("hospitalId") Long hospitalId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
@@ -65,7 +65,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @NonNull
     @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Optional<Appointment> findByIdAndHospitalId(@Param("id") Long id,@Param("hospitalId") Long hospitalId);
+    Optional<Appointment> findByIdAndHospitalId(@Param("id") Long id, @Param("hospitalId") Long hospitalId);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
     Page<Appointment> findByPatientIdAndAppointmentDateBetween(@Param("patientId") Long patientId, ZonedDateTime start, ZonedDateTime end, Pageable pageable);

@@ -72,7 +72,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Hospital hospital = validateHospital(hospitalId, errorMap);
 
         // 3. Parse and Normalize Date
-        ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(),errorMap);
+        ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(), errorMap);
 
         // 4. Guard Clause: Throw if any errors collected
         if (!errorMap.isEmpty() || patientEntity == null) {
@@ -93,9 +93,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         return AppointmentResponseDTO.fromEntity(appointmentRepository.save(appointment));
     }
+
     @Override
-    public AppointmentResponseDTO getAppointmentByIdAndHospital(Long id,Long hospitalId) {
-        Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id,hospitalId);
+    public AppointmentResponseDTO getAppointmentByIdAndHospital(Long id, Long hospitalId) {
+        Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id, hospitalId);
         if (byId.isEmpty()) {
             throw new ResourceNotFoundException(STR."\{Constants.APPOINTMENT_NOT_FOUND}\{id} And Hospital Id : \{hospitalId}");
         }
@@ -104,15 +105,15 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Transactional
     @Override
-    public AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request,Long hospitalId) {
-        Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id,hospitalId);
+    public AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request, Long hospitalId) {
+        Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id, hospitalId);
         Map<String, String> errorMap = new HashMap<>();
         if (byId.isEmpty()) {
             errorMap.put("appointmentId", Constants.APPOINTMENT_NOT_FOUND + id);
         }
         Appointment appointment = byId.get();
         if (request.getAppointmentDate() != null) {
-            ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(),errorMap);
+            ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(), errorMap);
             appointment.setAppointmentDate(rawTime);
         }
         if (request.getStatus() != null) {
@@ -128,7 +129,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     @Override
     public AppointmentResponseDTO updateAppointment(Long id, Long hospitalId, AppointmentUpdateRequestDTO request) {
-        Appointment appointment = appointmentRepository.findByIdAndHospitalId(id,hospitalId)
+        Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
 
         // 1. Handle Prescription (Update existing or Create new)
@@ -162,7 +163,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Transactional
     @Override
-    public void cancelAppointment(Long id,Long hospitalId) {
+    public void cancelAppointment(Long id, Long hospitalId) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
 
@@ -178,13 +179,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Transactional
     @Override
-    public void deleteAppointment(Long id,Long hospitalId) {
+    public void deleteAppointment(Long id, Long hospitalId) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
         appointment.setStatus(AppointmentStatus.CANCELLED);
     }
 
-    public void deleteAppointmentById(Long id,Long hospitalId) {
+    public void deleteAppointmentById(Long id, Long hospitalId) {
         appointmentRepository.deleteById(id);
     }
 
@@ -211,7 +212,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 2. Create the end of the day in IST
         ZonedDateTime endOfDay = Helpers.getEndOfTheDay(date);
         return appointmentRepository
-                .findByHospitalIdAndStatusAndAppointmentDateBetween(hospitalId,status, startOfDay, endOfDay, pageable)
+                .findByHospitalIdAndStatusAndAppointmentDateBetween(hospitalId, status, startOfDay, endOfDay, pageable)
                 .map(AppointmentListResponseDTO::fromEntity);
     }
 

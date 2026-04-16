@@ -139,7 +139,7 @@ public class HospitalServiceImpl implements HospitalService {
         hospitalRepository.deleteById(id);
     }
 
-    public boolean existsById(Long hospitalId){
+    public boolean existsById(Long hospitalId) {
         return hospitalRepository.existsById(hospitalId);
     }
 
@@ -179,7 +179,6 @@ public class HospitalServiceImpl implements HospitalService {
                 .map(hospitalAddressServiceImpl::toHospitalAddressResponse)
                 .collect(Collectors.toSet());
     }
-
 
 
 }

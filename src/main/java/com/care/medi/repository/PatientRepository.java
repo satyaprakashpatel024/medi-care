@@ -39,5 +39,5 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
             Pageable pageable
     );
 
-    void deleteByIdAndHospitalId(Long patientId,Long hospitalId);
+    void deleteByIdAndHospitalId(Long patientId, Long hospitalId);
 }

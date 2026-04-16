@@ -112,7 +112,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public Page<DoctorListResponseDTO> getActiveDoctorsBySpecialityAndHospital(String speciality, Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Doctor> bySpeciality = doctorRepository.findByHospitalIdAndSpecialityContainingIgnoreCaseAndIsActiveTrue(hospitalId,speciality, pageable);
+        Page<Doctor> bySpeciality = doctorRepository.findByHospitalIdAndSpecialityContainingIgnoreCaseAndIsActiveTrue(hospitalId, speciality, pageable);
         List<DoctorListResponseDTO> list1 = bySpeciality.stream()
                 .map(this::toDoctorListResponse)
                 .toList();
@@ -125,10 +125,10 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public DoctorResponseDTO getDoctorByIdAndHospital(Long id, Long hospitalId) {
-        Doctor doctor = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(id,hospitalId)
+        Doctor doctor = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
         List<AddressResponseDTO> addresses = addressService.getAddressesByDoctorId(doctor.getUser().getId());
-        return toResponse(doctor,addresses);
+        return toResponse(doctor, addresses);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Transactional
     @Override
     public void deleteDoctorByIdAndHospital(Long doctorId, Long hospitalId) {
-        Doctor byId = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(doctorId,hospitalId)
+        Doctor byId = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(doctorId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + doctorId));
         byId.setActive(false);
     }
@@ -214,7 +214,7 @@ public class DoctorServiceImpl implements DoctorService {
                 .build();
     }
 
-    DoctorResponseDTO toResponse(Doctor d,List<AddressResponseDTO> addresses) {
+    DoctorResponseDTO toResponse(Doctor d, List<AddressResponseDTO> addresses) {
         return DoctorResponseDTO.builder()
                 .id(d.getId())
                 .firstName(d.getFirstName())

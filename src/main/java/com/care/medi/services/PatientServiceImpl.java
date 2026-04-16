@@ -41,8 +41,8 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId,Long patientId) {
-        Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId,hospitalId);
+    public PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId, Long patientId) {
+        Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
         if (byId.isEmpty()) {
             throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
         }
@@ -80,7 +80,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientResponseDTO updatePatientInHospital(Long patientId, Long hospitalId, PatientUpdateRequestDTO patientDTO) {
         // 1. Fetch the existing entity
-        Patient existingPatient = patientRepository.findByIdAndHospitalId(patientId,hospitalId)
+        Patient existingPatient = patientRepository.findByIdAndHospitalId(patientId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
 
         // 2. Conditionally update fields (Check for null before setting)
@@ -116,13 +116,13 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public void deletePatientFromHospital(Long patientId, Long hospitalId) {
-        patientRepository.deleteByIdAndHospitalId(patientId,hospitalId);
+        patientRepository.deleteByIdAndHospitalId(patientId, hospitalId);
     }
 
     @Transactional
     @Override
-    public InsuranceResponseDTO assignInsurance(Long patientId,Long hospitalId, InsuranceRequestDTO request) {
-        Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId,hospitalId);
+    public InsuranceResponseDTO assignInsurance(Long patientId, Long hospitalId, InsuranceRequestDTO request) {
+        Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
         if (byId.isEmpty()) {
             throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
         }
@@ -132,7 +132,7 @@ public class PatientServiceImpl implements PatientService {
             throw new DuplicateResourceException(Constants.DUPLICATE_POLICY);
         }
 
-         Insurance insurance1 = Insurance.builder()
+        Insurance insurance1 = Insurance.builder()
                 .providerName(request.getProviderName())
                 .policyNumber(request.getPolicyNumber())
                 .patient(byId.get())
@@ -150,21 +150,21 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId,Long hospitalId) {
+    public List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId, Long hospitalId) {
         boolean b = patientRepository.existsById(patientId);
         if (!b) {
             throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
         }
         List<Insurance> byPatientId = insuranceRepository.findByPatientId(patientId);
         if (byPatientId.isEmpty()) {
-            throw  new ResourceNotFoundException(Constants.INSURANCE_NOT_FOUND);
+            throw new ResourceNotFoundException(Constants.INSURANCE_NOT_FOUND);
         }
         return byPatientId.stream().map(InsuranceResponseDTO::fromEntity).toList();
     }
 
     @Override
     public Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy) {
-        if(!hospitalService.existsById(hospitalId)) {
+        if (!hospitalService.existsById(hospitalId)) {
             throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId);
         }
         return patientRepository.findAllByHospitalId(hospitalId, PageRequest.of(page, size, Sort.by(sortBy)));

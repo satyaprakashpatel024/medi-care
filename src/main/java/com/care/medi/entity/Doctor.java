@@ -26,8 +26,8 @@ import java.util.List;
 @Builder
 @Table(name = "doctors",
         indexes = {
-                @Index(name = "idx_doctors_user_id",       columnList = "user_id"),
-                @Index(name = "idx_doctors_hospital_id",   columnList = "hospital_id"),
+                @Index(name = "idx_doctors_user_id", columnList = "user_id"),
+                @Index(name = "idx_doctors_hospital_id", columnList = "hospital_id"),
                 @Index(name = "idx_doctors_department_id", columnList = "department_id")
         },
         uniqueConstraints = {

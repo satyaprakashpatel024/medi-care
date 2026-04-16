@@ -22,8 +22,8 @@ import java.time.ZonedDateTime;
 @Table(name = "appointments",
         indexes = {
                 @Index(name = "idx_appt_patient_id", columnList = "patient_id"),
-                @Index(name = "idx_appt_doctor_id",  columnList = "doctor_id"),
-                @Index(name = "idx_appt_date",       columnList = "appointment_date")
+                @Index(name = "idx_appt_doctor_id", columnList = "doctor_id"),
+                @Index(name = "idx_appt_date", columnList = "appointment_date")
         },
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_appt_prescription_id", columnNames = "prescription_id")

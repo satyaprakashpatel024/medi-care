@@ -16,10 +16,10 @@ public interface AppointmentService {
 
     AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request);
 
-    AppointmentResponseDTO getAppointmentByIdAndHospital(Long id,Long hospitalId);
+    AppointmentResponseDTO getAppointmentByIdAndHospital(Long id, Long hospitalId);
 
     @Transactional
-    AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request,Long hospitalId);
+    AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request, Long hospitalId);
 
 
     @Transactional
@@ -27,7 +27,7 @@ public interface AppointmentService {
 
     void cancelAppointment(Long id, Long hospitalId);
 
-    void deleteAppointment(Long id,Long hospitalId);
+    void deleteAppointment(Long id, Long hospitalId);
 
     Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId, Long patientId, int page, int size, String sortBy);
 

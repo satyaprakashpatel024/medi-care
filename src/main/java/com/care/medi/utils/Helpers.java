@@ -7,11 +7,14 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-
 import java.util.Locale;
 import java.util.Map;
 
 public class Helpers {
+    private Helpers() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     public static ZonedDateTime getStartOfTheDay(LocalDate date) {
         return date.atStartOfDay(Constants.ZONE_ID);
     }
@@ -34,7 +37,7 @@ public class Helpers {
             // 2. Parse string to LocalDateTime (it doesn't have a zone yet)
             LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
             // Parse using your helper
-            ZonedDateTime rawTime =  localDateTime.atZone(Constants.ZONE_ID);
+            ZonedDateTime rawTime = localDateTime.atZone(Constants.ZONE_ID);
             // Apply the 10-minute rounding
             ZonedDateTime normalizedTime = Helpers.roundToNearestTenMinutes(rawTime);
             // Validation: Must be in the future
@@ -42,7 +45,7 @@ public class Helpers {
             if (normalizedTime != null && normalizedTime.isBefore(now)) {
                 errorMap.put("appointmentDate", "Appointment must be scheduled for a future time.");
             }
-            return  normalizedTime;
+            return normalizedTime;
         } catch (Exception e) {
             errorMap.put("appointmentDate", "Invalid date format. Expected: 17 April 2026, 10:30 am");
             return null;
@@ -52,9 +55,9 @@ public class Helpers {
     /**
      * Rounds a given datetime to the nearest 10-minute boundary.
      * Examples:
-     *   10:07 → 10:10
-     *   10:04 → 10:00
-     *   10:05 → 10:10  (rounds up on exact half)
+     * 10:07 → 10:10
+     * 10:04 → 10:00
+     * 10:05 → 10:10  (rounds up on exact half)
      */
     public static ZonedDateTime roundToNearestTenMinutes(ZonedDateTime dateTime) {
         int minute = dateTime.getMinute();
@@ -66,10 +69,5 @@ public class Helpers {
         }
 
         return dateTime.withMinute(roundedMinute).withSecond(0).withNano(0);
-    }
-
-
-    private Helpers() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 }

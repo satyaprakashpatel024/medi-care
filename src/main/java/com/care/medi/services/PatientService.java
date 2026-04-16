@@ -14,7 +14,7 @@ import java.util.List;
 public interface PatientService {
     Page<PatientListResponseDTO> getAllPatients(int page, int size, String sortBy);
 
-    PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId,Long id);
+    PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId, Long id);
 
     @Transactional
     PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient);
@@ -24,9 +24,9 @@ public interface PatientService {
 
     void deletePatientFromHospital(Long patientId, Long hospitalId);
 
-    InsuranceResponseDTO assignInsurance(Long patientId,Long hospitalId, InsuranceRequestDTO insurance);
+    InsuranceResponseDTO assignInsurance(Long patientId, Long hospitalId, InsuranceRequestDTO insurance);
 
-    List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId,Long hospitalId);
+    List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId, Long hospitalId);
 
     Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy);
 }
