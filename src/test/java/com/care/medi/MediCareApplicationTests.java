@@ -1,5 +1,6 @@
 package com.care.medi;
 
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -7,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class MediCareApplicationTests {
 
     @Test
-    void contextLoads() {
+    void Test1() {
+        System.out.println("Test 1");
     }
-
 }
