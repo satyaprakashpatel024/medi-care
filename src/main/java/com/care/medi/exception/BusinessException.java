@@ -1,6 +1,7 @@
 package com.care.medi.exception;
 
 public class BusinessException extends Throwable {
-    public BusinessException(String s) {
+    public BusinessException(String msg) {
+        super(msg);
     }
 }

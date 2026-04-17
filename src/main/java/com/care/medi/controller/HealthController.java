@@ -20,7 +20,7 @@ public class HealthController {
                 ApiResponse.<String>builder()
                         .message("Server is Healthy and running.")
                         .status(HttpStatus.OK)
-                        .data(STR."Todays Date is: \{dateStr}")
+                        .data(STR."Today's Date is: \{dateStr}")
                         .success(true)
                         .build()
         );

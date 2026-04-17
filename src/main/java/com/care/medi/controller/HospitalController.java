@@ -24,10 +24,11 @@ public class HospitalController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sortBy) {
+        String msg = "Successfully retrieved All Hospital list.";
         return ResponseEntity.ok(
                 ApiResponse.<Page<HospitalResponseDTO>>builder()
                         .status(HttpStatus.OK)
-                        .message("All hospitals fetched successfully")
+                        .message(msg)
                         .data(hospitalService.getAllHospitals(page, size, sortBy))
                         .success(true)
                         .build()

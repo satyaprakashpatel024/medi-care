@@ -155,6 +155,7 @@ public class AppointmentController {
             @RequestBody @Valid AppointmentUpdateRequestDTO request
     ) {
 
+        System.out.println("id: " + id + " hospitalId: " + hospitalId);
         String msg = String.format("Successfully updated appointment for Appointment ID : %d.", id);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
@@ -166,7 +167,7 @@ public class AppointmentController {
         );
     }
 
-    @PutMapping("{id}/cancel")
+    @PutMapping("/{id}/cancel")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(
             @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -178,6 +179,7 @@ public class AppointmentController {
                         .status(HttpStatus.ACCEPTED)
                         .message("Appointment cancelled successfully")
                         .success(true)
+                        .data(appointmentService.getAppointmentByIdAndHospital(id, hospitalId))
                         .build()
         );
     }

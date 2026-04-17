@@ -52,7 +52,7 @@ public class Appointment {
     @JoinColumn(name = "department_id", foreignKey = @ForeignKey(name = "fk_appointment_department"))
     private Department department;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
     @JoinColumn(name = "prescription_id", foreignKey = @ForeignKey(name = "fk_appointment_prescription"))
     private Prescription prescription;
 
