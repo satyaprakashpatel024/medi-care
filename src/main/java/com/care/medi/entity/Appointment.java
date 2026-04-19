@@ -1,24 +1,25 @@
 package com.care.medi.entity;
 
+import com.care.medi.utils.Constants;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.experimental.SuperBuilder;
 
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Schema(hidden = true)
 @Getter
 @Setter
-@NoArgsConstructor
+@SuperBuilder
 @AllArgsConstructor
-@Builder
+@NoArgsConstructor
 @Table(name = "appointments",
         indexes = {
                 @Index(name = "idx_appt_patient_id", columnList = "patient_id"),
@@ -29,11 +30,7 @@ import java.time.ZonedDateTime;
                 @UniqueConstraint(name = "uk_appt_prescription_id", columnNames = "prescription_id")
         }
 )
-public class Appointment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Appointment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_patient"))
@@ -52,10 +49,6 @@ public class Appointment {
     @JoinColumn(name = "department_id", foreignKey = @ForeignKey(name = "fk_appointment_department"))
     private Department department;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
-    @JoinColumn(name = "prescription_id", foreignKey = @ForeignKey(name = "fk_appointment_prescription"))
-    private Prescription prescription;
-
     @NotNull(message = "Appointment date is required")
     @Column(name = "appointment_date", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Asia/Kolkata")
@@ -73,11 +66,21 @@ public class Appointment {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime createdAt;
+    // ── Bidirectional mappings ──────────────────────────────────────────────
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime updatedAt;
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "appointment", cascade = CascadeType.MERGE)
+    @Builder.Default
+    private List<Prescription> prescription = new ArrayList<>();
+
+    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Hospital hospital, ZonedDateTime rawTime){
+        return Appointment.builder()
+                .patient(patientEntity)
+                .doctor(doctor)
+                .department(department)
+                .hospital(hospital)
+                .appointmentDate(rawTime)
+                .status(AppointmentStatus.SCHEDULED)
+                .createdAt(ZonedDateTime.now(Constants.ZONE_ID))
+                .build();
+    }
 }

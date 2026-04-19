@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.util.Set;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,10 +20,10 @@ public record PatientResponseDTO(
         String phone,
         String emergencyContact,
         String bloodGroup,
-        OffsetDateTime createdAt,
-        OffsetDateTime updatedAt,
-        List<InsuranceResponseDTO> insurances
+        ZonedDateTime updatedAt,
+        Set<AppointmentResponseDTO> appointments
 ) {
+    // ── Helper methods ──────────────────────────────────────────────
     public static PatientResponseDTO fromEntity(Patient patient) {
         return PatientResponseDTO
                 .builder()
@@ -36,9 +36,9 @@ public record PatientResponseDTO(
                 .userId(patient.getUser().getId())
                 .firstName(patient.getFirstName())
                 .lastName(patient.getLastName())
-                .createdAt(patient.getCreatedAt())
                 .updatedAt(patient.getUpdatedAt())
-                .insurances(patient.getInsurances().stream().map(InsuranceResponseDTO::fromEntity).toList())
+                .appointments(AppointmentResponseDTO.fromEntity(patient.getAppointments()))
                 .build();
     }
+
 }

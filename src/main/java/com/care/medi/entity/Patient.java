@@ -1,16 +1,17 @@
 package com.care.medi.entity;
 
+import com.care.medi.dtos.request.PatientRequestDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Schema(hidden = true)
 @Entity
@@ -25,11 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Patient {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Patient extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_patient_user"))
@@ -37,7 +34,8 @@ public class Patient {
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Insurance> insurances = new ArrayList<>();
+    @BatchSize(size = 2)
+    private Set<Insurance> insurances = new HashSet<>();
 
     @NotBlank(message = "First name is required")
     @Size(max = 100)
@@ -75,25 +73,23 @@ public class Patient {
     @JoinColumn(name = "hospital_id", nullable = false, foreignKey = @ForeignKey(name = "fk_patient_hospital"))
     private Hospital hospital;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime updatedAt;
-
     // ── Bidirectional mappings ──────────────────────────────────────────────
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Appointment> appointments = new ArrayList<>();
+    @BatchSize(size = 3)
+    private Set<Appointment> appointments = new HashSet<>();
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Prescription> prescriptions = new ArrayList<>();
+    private Set<Prescription> prescriptions = new HashSet<>();
 
     // ── Helper methods ──────────────────────────────────────────────────────
+
+    @Override
+    public String toString() {
+        return String.format(this.getId()+" "+this.hospital.getId());
+    }
 
     public void addAppointment(Appointment appointment) {
         appointments.add(appointment);
@@ -103,6 +99,19 @@ public class Patient {
     public void addPrescription(Prescription prescription) {
         prescriptions.add(prescription);
         prescription.setPatient(this);
+    }
+
+    public static Patient toEntity(PatientRequestDTO patient,Users user){
+        return Patient.builder()
+                .user(user)
+                .phone(patient.getPhone())
+                .emergencyContact(patient.getEmergencyContact())
+                .firstName(patient.getFirstName())
+                .lastName(patient.getLastName())
+                .dateOfBirth(patient.getDateOfBirth())
+                .gender(Gender.valueOf(patient.getGender().toUpperCase()))
+                .bloodGroup(BloodGroup.valueOf(patient.getBloodGroup().toUpperCase()))
+                .build();
     }
 
 }

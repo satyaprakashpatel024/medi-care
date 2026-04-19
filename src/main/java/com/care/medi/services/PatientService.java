@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface PatientService {
-    Page<PatientListResponseDTO> getAllPatients(int page, int size, String sortBy);
+    boolean existsByIdAndHospitalId(Long hospitalId, Long id);
 
     PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId, Long id);
 

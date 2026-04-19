@@ -16,7 +16,6 @@ import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,13 +32,7 @@ public class PatientServiceImpl implements PatientService {
     private final InsuranceRepository insuranceRepository;
     private final HospitalService hospitalService;
 
-    @Override
-    public Page<PatientListResponseDTO> getAllPatients(int page, int size, String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Patient> all = patientRepository.findAll(pageable);
-        return all.map(PatientListResponseDTO::fromEntity);
-    }
-
+    @Transactional(readOnly = true)
     @Override
     public PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId, Long patientId) {
         Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
@@ -55,25 +48,10 @@ public class PatientServiceImpl implements PatientService {
         if (userRepository.existsByEmail(patient.getEmail())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_EMAIL + patient.getEmail());
         }
-        Users user = Users.builder()
-                .email(patient.getEmail())
-                .passwordHash("password")
-                .role(Role.PATIENT)
-                .isActive(true)
-                .build();
+        Users user = Users.toEntity(patient.getEmail(), "default", Role.PATIENT);
         user = userRepository.save(user);
-        Patient build = Patient.builder()
-                .user(user)
-                .phone(patient.getPhone())
-                .emergencyContact(patient.getEmergencyContact())
-                .firstName(patient.getFirstName())
-                .lastName(patient.getLastName())
-                .dateOfBirth(patient.getDateOfBirth())
-                .gender(Gender.valueOf(patient.getGender().toUpperCase()))
-                .bloodGroup(BloodGroup.valueOf(patient.getBloodGroup().toUpperCase()))
-                .build();
-        build = patientRepository.save(build);
-        return PatientResponseDTO.fromEntity(build);
+        Patient save = patientRepository.save(Patient.toEntity(patient, user));
+        return PatientResponseDTO.fromEntity(save);
     }
 
     @Transactional
@@ -107,7 +85,6 @@ public class PatientServiceImpl implements PatientService {
         }
 
         // 3. Save the updated entity
-        // Note: With @Transactional, changes are auto-flushed, but calling save is clear practice.
         Patient updatedPatient = patientRepository.saveAndFlush(existingPatient);
 
         // 4. Return the converted Response DTO
@@ -122,31 +99,15 @@ public class PatientServiceImpl implements PatientService {
     @Transactional
     @Override
     public InsuranceResponseDTO assignInsurance(Long patientId, Long hospitalId, InsuranceRequestDTO request) {
-        Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
-        if (byId.isEmpty()) {
-            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
-        }
+        Patient byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId).orElseThrow(()-> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
 
-        boolean insurance = insuranceRepository.existsByPolicyNumber(request.getPolicyNumber());
-        if (insurance) {
+        if (insuranceRepository.existsByPolicyNumber(request.getPolicyNumber())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_POLICY);
         }
 
-        Insurance insurance1 = Insurance.builder()
-                .providerName(request.getProviderName())
-                .policyNumber(request.getPolicyNumber())
-                .patient(byId.get())
-                .status(InsuranceStatus.valueOf(request.getInsuranceStatus().toUpperCase()))
-                .coverageAmount(request.getCoverageAmount())
-                .deductible(request.getDeductible())
-                .policyType(request.getPolicyType().toUpperCase())
-                .providerContactEmail(request.getProviderContactEmail())
-                .providerPhoneNumber(request.getProviderPhoneNumber())
-                .expiryDate(request.getExpiryDate())
-                .startDate(request.getStartDate())
-                .build();
-        insurance1 = insuranceRepository.save(insurance1);
-        return InsuranceResponseDTO.fromEntity(insurance1);
+        Insurance insurance = Insurance.toEntity(request,byId);
+        insurance = insuranceRepository.save(insurance);
+        return InsuranceResponseDTO.fromEntity(insurance);
     }
 
     @Override
@@ -168,6 +129,11 @@ public class PatientServiceImpl implements PatientService {
             throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId);
         }
         return patientRepository.findAllByHospitalId(hospitalId, PageRequest.of(page, size, Sort.by(sortBy)));
+    }
+
+    @Override
+    public boolean existsByIdAndHospitalId(Long hospitalId, Long id) {
+        return patientRepository.existsByIdAndHospitalId(id, hospitalId);
     }
 
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -20,7 +20,6 @@ public record StaffResponseDTO(
         String hospitalName,
         String emergencyContact,
         String bloodType,
-        OffsetDateTime createdAt,
-        OffsetDateTime updatedAt
+        ZonedDateTime updatedAt
 ) {
 }

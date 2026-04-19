@@ -21,9 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,6 +38,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final DepartmentRepository departmentRepository;
     private final PatientServiceImpl patientService;
     private final HospitalRepository hospitalRepository;
+    private final PrescriptionRepository prescriptionRepository;
 
     @Override
     public Page<AppointmentListResponseDTO> getAllAppointmentsByHospitalAndDate(
@@ -79,17 +80,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new ResourceValidationException(errorMap);
         }
 
-
         // 5. Build and persist
-        Appointment appointment = Appointment.builder()
-                .patient(patientEntity)
-                .doctor(doctor)
-                .department(department)
-                .hospital(hospital)
-                .appointmentDate(rawTime)
-                .status(AppointmentStatus.SCHEDULED)
-                .createdAt(ZonedDateTime.now(Constants.ZONE_ID).toOffsetDateTime())
-                .build();
+        Appointment appointment =Appointment.toEntity(patientEntity, doctor, department, hospital, rawTime);
 
         return AppointmentResponseDTO.fromEntity(appointmentRepository.save(appointment));
     }
@@ -97,21 +89,18 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentResponseDTO getAppointmentByIdAndHospital(Long id, Long hospitalId) {
         Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id, hospitalId);
-        if (byId.isEmpty()) {
-            throw new ResourceNotFoundException(STR."\{Constants.APPOINTMENT_NOT_FOUND}\{id} And Hospital Id : \{hospitalId}");
+        if (byId.isPresent()) {
+            return AppointmentResponseDTO.fromEntity(byId.get());
         }
-        return AppointmentResponseDTO.fromEntity(byId.get());
+        throw new ResourceNotFoundException(STR."\{Constants.APPOINTMENT_NOT_FOUND}\{id} And Hospital Id : \{hospitalId}");
     }
 
     @Transactional
     @Override
     public AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request, Long hospitalId) {
-        Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id, hospitalId);
+        Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId).orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
         Map<String, String> errorMap = new HashMap<>();
-        if (byId.isEmpty()) {
-            errorMap.put("appointmentId", Constants.APPOINTMENT_NOT_FOUND + id);
-        }
-        Appointment appointment = byId.get();
+
         if (request.getAppointmentDate() != null) {
             ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(), errorMap);
             appointment.setAppointmentDate(rawTime);
@@ -132,30 +121,19 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
 
+        if(appointment.getStatus().toString().equals("COMPLETED")){
+            throw new InvalidRequestException("Appointment is already completed");
+        }
         // 1. Handle Prescription (Update existing or Create new)
         PrescriptionRequestDTO pDto = request.getPrescription();
-        Prescription prescription = appointment.getPrescription();
-
-        if (prescription == null) {
-            // Create new if none exists
-            prescription = Prescription.builder()
-                    .doctor(appointment.getDoctor())
-                    .patient(appointment.getPatient())
-                    .appointment(appointment)
-                    .createdAt(OffsetDateTime.now())
-                    .build();
-        }
-
-        // Update prescription fields
-        prescription.setMedications(pDto.getMedications());
-        prescription.setDosageInstructions(pDto.getDosageInstructions());
-        prescription.setNotes(pDto.getNotes());
+        List<Prescription> prescription = appointment.getPrescription();
+        prescription.add(prescriptionRepository.save(Prescription.toEntity(appointment, pDto)));
 
         // 2. Update Appointment fields
         appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
         appointment.setTreatment(request.getTreatment());
         appointment.setNotes(request.getNotes());
-        appointment.setPrescription(prescription); // Link it
+        appointment.setPrescription(prescription);
 
         // saveAndFlush
         return AppointmentResponseDTO.fromEntity(appointmentRepository.saveAndFlush(appointment));
@@ -184,11 +162,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
         appointment.setStatus(AppointmentStatus.CANCELLED);
     }
-
-    public void deleteAppointmentById(Long id, Long hospitalId) {
-        appointmentRepository.deleteById(id);
-    }
-
 
     @Override
     public Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId, Long patientId, int page, int size, String sortBy) {

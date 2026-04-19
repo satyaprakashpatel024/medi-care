@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -34,5 +37,9 @@ public record InsuranceResponseDTO(
                 .providerContactEmail(insurance.getProviderContactEmail())
                 .providerPhoneNumber(insurance.getProviderPhoneNumber())
                 .build();
+    }
+
+    public static Set<InsuranceResponseDTO> fromEntity(Set<Insurance> insurance) {
+        return insurance.stream().map(InsuranceResponseDTO::fromEntity).collect(Collectors.toSet());
     }
 }

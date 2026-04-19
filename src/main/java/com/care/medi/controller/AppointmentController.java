@@ -209,7 +209,7 @@ public class AppointmentController {
             @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
-        appointmentService.deleteAppointmentById(id, hospitalId);
+        appointmentService.deleteAppointment(id, hospitalId);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
                         .status(HttpStatus.ACCEPTED)

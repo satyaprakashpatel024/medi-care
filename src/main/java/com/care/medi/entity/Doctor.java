@@ -1,5 +1,6 @@
 package com.care.medi.entity;
 
+import com.care.medi.dtos.request.DoctorRequestDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -8,12 +9,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,11 +31,7 @@ import java.util.List;
                 @UniqueConstraint(name = "uk_doctors_user_id", columnNames = "user_id")
         }
 )
-public class Doctor {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Doctor extends BaseEntity {
 
     @NotNull(message = "Users is required")
     @OneToOne(fetch = FetchType.LAZY)
@@ -96,15 +89,6 @@ public class Doctor {
     @ColumnDefault("true")
     private boolean isActive = true;
 
-    @CreatedDate
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime updatedAt;
-
     // ── Bidirectional mappings ──────────────────────────────────────────────
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -125,5 +109,21 @@ public class Doctor {
     public void addPrescription(Prescription prescription) {
         prescriptions.add(prescription);
         prescription.setDoctor(this);
+    }
+
+    public static Doctor toEntity(DoctorRequestDTO request,Users user,Department department,Hospital hospital){
+        return Doctor.builder()
+                .user(user)
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .dateOfBirth(request.getDateOfBirth())
+                .gender(Gender.valueOf(request.getGender()))
+                .phone(request.getPhone())
+                .speciality(request.getSpeciality())
+                .hospital(hospital)
+                .department(department)
+                .emergencyContact(request.getEmergencyContact())
+                .bloodGroup(BloodGroup.valueOf(request.getBloodType()))
+                .build();
     }
 }

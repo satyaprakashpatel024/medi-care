@@ -2,6 +2,7 @@ package com.care.medi.repository;
 
 import com.care.medi.dtos.response.PatientListResponseDTO;
 import com.care.medi.entity.Patient;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +23,8 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     @EntityGraph(attributePaths = {"user"})
     Page<Patient> findAll(Pageable pageable);
 
-
     @NonNull
-    @EntityGraph(attributePaths = {"user", "insurances"})
+    @EntityGraph(attributePaths = {"user","appointments","appointments.doctor","appointments.department"})
     Optional<Patient> findByIdAndHospitalId(@NonNull Long id, @NonNull Long hospitalId);
 
     @Query("SELECT DISTINCT new com.care.medi.dtos.response.PatientListResponseDTO(" +
@@ -40,4 +40,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     );
 
     void deleteByIdAndHospitalId(Long patientId, Long hospitalId);
+
+    boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 }

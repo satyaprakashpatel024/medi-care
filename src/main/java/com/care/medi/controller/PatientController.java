@@ -27,41 +27,6 @@ public class PatientController {
 
     private final PatientServiceImpl patientService;
 
-    /**
-     * Retrieves a paginated list of all patients.
-     * <p>
-     * This endpoint fetches patient details converted to {@link PatientListResponseDTO}
-     * and supports pagination and sorting via request parameters.
-     * </p>
-     *
-     * @param page   the zero-based page index to retrieve (defaults to 0)
-     * @param size   the number of records per page (defaults to 5)
-     * @param sortBy the property name by which the results should be sorted (defaults to "id")
-     * @return a {@link ResponseEntity} containing an {@link ApiResponse} with:
-     * <ul>
-     * <li>A {@link Page} of {@link PatientListResponseDTO} in the data field</li>
-     * <li>A success message</li>
-     * <li>HTTP Status 200 (OK)</li>
-     * </ul>
-     * @see PatientListResponseDTO
-     * @see Page
-     */
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse<Page<PatientListResponseDTO>>> getAllPatients(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "5") Integer size,
-            @RequestParam(defaultValue = "id") String sortBy
-    ) {
-        return ResponseEntity.ok(
-                ApiResponse.<Page<PatientListResponseDTO>>builder()
-                        .data(patientService.getAllPatients(page, size, sortBy))
-                        .message("Successfully retrieved all Patients details.")
-                        .status(HttpStatus.OK)
-                        .success(true)
-                        .build()
-        );
-    }
-
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PatientListResponseDTO>>> getAllPatientsByHospital(
             @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")

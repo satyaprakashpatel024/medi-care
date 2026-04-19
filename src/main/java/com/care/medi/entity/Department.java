@@ -1,5 +1,6 @@
 package com.care.medi.entity;
 
+import com.care.medi.dtos.request.DepartmentRequestDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -21,16 +22,15 @@ import java.util.List;
                 @UniqueConstraint(name = "uk_departments_name", columnNames = "name")
         }
 )
-public class Department {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Department extends BaseEntity {
 
     @NotBlank(message = "Department name is required")
     @Size(max = 150)
     @Column(nullable = false, length = 150)
     private String name;
+
+    @Column(length = 500)
+    private String description;
 
     // ── Bidirectional mappings ──────────────────────────────────────────────
 
@@ -45,4 +45,12 @@ public class Department {
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Appointment> appointments = new ArrayList<>();
+
+    // ── Helper methods  ──────────────────────────────────────────────
+    public static Department toEntity(DepartmentRequestDTO request) {
+        return Department.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .build();
+    }
 }

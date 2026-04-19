@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PrescriptionRequestDTO {
-    @NotBlank
+    @NotBlank(message = "Medications is required.")
     private String medications;
+    @NotBlank(message = "Dosage instructions is required.")
     private String dosageInstructions;
     private String notes;
 }

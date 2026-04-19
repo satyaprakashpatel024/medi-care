@@ -1,12 +1,11 @@
 package com.care.medi.entity;
 
+import com.care.medi.dtos.request.InsuranceRequestDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "insurances",
@@ -19,11 +18,7 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Insurance {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Insurance extends BaseEntity {
 
     @NotBlank(message = "Insurance provider name is required")
     @Size(min = 2, max = 100, message = "Provider name must be between 2 and 100 characters")
@@ -68,9 +63,6 @@ public class Insurance {
     @Column(nullable = false, name = "status")
     private InsuranceStatus status = InsuranceStatus.ACTIVE;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime createdAt;
 
     // Relationships
     @ManyToOne(fetch = FetchType.LAZY)
@@ -80,5 +72,21 @@ public class Insurance {
     // Helper method to check if the policy is currently valid
     public boolean isExpired() {
         return expiryDate != null && expiryDate.isBefore(LocalDate.now());
+    }
+
+    public static Insurance toEntity(InsuranceRequestDTO request,Patient patient) {
+        return Insurance.builder()
+                .providerName(request.getProviderName())
+                .policyNumber(request.getPolicyNumber())
+                .patient(patient)
+                .status(InsuranceStatus.valueOf(request.getInsuranceStatus().toUpperCase()))
+                .coverageAmount(request.getCoverageAmount())
+                .deductible(request.getDeductible())
+                .policyType(request.getPolicyType().toUpperCase())
+                .providerContactEmail(request.getProviderContactEmail())
+                .providerPhoneNumber(request.getProviderPhoneNumber())
+                .expiryDate(request.getExpiryDate())
+                .startDate(request.getStartDate())
+                .build();
     }
 }

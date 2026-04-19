@@ -22,6 +22,6 @@ public interface InsuranceRepository extends JpaRepository<Insurance, Long> {
 
     Optional<Insurance> findByPolicyNumber(@NotBlank(message = "Policy number is required") String policyNumber);
 
-    Boolean existsByPolicyNumber(@NotBlank(message = "Policy number is required") String policyNumber);
+    boolean existsByPolicyNumber(@NotBlank(message = "Policy number is required") String policyNumber);
 
 }

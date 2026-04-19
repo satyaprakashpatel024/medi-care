@@ -3,6 +3,7 @@ package com.care.medi.controller;
 import com.care.medi.dtos.request.HospitalRequestDTO;
 import com.care.medi.dtos.request.HospitalUpdateRequestDTO;
 import com.care.medi.dtos.response.ApiResponse;
+import com.care.medi.dtos.response.HospitalListResponseDTO;
 import com.care.medi.dtos.response.HospitalResponseDTO;
 import com.care.medi.services.HospitalServiceImpl;
 import jakarta.validation.Valid;
@@ -20,13 +21,13 @@ public class HospitalController {
     private final HospitalServiceImpl hospitalService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<HospitalResponseDTO>>> getAllHospitals(
+    public ResponseEntity<ApiResponse<Page<HospitalListResponseDTO>>> getAllHospitals(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sortBy) {
         String msg = "Successfully retrieved All Hospital list.";
         return ResponseEntity.ok(
-                ApiResponse.<Page<HospitalResponseDTO>>builder()
+                ApiResponse.<Page<HospitalListResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(msg)
                         .data(hospitalService.getAllHospitals(page, size, sortBy))
@@ -63,8 +64,7 @@ public class HospitalController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> updateHospital(@PathVariable("id") Long id, @Valid @RequestBody HospitalUpdateRequestDTO request) {
         return ResponseEntity.ok(
-                ApiResponse.<HospitalResponseDTO>
-                                builder()
+                ApiResponse.<HospitalResponseDTO>builder()
                         .status(HttpStatus.ACCEPTED)
                         .message("Hospital updated successfully")
                         .data(hospitalService.updateHospital(id, request))

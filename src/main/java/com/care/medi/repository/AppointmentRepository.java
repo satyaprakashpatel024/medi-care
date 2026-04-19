@@ -64,7 +64,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Page<Appointment> findByDepartmentIdAndStatusAndAppointmentDateBetween(@Param("departmentId") Long departmentId, AppointmentStatus status, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
 
     @NonNull
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+    @EntityGraph(attributePaths = {"patient", "department", "doctor","prescription"})
     Optional<Appointment> findByIdAndHospitalId(@Param("id") Long id, @Param("hospitalId") Long hospitalId);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})

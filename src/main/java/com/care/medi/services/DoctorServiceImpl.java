@@ -39,17 +39,10 @@ public class DoctorServiceImpl implements DoctorService {
     @Transactional
     @Override
     public DoctorResponseDTO createDoctorInHospital(Long hospitalId, DoctorRequestDTO request) {
-        Users user = userRepository.findByEmail(request.getEmail()).orElse(null);
-        if (user != null) {
+
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_DOCTOR + request.getEmail());
         }
-        user = Users.builder()
-                .email(request.getEmail())
-                .passwordHash("default")
-                .role(Role.DOCTOR)
-                .isActive(true)
-                .build();
-        Users save = userRepository.save(user);
         Hospital hospital = null;
         if (hospitalId != null) {
             hospital = hospitalRepository.findById(hospitalId)
@@ -62,21 +55,10 @@ public class DoctorServiceImpl implements DoctorService {
                     .orElseThrow(() -> new ResourceNotFoundException(Constants.DEPARTMENT_NOT_FOUND + request.getDepartmentId()));
         }
 
-        Doctor doctor = Doctor.builder()
-                .user(save)
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .dateOfBirth(request.getDateOfBirth())
-                .gender(Gender.valueOf(request.getGender()))
-                .phone(request.getPhone())
-                .speciality(request.getSpeciality())
-                .hospital(hospital)
-                .department(department)
-                .emergencyContact(request.getEmergencyContact())
-                .bloodGroup(BloodGroup.valueOf(request.getBloodType()))
-                .build();
+        Users save = userRepository.save(Users.toEntity(request.getEmail(), "default", Role.DOCTOR));
+        Doctor doctor = Doctor.toEntity(request,save,department,hospital);
 
-        return toResponse(doctorRepository.save(doctor));
+        return DoctorResponseDTO.toResponse(doctorRepository.save(doctor));
     }
 
     // ── Read ──────────────────────────────────────────────────────────────────
@@ -85,42 +67,21 @@ public class DoctorServiceImpl implements DoctorService {
     public Page<DoctorListResponseDTO> getAllActiveDoctorsByHospital(Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Doctor> byHospitalId = doctorRepository.findByHospitalIdAndIsActiveTrue(hospitalId, pageable);
-        List<DoctorListResponseDTO> list = byHospitalId.stream()
-                .map(this::toDoctorListResponse)
-                .toList();
-        return new PageImpl<>(
-                list,
-                pageable,
-                byHospitalId.getTotalElements()
-        );
+        return byHospitalId.map(DoctorListResponseDTO::toDoctorListResponse);
     }
 
     @Override
     public Page<DoctorListResponseDTO> getActiveDoctorsByDepartmentAndHospital(Long departmentId, Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Doctor> byDepartmentId = doctorRepository.findByHospitalIdAndDepartmentIdAndIsActiveTrue(hospitalId, departmentId, pageable);
-        List<DoctorListResponseDTO> list = byDepartmentId.stream()
-                .map(this::toDoctorListResponse)
-                .toList();
-        return new PageImpl<>(
-                list,
-                pageable,
-                byDepartmentId.getTotalElements()
-        );
+        return byDepartmentId.map(DoctorListResponseDTO::toDoctorListResponse);
     }
 
     @Override
     public Page<DoctorListResponseDTO> getActiveDoctorsBySpecialityAndHospital(String speciality, Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Doctor> bySpeciality = doctorRepository.findByHospitalIdAndSpecialityContainingIgnoreCaseAndIsActiveTrue(hospitalId, speciality, pageable);
-        List<DoctorListResponseDTO> list1 = bySpeciality.stream()
-                .map(this::toDoctorListResponse)
-                .toList();
-        return new PageImpl<>(
-                list1,
-                pageable,
-                bySpeciality.getTotalElements()
-        );
+        return bySpeciality.map(DoctorListResponseDTO::toDoctorListResponse);
     }
 
     @Override
@@ -128,19 +89,14 @@ public class DoctorServiceImpl implements DoctorService {
         Doctor doctor = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
         List<AddressResponseDTO> addresses = addressService.getAddressesByDoctorId(doctor.getUser().getId());
-        return toResponse(doctor, addresses);
+        return DoctorResponseDTO.toResponse(doctor, addresses);
     }
 
     @Override
     public Page<DoctorListResponseDTO> getAllActiveDoctors(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Doctor> doctors = doctorRepository.findByIsActiveTrue(pageable);
-        List<DoctorListResponseDTO> list = doctors.stream().map(this::toDoctorListResponse).toList();
-        return new PageImpl<>(
-                list,
-                pageable,
-                doctors.getTotalElements()
-        );
+        return  doctors.map(DoctorListResponseDTO::toDoctorListResponse);
     }
 
 
@@ -179,7 +135,7 @@ public class DoctorServiceImpl implements DoctorService {
             doctor.setDepartment(dept);
         }
 
-        return toResponse(doctorRepository.save(doctor));
+        return DoctorResponseDTO.toResponse(doctorRepository.save(doctor));
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────
@@ -194,63 +150,4 @@ public class DoctorServiceImpl implements DoctorService {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    DoctorResponseDTO toResponse(Doctor d) {
-        return DoctorResponseDTO.builder()
-                .id(d.getId())
-                .firstName(d.getFirstName())
-                .lastName(d.getLastName())
-                .dateOfBirth(d.getDateOfBirth())
-                .gender(d.getGender().toString())
-                .phone(d.getPhone())
-                .speciality(d.getSpeciality())
-                .hospitalId(d.getHospital() != null ? d.getHospital().getId() : null)
-                .hospitalName(d.getHospital() != null ? d.getHospital().getName() : null)
-                .departmentId(d.getDepartment() != null ? d.getDepartment().getId() : null)
-                .departmentName(d.getDepartment() != null ? d.getDepartment().getName() : null)
-                .emergencyContact(d.getEmergencyContact())
-                .bloodType(d.getBloodGroup().toString())
-                .createdAt(d.getCreatedAt())
-                .updatedAt(d.getUpdatedAt())
-                .build();
-    }
-
-    DoctorResponseDTO toResponse(Doctor d, List<AddressResponseDTO> addresses) {
-        return DoctorResponseDTO.builder()
-                .id(d.getId())
-                .firstName(d.getFirstName())
-                .lastName(d.getLastName())
-                .dateOfBirth(d.getDateOfBirth())
-                .gender(d.getGender().toString())
-                .phone(d.getPhone())
-                .speciality(d.getSpeciality())
-                .hospitalId(d.getHospital() != null ? d.getHospital().getId() : null)
-                .hospitalName(d.getHospital() != null ? d.getHospital().getName() : null)
-                .departmentId(d.getDepartment() != null ? d.getDepartment().getId() : null)
-                .departmentName(d.getDepartment() != null ? d.getDepartment().getName() : null)
-                .emergencyContact(d.getEmergencyContact())
-                .bloodType(d.getBloodGroup().toString())
-                .createdAt(d.getCreatedAt())
-                .updatedAt(d.getUpdatedAt())
-                .addresses(addresses)
-                .build();
-    }
-
-    private DoctorListResponseDTO toDoctorListResponse(Doctor d) {
-        return DoctorListResponseDTO.builder()
-                .id(d.getId())
-                .firstName(d.getFirstName())
-                .lastName(d.getLastName())
-                .dateOfBirth(d.getDateOfBirth())
-                .gender(d.getGender().toString())
-                .phone(d.getPhone())
-                .speciality(d.getSpeciality())
-                .hospitalId(d.getHospital() != null ? d.getHospital().getId() : null)
-                .hospitalName(d.getHospital() != null ? d.getHospital().getName() : null)
-                .departmentId(d.getDepartment() != null ? d.getDepartment().getId() : null)
-                .departmentName(d.getDepartment() != null ? d.getDepartment().getName() : null)
-                .emergencyContact(d.getEmergencyContact())
-                .createdAt(d.getCreatedAt())
-                .updatedAt(d.getUpdatedAt())
-                .build();
-    }
 }

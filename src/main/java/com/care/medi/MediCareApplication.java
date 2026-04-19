@@ -9,7 +9,7 @@ import java.util.TimeZone;
 @SpringBootApplication
 public class MediCareApplication {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(MediCareApplication.class, args);
     }
 

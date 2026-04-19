@@ -139,7 +139,6 @@ public class AddressServiceImpl implements AddressService {
                 .landmark(a.getLandmark())
                 .addressType(a.getAddressType().toString())
                 .isDefault(a.getIsDefault())
-                .createdAt(a.getCreatedAt())
                 .updatedAt(a.getUpdatedAt())
                 .build();
     }

@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
 public class HealthController {
     @GetMapping
     public ResponseEntity<ApiResponse<String>> health() {
-        String dateStr = OffsetDateTime.now(Constants.ZONE_ID).format(Constants.HUMAN_DATE_FORMAT);
+        String dateStr = OffsetDateTime.now(Constants.ZONE_ID).format(Constants.HUMAN_DATETIME_FORMAT);
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
                         .message("Server is Healthy and running.")

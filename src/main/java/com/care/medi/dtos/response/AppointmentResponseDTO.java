@@ -5,8 +5,10 @@ import com.care.medi.utils.Constants;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -23,8 +25,7 @@ public record AppointmentResponseDTO(
         String status,
         String treatment,
         String notes,
-        OffsetDateTime createdAt,
-        OffsetDateTime updatedAt) {
+        ZonedDateTime updatedAt) {
 
 
     public static AppointmentResponseDTO fromEntity(Appointment appointment) {
@@ -41,8 +42,11 @@ public record AppointmentResponseDTO(
                 .status(appointment.getStatus().name())
                 .treatment(appointment.getTreatment())
                 .notes(appointment.getNotes())
-                .createdAt(appointment.getCreatedAt())
                 .updatedAt(appointment.getUpdatedAt())
                 .build();
+    }
+
+    public static Set<AppointmentResponseDTO> fromEntity(Set<Appointment> appointment) {
+        return appointment.stream().map(AppointmentResponseDTO::fromEntity).collect(Collectors.toSet());
     }
 }

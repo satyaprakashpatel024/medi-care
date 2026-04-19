@@ -2,6 +2,7 @@ package com.care.medi.services;
 
 import com.care.medi.dtos.request.HospitalRequestDTO;
 import com.care.medi.dtos.request.HospitalUpdateRequestDTO;
+import com.care.medi.dtos.response.HospitalListResponseDTO;
 import com.care.medi.dtos.response.HospitalResponseDTO;
 import com.care.medi.exception.BusinessException;
 import org.springframework.data.domain.Page;
@@ -12,7 +13,7 @@ public interface HospitalService {
 
     HospitalResponseDTO getHospitalById(Long id);
 
-    Page<HospitalResponseDTO> getAllHospitals(int page, int size, String sortBy);
+    Page<HospitalListResponseDTO> getAllHospitals(int page, int size, String sortBy);
 
     HospitalResponseDTO updateHospital(Long id, HospitalUpdateRequestDTO request);
 

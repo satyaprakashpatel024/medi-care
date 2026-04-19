@@ -12,6 +12,7 @@ public final class Constants {
     public static final String DEPARTMENT_NOT_FOUND = "Department not found with ID: ";
     public static final String DOCTOR_NOT_FOUND = "Doctor not found with ID: ";
     public static final String PATIENT_NOT_FOUND = "Patient not found with ID: ";
+    public static final String PATIENT_NOT_FOUND_IN_HOSPITAL = "Patient not found with ID: %s in this Hospital. Please provide correct patientId or hospitalId";
     public static final String APPOINTMENT_NOT_FOUND = "Appointment not found with ID: ";
     public static final String INSURANCE_NOT_FOUND = "Insurance details not found with ID: ";
     public static final String USER_NOT_FOUND = "User account not found for ID: ";
