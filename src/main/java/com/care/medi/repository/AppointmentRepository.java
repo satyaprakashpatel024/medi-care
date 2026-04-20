@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.Optional;
 
 @Repository
@@ -95,4 +96,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
     Page<Appointment> findByPatientIdAndAppointmentDateBetween(@Param("patientId") Long patientId, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
+
+    boolean existsByIdAndHospitalId(Long id, Long hospitalId);
+
+    boolean existsByIdAndDoctorIdAndHospitalId(Long appointmentId, Long doctorId, Long hospitalId);
+
+    @Query("SELECT a FROM Appointment a WHERE a.id = :id " +
+            "AND (a.status = 'SCHEDULED' OR a.status = 'NO_SHOW')")
+    Optional<Appointment> findValidAppointmentForPrescription(@Param("id") Long id);
+
+    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :appointmentId AND a.hospital.id = :hospitalId AND a.doctor.id = :doctorId AND a.patient.id = :patientId")
+    boolean isAppointmentContextValid(@Param("appointmentId") Long appointmentId, @Param("hospitalId") Long hospitalId, @Param("doctorId") Long doctorId, @Param("patientId") Long patientId);
+
+    @Query("SELECT a FROM Appointment a WHERE a.id = :id AND a.status IN :statuses")
+    Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);
 }

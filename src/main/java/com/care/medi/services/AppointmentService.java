@@ -6,13 +6,20 @@ import com.care.medi.dtos.request.AppointmentUpdateRequestDTO;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
+import com.care.medi.entity.Appointment;
 import com.care.medi.entity.AppointmentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Optional;
 
 public interface AppointmentService {
+    boolean isAppointmentContextValid(Long appointmentId, Long hospitalId, Long doctorId, Long patientId);
+
+    boolean existsByIdAndDoctorIdAndHospitalId(Long appointmentId, Long doctorId, Long hospitalId);
+
     Page<AppointmentSummaryResponseDTO> getAllAppointmentsByHospitalAndDate(Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date);
 
     AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request);
@@ -22,6 +29,7 @@ public interface AppointmentService {
     @Transactional
     AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request, Long hospitalId);
 
+    boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 
     @Transactional
     AppointmentResponseDTO updateAppointment(Long id, Long hospitalId, AppointmentUpdateRequestDTO request);
@@ -37,4 +45,11 @@ public interface AppointmentService {
     Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndDate(Long doctorId, int page, int size, String sortBy, LocalDate filterDate);
 
     Page<AppointmentResponseDTO> getAppointmentsByPatientAndDate(Long patientId, LocalDate date, int page, int size, String sortBy);
+
+    Optional<Appointment> findValidAppointmentForPrescription(Long id);
+
+    Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);
+
+    AppointmentResponseDTO updateAppointmentStatus(Long id, AppointmentStatus status);
+
 }

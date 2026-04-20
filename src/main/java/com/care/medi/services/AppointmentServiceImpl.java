@@ -23,10 +23,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,25 +39,45 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PrescriptionRepository prescriptionRepository;
 
     @Override
-    public Page<AppointmentSummaryResponseDTO> getAllAppointmentsByHospitalAndDate(
-            Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-
-        // Convert LocalDate to the start and end of that specific day
-        // 1. Create the start of the day in IST
-        ZonedDateTime startOfDay = Helpers.getStartOfTheDay(date);
-
-        // 2. Create the end of the day in IST
-        ZonedDateTime endOfDay = Helpers.getEndOfTheDay(date);
-
-        Page<AppointmentSummaryResponseDTO> all = appointmentRepository.findByHospitalIdAndAppointmentDateBetween(
-                hospitalId, startOfDay, endOfDay, pageable);
-        return all;
+    public Optional<Appointment> findValidAppointmentForPrescription(Long id) {
+        return appointmentRepository.findValidAppointmentForPrescription(id);
     }
 
     @Override
+    public Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses) {
+        return appointmentRepository.findByIdAndStatusIn(id, statuses);
+    }
+
+
+    @Override
+    public boolean isAppointmentContextValid(Long appointmentId, Long hospitalId, Long doctorId, Long patientId) {
+        System.out.println("isAppointmentContextValid");
+        return appointmentRepository.isAppointmentContextValid(appointmentId, hospitalId, doctorId, patientId);
+    }
+    @Override
+    public boolean existsByIdAndHospitalId(Long id, Long hospitalId) {
+        return appointmentRepository.existsByIdAndHospitalId(id, hospitalId);
+    }
+
+    @Override
+    public boolean existsByIdAndDoctorIdAndHospitalId(Long appointmentId, Long doctorId, Long hospitalId) {
+        return appointmentRepository.existsByIdAndDoctorIdAndHospitalId(appointmentId,doctorId, hospitalId);
+    }
+
+    @Override
+    public Page<AppointmentSummaryResponseDTO> getAllAppointmentsByHospitalAndDate(
+            Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        // Convert LocalDate to the start and end of that specific day
+        // 1. Create the start of the day in IST
+        ZonedDateTime startOfDay = Helpers.getStartOfTheDay(date);
+        // 2. Create the end of the day in IST
+        ZonedDateTime endOfDay = Helpers.getEndOfTheDay(date);
+        return appointmentRepository.findByHospitalIdAndAppointmentDateBetween(hospitalId, startOfDay, endOfDay, pageable);
+    }
+
     // Appointment slots are every 10 minutes: 09:00, 09:10, 09:20 ...
+    @Override
     @Transactional
     public AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request) {
         Map<String, String> errorMap = new HashMap<>();
@@ -137,6 +154,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setPrescription(prescription);
 
         // saveAndFlush
+        return AppointmentResponseDTO.fromEntity(appointmentRepository.saveAndFlush(appointment));
+    }
+
+    @Transactional
+    public AppointmentResponseDTO updateAppointmentStatus(Long id,AppointmentStatus status) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
+        appointment.setStatus(status);
         return AppointmentResponseDTO.fromEntity(appointmentRepository.saveAndFlush(appointment));
     }
 

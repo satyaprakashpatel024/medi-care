@@ -34,7 +34,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional(readOnly = true)
     @Override
-    public PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId, Long patientId) {
+    public PatientResponseDTO getPatientByIdAndHospitalId(Long patientId, Long hospitalId) {
         Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
         if (byId.isEmpty()) {
             throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
@@ -132,8 +132,8 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public boolean existsByIdAndHospitalId(Long hospitalId, Long id) {
-        return patientRepository.existsByIdAndHospitalId(id, hospitalId);
+    public boolean existsByIdAndHospitalId(Long patientId, Long hospitalId) {
+        return patientRepository.existsByIdAndHospitalId(patientId, hospitalId);
     }
 
 }
