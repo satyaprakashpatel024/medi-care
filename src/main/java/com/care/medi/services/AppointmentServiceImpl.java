@@ -3,6 +3,7 @@ package com.care.medi.services;
 import com.care.medi.dtos.request.*;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
+import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
 import com.care.medi.dtos.response.PatientResponseDTO;
 import com.care.medi.entity.*;
 import com.care.medi.exception.InvalidRequestException;
@@ -41,7 +42,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PrescriptionRepository prescriptionRepository;
 
     @Override
-    public Page<AppointmentListResponseDTO> getAllAppointmentsByHospitalAndDate(
+    public Page<AppointmentSummaryResponseDTO> getAllAppointmentsByHospitalAndDate(
             Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
@@ -53,9 +54,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 2. Create the end of the day in IST
         ZonedDateTime endOfDay = Helpers.getEndOfTheDay(date);
 
-        Page<Appointment> all = appointmentRepository.findByHospitalIdAndAppointmentDateBetween(
+        Page<AppointmentSummaryResponseDTO> all = appointmentRepository.findByHospitalIdAndAppointmentDateBetween(
                 hospitalId, startOfDay, endOfDay, pageable);
-        return all.map(AppointmentListResponseDTO::fromEntity);
+        return all;
     }
 
     @Override
@@ -185,8 +186,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 2. Create the end of the day in IST
         ZonedDateTime endOfDay = Helpers.getEndOfTheDay(date);
         return appointmentRepository
-                .findByHospitalIdAndStatusAndAppointmentDateBetween(hospitalId, status, startOfDay, endOfDay, pageable)
-                .map(AppointmentListResponseDTO::fromEntity);
+                .findByHospitalIdAndStatusAndAppointmentDateBetween(hospitalId, status, startOfDay, endOfDay, pageable);
     }
 
     @Override

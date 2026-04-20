@@ -1,3 +1,6 @@
 package com.care.medi.entity;
 
-public enum AddressType {HOME, WORK}
+public enum AddressType {
+    HOME,
+    WORK
+}

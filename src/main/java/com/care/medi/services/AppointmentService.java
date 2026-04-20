@@ -5,6 +5,7 @@ import com.care.medi.dtos.request.AppointmentRescheduleDTO;
 import com.care.medi.dtos.request.AppointmentUpdateRequestDTO;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
+import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
 import com.care.medi.entity.AppointmentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 public interface AppointmentService {
-    Page<AppointmentListResponseDTO> getAllAppointmentsByHospitalAndDate(Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date);
+    Page<AppointmentSummaryResponseDTO> getAllAppointmentsByHospitalAndDate(Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date);
 
     AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request);
 

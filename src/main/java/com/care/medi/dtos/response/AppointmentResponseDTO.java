@@ -20,7 +20,6 @@ public record AppointmentResponseDTO(
         String doctorName,
         Long departmentId,
         String departmentName,
-        Long prescriptionId,
         String appointmentDate,
         String status,
         String treatment,

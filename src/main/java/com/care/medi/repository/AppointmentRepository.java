@@ -1,6 +1,7 @@
 package com.care.medi.repository;
 
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
+import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
 import com.care.medi.entity.Appointment;
 import com.care.medi.entity.AppointmentStatus;
 import lombok.NonNull;
@@ -18,11 +19,36 @@ import java.util.Optional;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalIdAndAppointmentDateBetween(Long hospitalId, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
+    @Query("SELECT new com.care.medi.dtos.response.AppointmentSummaryResponseDTO(" +
+            "a.id, a.appointmentDate, " +
+            "concat(p.firstName, ' ', p.lastName), " +
+            "concat(d.firstName, ' ', d.lastName), " +
+            "a.status, dept.name) " +
+            "FROM Appointment a " +
+            "JOIN a.patient p " +
+            "JOIN a.doctor d " +
+            "LEFT JOIN a.department dept " +
+            "WHERE a.hospital.id = :hospitalId AND a.appointmentDate BETWEEN :start AND :end")
+    Page<AppointmentSummaryResponseDTO> findByHospitalIdAndAppointmentDateBetween(
+            @Param("hospitalId") Long hospitalId, @Param("start") ZonedDateTime start, @Param("end") ZonedDateTime end, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByHospitalIdAndStatusAndAppointmentDateBetween(Long hospitalId, AppointmentStatus status, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
+    @Query("SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(" +
+            "a.id, " +
+            "concat(p.firstName, ' ', p.lastName), " +
+            "concat(d.firstName, ' ', d.lastName), " +
+            "dept.name, " +
+            "cast(a.appointmentDate as string), " +
+            "a.status) " +
+            "FROM Appointment a " +
+            "JOIN a.patient p " +
+            "JOIN a.doctor d " +
+            "LEFT JOIN a.department dept " +
+            "WHERE a.hospital.id = :hospitalId " +
+            "AND a.status = :status " +
+            "AND a.appointmentDate BETWEEN :start AND :end")
+    Page<AppointmentListResponseDTO> findByHospitalIdAndStatusAndAppointmentDateBetween(
+            @Param("hospitalId") Long hospitalId, @Param("status") AppointmentStatus status,
+            @Param("start") ZonedDateTime start, @Param("end") ZonedDateTime end, Pageable pageable);
 
     @Query("""
                 SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(
@@ -64,7 +90,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Page<Appointment> findByDepartmentIdAndStatusAndAppointmentDateBetween(@Param("departmentId") Long departmentId, AppointmentStatus status, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
 
     @NonNull
-    @EntityGraph(attributePaths = {"patient", "department", "doctor","prescription"})
+    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
     Optional<Appointment> findByIdAndHospitalId(@Param("id") Long id, @Param("hospitalId") Long hospitalId);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})

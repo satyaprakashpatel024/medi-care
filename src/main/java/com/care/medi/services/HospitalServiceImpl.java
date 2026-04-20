@@ -56,7 +56,8 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     public HospitalResponseDTO getHospitalById(Long id) {
-        Hospital hospital = hospitalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + id));
+        Hospital hospital = hospitalRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + id));
         return HospitalResponseDTO.fromEntity(hospital);
     }
 

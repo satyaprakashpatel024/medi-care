@@ -23,7 +23,7 @@ public record HospitalResponseDTO(
                 .name(entity.getName())
                 .phone(entity.getPhone())
                 .address(HospitalAddressResponseDTO.fromEntity(entity.getAddresses()))
-                .departments(HospitalDepartmentResponseDTO.fromEntity(entity.getHospitalDepartments()))
+//                .departments(HospitalDepartmentResponseDTO.fromEntity(entity.getHospitalDepartments()))
                 .build();
     }
 }

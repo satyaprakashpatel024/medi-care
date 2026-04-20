@@ -17,7 +17,7 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
     @Override
     @NonNull
-    @EntityGraph(attributePaths = {"hospitalDepartments", "hospitalDepartments.department", "addresses"})
+    @EntityGraph(attributePaths = {"addresses"})
     Optional<Hospital> findById(Long id);
 
     @Query("SELECT h FROM Hospital h JOIN FETCH h.addresses a JOIN FETCH h.hospitalDepartments hd JOIN FETCH hd.department d")

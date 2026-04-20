@@ -6,6 +6,7 @@ import com.care.medi.dtos.request.AppointmentUpdateRequestDTO;
 import com.care.medi.dtos.response.ApiResponse;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
+import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
 import com.care.medi.entity.AppointmentStatus;
 import com.care.medi.services.AppointmentServiceImpl;
 import com.care.medi.utils.Constants;
@@ -50,7 +51,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/hospital")
-    public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByHospitalAndDate(
+    public ResponseEntity<ApiResponse<Page<AppointmentSummaryResponseDTO>>> getAllAppointmentsByHospitalAndDate(
             @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestParam(defaultValue = "0") Integer page,
@@ -59,14 +60,14 @@ public class AppointmentController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
         LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
-        String msg = String.format("Successfully retrieved appointments for Hospital ID %d on %s.",
-                hospitalId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
-
+        Page<AppointmentSummaryResponseDTO> allAppointments = appointmentService.getAllAppointmentsByHospitalAndDate(hospitalId, page, size, sortBy, filterDate);
+        String msg = String.format("Successfully retrieved %s appointments for Hospital ID %d on %s.",
+                   allAppointments.getTotalElements (),hospitalId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
         return ResponseEntity.ok(
-                ApiResponse.<Page<AppointmentListResponseDTO>>builder()
+                ApiResponse.<Page<AppointmentSummaryResponseDTO>>builder()
                         .status(HttpStatus.OK)
                         .message(msg)
-                        .data(appointmentService.getAllAppointmentsByHospitalAndDate(hospitalId, page, size, sortBy, filterDate))
+                        .data(allAppointments)
                         .success(true)
                         .build()
         );
@@ -154,8 +155,6 @@ public class AppointmentController {
             @PathVariable("id") Long id,
             @RequestBody @Valid AppointmentUpdateRequestDTO request
     ) {
-
-        System.out.println("id: " + id + " hospitalId: " + hospitalId);
         String msg = String.format("Successfully updated appointment for Appointment ID : %d.", id);
         return ResponseEntity.accepted().body(
                 ApiResponse.<AppointmentResponseDTO>builder()
