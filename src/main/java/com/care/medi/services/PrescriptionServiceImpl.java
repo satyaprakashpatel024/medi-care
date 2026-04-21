@@ -1,19 +1,16 @@
 package com.care.medi.services;
 
 import com.care.medi.dtos.request.PrescriptionRequestDTO;
+import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.dtos.response.PrescriptionResponseDTO;
 import com.care.medi.entity.Appointment;
 import com.care.medi.entity.AppointmentStatus;
-import com.care.medi.entity.Patient;
 import com.care.medi.entity.Prescription;
 import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.repository.AppointmentRepository;
-import com.care.medi.repository.PatientRepository;
 import com.care.medi.repository.PrescriptionRepository;
 import com.care.medi.utils.Constants;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,7 +50,7 @@ public class PrescriptionServiceImpl {
     }
 
     @Transactional
-    public PrescriptionResponseDTO createPrescription(Long hospitalId,PrescriptionRequestDTO request) {
+    public PrescriptionResponseDTO assignPrescriptionToAppointment(Long hospitalId,PrescriptionRequestDTO request) {
         if(!appointmentService.isAppointmentContextValid(request.getAppointmentId(),hospitalId,request.getDoctorId(),request.getPatientId())){
             throw new InvalidRequestException("You do not have permission to prescribe for this appointment.");
         }
@@ -63,7 +60,8 @@ public class PrescriptionServiceImpl {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Appointment not found or is already completed/cancelled."));
         Prescription save = prescriptionRepository.save(Prescription.toEntity(appointment, request));
-        appointmentService.updateAppointmentStatus(appointment.getId(), AppointmentStatus.COMPLETED);
+        AppointmentResponseDTO appointmentResponseDTO = appointmentService.updateAppointmentStatus(appointment.getId(), AppointmentStatus.COMPLETED);
+
         return PrescriptionResponseDTO.toResponse(save);
     }
 }

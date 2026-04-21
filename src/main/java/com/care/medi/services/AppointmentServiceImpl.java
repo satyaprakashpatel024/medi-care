@@ -51,7 +51,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public boolean isAppointmentContextValid(Long appointmentId, Long hospitalId, Long doctorId, Long patientId) {
-        System.out.println("isAppointmentContextValid");
         return appointmentRepository.isAppointmentContextValid(appointmentId, hospitalId, doctorId, patientId);
     }
     @Override
@@ -110,7 +109,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (byId.isPresent()) {
             return AppointmentResponseDTO.fromEntity(byId.get());
         }
-        throw new ResourceNotFoundException(STR."\{Constants.APPOINTMENT_NOT_FOUND}\{id} And Hospital Id : \{hospitalId}");
+        throw new ResourceNotFoundException(String.format("%s %%s And Hospital Id : %%s".formatted(Constants.APPOINTMENT_NOT_FOUND), id, hospitalId));
     }
 
     @Transactional
@@ -246,7 +245,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         try {
             if (patientReq.getId() != null) {
                 return patientRepository.findByIdAndHospitalId(patientReq.getId(), hospitalId)
-                        .orElseThrow(() -> new ResourceNotFoundException(STR."Patient not found with ID: \{patientReq.getId()}"));
+                        .orElseThrow(() -> new ResourceNotFoundException(String.format("Patient not found with ID: %s",patientReq.getId())));
             } else {
                 PatientResponseDTO newPatient = patientService.createPatientInHospital(hospitalId, patientReq);
                 return patientRepository.findById(newPatient.id()).orElse(null);

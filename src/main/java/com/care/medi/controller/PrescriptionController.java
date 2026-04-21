@@ -60,12 +60,12 @@ public class PrescriptionController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PrescriptionResponseDTO>> createPrescription(
+    public ResponseEntity<ApiResponse<PrescriptionResponseDTO>> assignPrescription(
             @RequestHeader(value = "X-Hospital-Id",defaultValue = "0")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestBody @Valid PrescriptionRequestDTO request
     ){
-        PrescriptionResponseDTO prescription = prescriptionService.createPrescription(hospitalId, request);
+        PrescriptionResponseDTO prescription = prescriptionService.assignPrescriptionToAppointment(hospitalId, request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -82,4 +82,6 @@ public class PrescriptionController {
                         .build()
         );
     }
+
+
 }
