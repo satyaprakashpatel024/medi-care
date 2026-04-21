@@ -34,9 +34,8 @@ import java.util.List;
 public class Doctor extends BaseEntity {
 
     @NotNull(message = "Users is required")
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_doctor_user"))
-    private Users user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @NotBlank(message = "First name is required")
     @Size(min = 5, max = 100, message = "First name must be between 5 and 100 characters.")
@@ -68,13 +67,11 @@ public class Doctor extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String speciality;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hospital_id", foreignKey = @ForeignKey(name = "fk_doctor_hospital"))
-    private Hospital hospital;
+    @Column(name = "hospital_id",nullable = false)
+    private Long hospitalId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", foreignKey = @ForeignKey(name = "fk_doctor_department"))
-    private Department department;
+    @Column(name = "department_id",nullable = false)
+    private Long departmentId;
 
     @Size(max = 255)
     @Column(name = "emergency_contact")
@@ -99,6 +96,24 @@ public class Doctor extends BaseEntity {
     @Builder.Default
     private List<Prescription> prescriptions = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id",
+            foreignKey = @ForeignKey(name = "fk_doctor_department"),
+            insertable = false, // Prevents Hibernate from trying to save this field
+            updatable = false   // Prevents Hibernate from trying to update this field
+    )
+    private Department department;
+
+    // Add the Entity relationship purely to generate the Foreign Key constraint
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "hospital_id",
+            foreignKey = @ForeignKey(name = "fk_appointment_hospital"),
+            insertable = false, // Prevents Hibernate from trying to save this field
+            updatable = false   // Prevents Hibernate from trying to update this field
+    )
+    private Hospital hospital;
+
     // ── Helper methods ──────────────────────────────────────────────────────
 
     public void addAppointment(Appointment appointment) {
@@ -111,16 +126,16 @@ public class Doctor extends BaseEntity {
         prescription.setDoctor(this);
     }
 
-    public static Doctor toEntity(DoctorRequestDTO request,Users user,Department department,Hospital hospital){
+    public static Doctor toEntity(DoctorRequestDTO request,Long userId,Department department,Long hospitalId){
         return Doctor.builder()
-                .user(user)
+                .userId(userId)
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .dateOfBirth(request.getDateOfBirth())
                 .gender(Gender.valueOf(request.getGender()))
                 .phone(request.getPhone())
                 .speciality(request.getSpeciality())
-                .hospital(hospital)
+                .hospitalId(hospitalId)
                 .department(department)
                 .emergencyContact(request.getEmergencyContact())
                 .bloodGroup(BloodGroup.valueOf(request.getBloodType()))

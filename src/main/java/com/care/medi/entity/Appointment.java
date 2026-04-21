@@ -37,10 +37,9 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "doctor_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_doctor"))
     private Doctor doctor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = "Hospital is required")
-    @JoinColumn(name = "hospital_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_hospital"))
-    private Hospital hospital;
+    @Column(name = "hospital_id")
+    private Long hospitalId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", foreignKey = @ForeignKey(name = "fk_appointment_department"))
@@ -69,12 +68,22 @@ public class Appointment extends BaseEntity {
     @Builder.Default
     private List<Prescription> prescription = new ArrayList<>();
 
-    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Hospital hospital, ZonedDateTime rawTime){
+    // Add the Entity relationship purely to generate the Foreign Key constraint
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "hospital_id",
+            foreignKey = @ForeignKey(name = "fk_appointment_hospital"),
+            insertable = false, // Prevents Hibernate from trying to save this field
+            updatable = false   // Prevents Hibernate from trying to update this field
+    )
+    private Hospital hospital;
+
+    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, ZonedDateTime rawTime){
         return Appointment.builder()
                 .patient(patientEntity)
                 .doctor(doctor)
                 .department(department)
-                .hospital(hospital)
+                .hospitalId(hospitalId)
                 .appointmentDate(rawTime)
                 .status(AppointmentStatus.SCHEDULED)
                 .createdAt(ZonedDateTime.now(Constants.ZONE_ID))

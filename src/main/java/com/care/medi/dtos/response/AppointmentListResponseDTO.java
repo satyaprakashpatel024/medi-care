@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AppointmentListResponseDTO(
-        Long id,
+        Long appointmentId,
         String patientName,
         String doctorName,
         String departmentName,
@@ -32,8 +32,7 @@ public record AppointmentListResponseDTO(
                 patientName,
                 doctorName,
                 departmentName,
-                appointmentDate
-                        .withZoneSameInstant(Constants.ZONE_ID)
+                appointmentDate.withZoneSameInstant(Constants.ZONE_ID)
                         .format(Constants.HUMAN_DATETIME_FORMAT),
                 status
         );
@@ -43,7 +42,7 @@ public record AppointmentListResponseDTO(
         ZonedDateTime zonedDateTime = appointment.getAppointmentDate().withZoneSameInstant(Constants.ZONE_ID);
         return AppointmentListResponseDTO
                 .builder()
-                .id(appointment.getId())
+                .appointmentId(appointment.getId())
                 .patientName(STR."\{appointment.getPatient().getFirstName()} \{appointment.getPatient().getLastName()}")
                 .doctorName(STR."\{appointment.getDoctor().getFirstName()} \{appointment.getDoctor().getLastName()}")
                 .departmentName(appointment.getDepartment().getName())

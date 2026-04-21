@@ -87,7 +87,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 2. Validate Domain Entities (Doctor, Department, Hospital)
         Doctor doctor = validateDoctor(hospitalId, request.getDoctorId(), errorMap);
         Department department = validateDepartment(request.getDepartmentId(), errorMap);
-        Hospital hospital = validateHospital(hospitalId, errorMap);
+        validateHospital(hospitalId, errorMap);
 
         // 3. Parse and Normalize Date
         ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(), errorMap);
@@ -98,7 +98,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         // 5. Build and persist
-        Appointment appointment =Appointment.toEntity(patientEntity, doctor, department, hospital, rawTime);
+        Appointment appointment =Appointment.toEntity(patientEntity, doctor, department, hospitalId, rawTime);
 
         return AppointmentResponseDTO.fromEntity(appointmentRepository.save(appointment));
     }
@@ -248,7 +248,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                         .orElseThrow(() -> new ResourceNotFoundException(String.format("Patient not found with ID: %s",patientReq.getId())));
             } else {
                 PatientResponseDTO newPatient = patientService.createPatientInHospital(hospitalId, patientReq);
-                return patientRepository.findById(newPatient.id()).orElse(null);
+                return patientRepository.findById(newPatient.id()).orElseThrow(() -> new ResourceNotFoundException(String.format("Patient not found with ID: %s",newPatient.id())));
             }
         } catch (Exception e) {
             errorMap.put("patient", e.getMessage());
@@ -274,11 +274,9 @@ public class AppointmentServiceImpl implements AppointmentService {
                 });
     }
 
-    private Hospital validateHospital(Long hospitalId, Map<String, String> errorMap) {
-        return hospitalRepository.findById(hospitalId)
-                .orElseGet(() -> {
-                    errorMap.put("hospitalId", Constants.HOSPITAL_NOT_FOUND + hospitalId);
-                    return null;
-                });
+    private void validateHospital(Long hospitalId,Map<String, String> errorMap) {
+         if(!hospitalRepository.existsById(hospitalId)){
+             errorMap.put("hospitalId", Constants.HOSPITAL_NOT_FOUND + hospitalId);
+         }
     }
 }

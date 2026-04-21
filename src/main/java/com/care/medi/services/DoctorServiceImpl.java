@@ -43,10 +43,8 @@ public class DoctorServiceImpl implements DoctorService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_DOCTOR + request.getEmail());
         }
-        Hospital hospital = null;
-        if (hospitalId != null) {
-            hospital = hospitalRepository.findById(hospitalId)
-                    .orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + request.getHospitalId()));
+        if (!hospitalRepository.existsById(hospitalId)) {
+            throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + request.getHospitalId());
         }
 
         Department department = null;
@@ -56,7 +54,7 @@ public class DoctorServiceImpl implements DoctorService {
         }
 
         Users save = userRepository.save(Users.toEntity(request.getEmail(), "default", Role.DOCTOR));
-        Doctor doctor = Doctor.toEntity(request,save,department,hospital);
+        Doctor doctor = Doctor.toEntity(request,save.getId(),department,hospitalId);
 
         return DoctorResponseDTO.toResponse(doctorRepository.save(doctor));
     }
@@ -88,7 +86,7 @@ public class DoctorServiceImpl implements DoctorService {
     public DoctorResponseDTO getDoctorByIdAndHospital(Long id, Long hospitalId) {
         Doctor doctor = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
-        List<AddressResponseDTO> addresses = addressService.getAddressesByDoctorId(doctor.getUser().getId());
+        List<AddressResponseDTO> addresses = addressService.getAddressesByDoctorId(doctor.getUserId());
         return DoctorResponseDTO.toResponse(doctor, addresses);
     }
 

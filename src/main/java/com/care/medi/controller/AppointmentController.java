@@ -116,7 +116,7 @@ public class AppointmentController {
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(appointment.id())
+                .buildAndExpand(appointment.appointmentId())
                 .toUri();
         return ResponseEntity.created(location)
                 .body(

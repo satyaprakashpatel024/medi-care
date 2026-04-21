@@ -21,10 +21,12 @@ import java.util.Optional;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
     @Query("SELECT new com.care.medi.dtos.response.AppointmentSummaryResponseDTO(" +
-            "a.id, a.appointmentDate, " +
+            "a.id, " +
+            "a.appointmentDate, " +
             "concat(p.firstName, ' ', p.lastName), " +
             "concat(d.firstName, ' ', d.lastName), " +
-            "a.status, dept.name) " +
+            "a.status, " +
+            "dept.name) " +
             "FROM Appointment a " +
             "JOIN a.patient p " +
             "JOIN a.doctor d " +
@@ -38,7 +40,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             "concat(p.firstName, ' ', p.lastName), " +
             "concat(d.firstName, ' ', d.lastName), " +
             "dept.name, " +
-            "cast(a.appointmentDate as string), " +
+            "a.appointmentDate, " +
             "a.status) " +
             "FROM Appointment a " +
             "JOIN a.patient p " +

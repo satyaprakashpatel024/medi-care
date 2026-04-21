@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record AppointmentResponseDTO(
-        Long id,
+        Long appointmentId,
         Long patientId,
         String patientName,
         Long doctorId,
@@ -30,7 +30,7 @@ public record AppointmentResponseDTO(
     public static AppointmentResponseDTO fromEntity(Appointment appointment) {
         ZonedDateTime zonedDateTime = appointment.getAppointmentDate().withZoneSameInstant(Constants.ZONE_ID);
         return AppointmentResponseDTO.builder()
-                .id(appointment.getId())
+                .appointmentId(appointment.getId())
                 .patientId(appointment.getPatient().getId())
                 .patientName(STR."\{appointment.getPatient().getFirstName()} \{appointment.getPatient().getLastName()}")
                 .doctorId(appointment.getDoctor().getId())
