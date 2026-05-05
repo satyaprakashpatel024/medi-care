@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -37,11 +38,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PatientServiceImpl patientService;
     private final HospitalRepository hospitalRepository;
     private final PrescriptionRepository prescriptionRepository;
-
-    @Override
-    public Optional<Appointment> findValidAppointmentForPrescription(Long id) {
-        return appointmentRepository.findValidAppointmentForPrescription(id);
-    }
 
     @Override
     public Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses) {
@@ -69,9 +65,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         // Convert LocalDate to the start and end of that specific day
         // 1. Create the start of the day in IST
-        ZonedDateTime startOfDay = Helpers.getStartOfTheDay(date);
-        // 2. Create the end of the day in IST
-        ZonedDateTime endOfDay = Helpers.getEndOfTheDay(date);
+        LocalDate startOfDay = date.atStartOfDay().toLocalDate();
+        LocalDate endOfDay = startOfDay.plusDays(1);
         return appointmentRepository.findByHospitalIdAndAppointmentDateBetween(hospitalId, startOfDay, endOfDay, pageable);
     }
 
@@ -81,25 +76,28 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request) {
         Map<String, String> errorMap = new HashMap<>();
 
-        // 1. Resolve Patient (Existing or New)
-        Patient patientEntity = resolvePatient(hospitalId, request.getPatient(), errorMap);
-
-        // 2. Validate Domain Entities (Doctor, Department, Hospital)
-        Doctor doctor = validateDoctor(hospitalId, request.getDoctorId(), errorMap);
-        Department department = validateDepartment(request.getDepartmentId(), errorMap);
+        // 1. Validate Hospital
         validateHospital(hospitalId, errorMap);
-
-        // 3. Parse and Normalize Date
-        ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(), errorMap);
-
-        // 4. Guard Clause: Throw if any errors collected
+        // 2. Validate Date and Time
+        LocalDate date = Helpers.parseAppointmentDate(request.getAppointmentDate(), errorMap);
+        LocalTime time = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
+        // 3. validate appointment slot
+        boolean b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(10));
+        if (b) {
+            errorMap.put("conflictingAppointment", Constants.CONFLICTING_APPOINTMENT);
+        }
+        // 4. Resolve Patient (Existing or New)
+        Patient patientEntity = resolvePatient(hospitalId, request.getPatient(), errorMap);
+        // 5. Validate Domain Entities Doctor
+        Doctor doctor = validateDoctor(hospitalId, request.getDoctorId(), errorMap);
+        // 6. Validate Department
+        Department department = validateDepartment(request.getDepartmentId(), errorMap);
+        // 7. Guard Clause: Throw if any errors collected
         if (!errorMap.isEmpty() || patientEntity == null) {
             throw new ResourceValidationException(errorMap);
         }
-
-        // 5. Build and persist
-        Appointment appointment =Appointment.toEntity(patientEntity, doctor, department, hospitalId, rawTime);
-
+        // 8. Build and persist
+        Appointment appointment = Appointment.toEntity(patientEntity, doctor, department, hospitalId, date, time);
         return AppointmentResponseDTO.fromEntity(appointmentRepository.save(appointment));
     }
 
@@ -115,16 +113,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     @Override
     public AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request, Long hospitalId) {
-        Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId).orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
         Map<String, String> errorMap = new HashMap<>();
-
-        if (request.getAppointmentDate() != null) {
-            ZonedDateTime rawTime = Helpers.parseAndRoundToNearestTenMinutes(request.getAppointmentDate(), errorMap);
-            appointment.setAppointmentDate(rawTime);
-        }
-        if (request.getStatus() != null) {
-            appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
-        }
+        Appointment appointment = validateAppointmentForReschedule(id, hospitalId, request, errorMap);
         if (!errorMap.isEmpty()) {
             throw new ResourceValidationException(errorMap);
         }
@@ -139,7 +129,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
 
         if(appointment.getStatus().toString().equals("COMPLETED")){
-            throw new InvalidRequestException("Appointment is already completed");
+            throw new InvalidRequestException(Constants.INVALID_REQUEST);
         }
         // 1. Handle Prescription (Update existing or Create new)
         PrescriptionRequestDTO pDto = request.getPrescription();
@@ -167,7 +157,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     @Override
     public void cancelAppointment(Long id, Long hospitalId) {
-        Appointment appointment = appointmentRepository.findById(id)
+        Appointment appointment = appointmentRepository.findByIdAndHospitalId(id,hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
 
         switch (appointment.getStatus()) {
@@ -205,36 +195,31 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, AppointmentStatus status, int page, int size, String sortBy, LocalDate date) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         // 1. Create the start of the day in IST
-        ZonedDateTime startOfDay = Helpers.getStartOfTheDay(date);
-
+        LocalDate startOfDay = Helpers.getStartOfTheDay(date);
         // 2. Create the end of the day in IST
-        ZonedDateTime endOfDay = Helpers.getEndOfTheDay(date);
+        LocalDate endOfDay = Helpers.getEndOfTheDay(date);
         return appointmentRepository
                 .findByHospitalIdAndStatusAndAppointmentDateBetween(hospitalId, status, startOfDay, endOfDay, pageable);
     }
 
     @Override
-    public Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndDate(Long doctorId, int page, int size, String sortBy, LocalDate date) {
+    public Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndHospitalIdAndDate(Long doctorId, Long hospitalId, int page, int size, String sortBy, LocalDate date) {
 
         // 1. Create the start of the day in IST
-        ZonedDateTime startOfDay = Helpers.getStartOfTheDay(date);
-
+        LocalDate startOfDay = Helpers.getStartOfTheDay(date);
         // 2. Create the end of the day in IST
-        ZonedDateTime endOfDay = Helpers.getEndOfTheDay(date);
+        LocalDate endOfDay = Helpers.getEndOfTheDay(date);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-
         return appointmentRepository
-                .findByDoctorIdAndAppointmentDateBetween(doctorId, startOfDay, endOfDay, pageable)
+                .findByDoctorIdAndHospitalIdAndAppointmentDateBetween(doctorId, hospitalId,startOfDay, endOfDay, pageable)
                 .map(AppointmentListResponseDTO::fromEntity);
     }
 
     @Override
     public Page<AppointmentResponseDTO> getAppointmentsByPatientAndDate(Long patientId, LocalDate date, int page, int size, String sortBy) {
         // 1. Create the start of the day in IST
-        ZonedDateTime startOfDay = Helpers.getStartOfTheDay(date);
-
-        // 2. Create the end of the day in IST
-        ZonedDateTime endOfDay = Helpers.getEndOfTheDay(date);
+        LocalDate startOfDay = date.atStartOfDay().toLocalDate();
+        LocalDate endOfDay = startOfDay.plusDays(1);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Appointment> byPatientIdAndAppointmentDateBetween = appointmentRepository.findByPatientIdAndAppointmentDateBetween(patientId, startOfDay, endOfDay, pageable);
@@ -278,5 +263,28 @@ public class AppointmentServiceImpl implements AppointmentService {
          if(!hospitalRepository.existsById(hospitalId)){
              errorMap.put("hospitalId", Constants.HOSPITAL_NOT_FOUND + hospitalId);
          }
+    }
+
+    public boolean checkForConflictingAppointment(Long doctorId, Long hospitalId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return appointmentRepository.existsConflictingAppointment(doctorId, hospitalId, date, startTime, endTime);
+    }
+
+    private Appointment validateAppointmentForReschedule(Long id,Long hospitalId,AppointmentRescheduleDTO request,Map<String,String> errorMap) {
+        try {
+            Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId)
+                    .orElseThrow(()->new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND+id));
+            if (request.getAppointmentDate() != null) {
+                LocalDate rawTime = Helpers.parseAppointmentDate(request.getAppointmentDate(), errorMap);
+                appointment.setAppointmentDate(rawTime);
+            }
+            if (request.getStatus() != null) {
+                appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
+            }
+            return appointment;
+        }
+        catch (ResourceNotFoundException ex) {
+            errorMap.put("appointment", ex.getMessage());
+            return null;
+        }
     }
 }

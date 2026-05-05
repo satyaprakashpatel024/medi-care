@@ -92,7 +92,6 @@ public class HospitalServiceImpl implements HospitalService {
         return toResponse(hospitalRepository.save(hospital));
     }
 
-
     // ── Department Assignment ─────────────────────────────────────────────────
 
     @Transactional

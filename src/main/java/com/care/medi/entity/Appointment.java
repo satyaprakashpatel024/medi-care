@@ -9,6 +9,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,9 @@ import java.util.List;
                 @Index(name = "idx_appt_patient_id", columnList = "patient_id"),
                 @Index(name = "idx_appt_doctor_id", columnList = "doctor_id"),
                 @Index(name = "idx_appt_date", columnList = "appointment_date")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_appt_doctor_date_time", columnNames = {"doctor_id", "appointment_date","start_time","end_time"})
         }
 )
 public class Appointment extends BaseEntity {
@@ -46,9 +51,19 @@ public class Appointment extends BaseEntity {
     private Department department;
 
     @NotNull(message = "Appointment date is required")
-    @Column(name = "appointment_date", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Asia/Kolkata")
-    private ZonedDateTime appointmentDate;
+    @Column(name = "appointment_date", nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate appointmentDate;
+
+    @Column(name = "start_time")
+    @NotNull(message = "Start time is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss a")
+    private LocalTime startTime;
+
+    @Column(name = "end_time")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss a")
+    @NotNull(message = "End time is required")
+    private LocalTime endTime;
 
     @NotNull(message = "Status is required")
     @Column(nullable = false, length = 10)
@@ -70,23 +85,26 @@ public class Appointment extends BaseEntity {
 
     // Add the Entity relationship purely to generate the Foreign Key constraint
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "hospital_id",
-            foreignKey = @ForeignKey(name = "fk_appointment_hospital"),
-            insertable = false, // Prevents Hibernate from trying to save this field
-            updatable = false   // Prevents Hibernate from trying to update this field
-    )
+    @JoinColumn(name = "hospital_id", foreignKey = @ForeignKey(name = "fk_appointment_hospital"), insertable = false, updatable = false)
     private Hospital hospital;
 
-    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, ZonedDateTime rawTime){
+    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime){
         return Appointment.builder()
                 .patient(patientEntity)
                 .doctor(doctor)
                 .department(department)
                 .hospitalId(hospitalId)
-                .appointmentDate(rawTime)
+                .appointmentDate(date)
                 .status(AppointmentStatus.SCHEDULED)
+                .startTime(startTime)
+                .endTime(startTime.plusMinutes(10))
                 .createdAt(ZonedDateTime.now(Constants.ZONE_ID))
                 .build();
+    }
+
+    public LocalTime setEndTime() {
+        if(this.startTime!=null)
+            this.endTime = startTime.plusMinutes(10);
+        return this.endTime;
     }
 }

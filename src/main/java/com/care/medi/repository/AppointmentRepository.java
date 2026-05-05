@@ -13,6 +13,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -26,32 +28,33 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             "concat(p.firstName, ' ', p.lastName), " +
             "concat(d.firstName, ' ', d.lastName), " +
             "a.status, " +
-            "dept.name) " +
+            "dept.name," +
+            "a.startTime) " +
             "FROM Appointment a " +
             "JOIN a.patient p " +
             "JOIN a.doctor d " +
             "LEFT JOIN a.department dept " +
-            "WHERE a.hospital.id = :hospitalId AND a.appointmentDate BETWEEN :start AND :end")
+            "WHERE a.hospitalId = :hospitalId AND a.appointmentDate BETWEEN :start AND :end")
     Page<AppointmentSummaryResponseDTO> findByHospitalIdAndAppointmentDateBetween(
-            @Param("hospitalId") Long hospitalId, @Param("start") ZonedDateTime start, @Param("end") ZonedDateTime end, Pageable pageable);
+            @Param("hospitalId") Long hospitalId, @Param("start") LocalDate start, @Param("end") LocalDate end, Pageable pageable);
 
-    @Query("SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(" +
-            "a.id, " +
+    @Query("SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(a.id, " +
             "concat(p.firstName, ' ', p.lastName), " +
             "concat(d.firstName, ' ', d.lastName), " +
             "dept.name, " +
             "a.appointmentDate, " +
-            "a.status) " +
+            "a.status," +
+            "a.startTime) " +
             "FROM Appointment a " +
             "JOIN a.patient p " +
             "JOIN a.doctor d " +
             "LEFT JOIN a.department dept " +
-            "WHERE a.hospital.id = :hospitalId " +
+            "WHERE a.hospitalId = :hospitalId " +
             "AND a.status = :status " +
             "AND a.appointmentDate BETWEEN :start AND :end")
     Page<AppointmentListResponseDTO> findByHospitalIdAndStatusAndAppointmentDateBetween(
             @Param("hospitalId") Long hospitalId, @Param("status") AppointmentStatus status,
-            @Param("start") ZonedDateTime start, @Param("end") ZonedDateTime end, Pageable pageable);
+            @Param("start") LocalDate start, @Param("end") LocalDate end, Pageable pageable);
 
     @Query("""
                 SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(
@@ -60,14 +63,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                     concat(d.firstName, ' ', d.lastName),
                     dept.name,
                     a.appointmentDate,
-                    a.status
+                    a.status,
+                    a.startTime
                 )
                 FROM Appointment a
                 JOIN a.patient p
                 JOIN a.doctor d
                 JOIN d.department dept
                 WHERE d.id = :doctorId
-                AND d.hospital.id = :hospitalId
+                AND d.hospitalId = :hospitalId
             """)
     Page<AppointmentListResponseDTO> findByDoctorIdAndHospitalId(@Param("doctorId") Long doctorId, @Param("hospitalId") Long hospitalId, Pageable pageable);
 
@@ -87,7 +91,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Page<Appointment> findByPatientIdAndStatus(@Param("patientId") Long patientId, AppointmentStatus status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByDoctorIdAndAppointmentDateBetween(@Param("doctorId") Long doctorId, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
+    Page<Appointment> findByDoctorIdAndHospitalIdAndAppointmentDateBetween(@Param("doctorId") Long doctorId,Long hospitalId, LocalDate start, LocalDate end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
     Page<Appointment> findByDepartmentIdAndStatusAndAppointmentDateBetween(@Param("departmentId") Long departmentId, AppointmentStatus status, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
@@ -97,18 +101,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Optional<Appointment> findByIdAndHospitalId(@Param("id") Long id, @Param("hospitalId") Long hospitalId);
 
     @EntityGraph(attributePaths = {"patient", "department", "doctor", "prescription"})
-    Page<Appointment> findByPatientIdAndAppointmentDateBetween(@Param("patientId") Long patientId, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
+    Page<Appointment> findByPatientIdAndAppointmentDateBetween(@Param("patientId") Long patientId, LocalDate start, LocalDate end, Pageable pageable);
 
     boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 
     boolean existsByIdAndDoctorIdAndHospitalId(Long appointmentId, Long doctorId, Long hospitalId);
 
-    @Query("SELECT a FROM Appointment a WHERE a.id = :id " +
-            "AND (a.status = 'SCHEDULED' OR a.status = 'NO_SHOW')")
-    Optional<Appointment> findValidAppointmentForPrescription(@Param("id") Long id);
-
-    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :appointmentId AND a.hospital.id = :hospitalId AND a.doctor.id = :doctorId AND a.patient.id = :patientId")
+    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :appointmentId AND a.hospitalId = :hospitalId AND a.doctor.id = :doctorId AND a.patient.id = :patientId")
     boolean isAppointmentContextValid(@Param("appointmentId") Long appointmentId, @Param("hospitalId") Long hospitalId, @Param("doctorId") Long doctorId, @Param("patientId") Long patientId);
+
+    @Query("""
+            SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appointment a
+            WHERE a.doctor.id = :doctorId AND a.hospitalId = :hospitalId
+            AND a.appointmentDate = :date AND (a.startTime < :endTime AND a.endTime > :startTime)
+            """)
+    boolean existsConflictingAppointment(Long doctorId, Long hospitalId, LocalDate date, LocalTime startTime, LocalTime endTime);
 
     @Query("SELECT a FROM Appointment a WHERE a.id = :id AND a.status IN :statuses")
     Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);

@@ -100,9 +100,9 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndHospitalAndDate(Long id, Long hospitalId, LocalDate date, Integer page, Integer size, String sortBy) {
-        boolean b = doctorRepository.existsById(id);
+        boolean b = doctorRepository.existsByIdAndHospitalId(id,hospitalId);
         if (!b) throw new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id);
-        return appointmentService.getAppointmentsByDoctorAndDate(id, page, size, sortBy, date);
+        return appointmentService.getAppointmentsByDoctorAndHospitalIdAndDate(id,hospitalId, page, size, sortBy, date);
     }
 
     // ── Update ────────────────────────────────────────────────────────────────

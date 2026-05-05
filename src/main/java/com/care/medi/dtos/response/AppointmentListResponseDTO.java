@@ -6,6 +6,8 @@ import com.care.medi.utils.Constants;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 
 @Builder
@@ -16,7 +18,8 @@ public record AppointmentListResponseDTO(
         String doctorName,
         String departmentName,
         String appointmentDate,
-        AppointmentStatus status
+        AppointmentStatus status,
+        String appointmentTime
 ) {
 
     // Constructor called by JPQL — receives raw ZonedDateTime, formats it
@@ -25,28 +28,30 @@ public record AppointmentListResponseDTO(
             String patientName,
             String doctorName,
             String departmentName,
-            ZonedDateTime appointmentDate,
-            AppointmentStatus status) {
+            LocalDate appointmentDate,
+            AppointmentStatus status,
+            LocalTime appointmentTime
+    ) {
         this(
                 id,
                 patientName,
                 doctorName,
                 departmentName,
-                appointmentDate.withZoneSameInstant(Constants.ZONE_ID)
-                        .format(Constants.HUMAN_DATETIME_FORMAT),
-                status
+                appointmentDate.format(Constants.HUMAN_DATE_FORMAT),
+                status,
+                appointmentTime.format(Constants.HUMAN_TIME_FORMAT)
         );
     }
 
     public static AppointmentListResponseDTO fromEntity(Appointment appointment) {
-        ZonedDateTime zonedDateTime = appointment.getAppointmentDate().withZoneSameInstant(Constants.ZONE_ID);
         return AppointmentListResponseDTO
                 .builder()
                 .appointmentId(appointment.getId())
                 .patientName(STR."\{appointment.getPatient().getFirstName()} \{appointment.getPatient().getLastName()}")
                 .doctorName(STR."\{appointment.getDoctor().getFirstName()} \{appointment.getDoctor().getLastName()}")
                 .departmentName(appointment.getDepartment().getName())
-                .appointmentDate(zonedDateTime.format(Constants.HUMAN_DATETIME_FORMAT))
+                .appointmentDate(appointment.getAppointmentDate().format(Constants.HUMAN_DATE_FORMAT))
+                .appointmentTime(appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT))
                 .status(appointment.getStatus())
                 .build();
     }

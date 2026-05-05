@@ -2,6 +2,7 @@ package com.care.medi.exception;
 
 import com.care.medi.dtos.response.ApiResponse;
 import com.care.medi.entity.AppointmentStatus;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.coyote.BadRequestException;
@@ -22,7 +23,10 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Exception>> handleGenericException(Exception ex) {
+    public ResponseEntity<ApiResponse<Exception>> handleGenericException(HttpServletRequest request,Exception ex) {
+        if (request.getRequestURI().startsWith("/h2-console")) {
+            throw (RuntimeException) ex;
+        }
         ApiResponse<Exception> response = ApiResponse.<Exception>builder()
                 .message(ex.getMessage())
                 .success(false)
@@ -171,28 +175,5 @@ public class GlobalExceptionHandler {
                         .errors(ex)
                         .build()
         );
-    }
-
-
-    @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleMethodValidation(HandlerMethodValidationException ex) {
-        Map<String, String> errors = new HashMap<>();
-
-        // Extract property names and messages
-        ex.getParameterValidationResults().forEach(result -> {
-            String parameterName = result.getMethodParameter().getParameterName();
-            result.getResolvableErrors().forEach(error -> {
-                errors.put(parameterName, error.getDefaultMessage());
-            });
-        });
-
-        ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
-                .message("Validation failed for one or more parameters")
-                .success(false)
-                .errors(errors)
-                .status(HttpStatus.BAD_REQUEST)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

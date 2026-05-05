@@ -108,7 +108,7 @@ public class Doctor extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "hospital_id",
-            foreignKey = @ForeignKey(name = "fk_appointment_hospital"),
+            foreignKey = @ForeignKey(name = "FK_DOCTOR_HOSPITAL"),
             insertable = false, // Prevents Hibernate from trying to save this field
             updatable = false   // Prevents Hibernate from trying to update this field
     )
