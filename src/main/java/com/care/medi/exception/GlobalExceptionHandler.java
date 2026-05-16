@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Arrays;
@@ -23,14 +22,14 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Exception>> handleGenericException(HttpServletRequest request,Exception ex) {
+    public ResponseEntity<ApiResponse<String>> handleGenericException(HttpServletRequest request,Exception ex) {
         if (request.getRequestURI().startsWith("/h2-console")) {
             throw (RuntimeException) ex;
         }
-        ApiResponse<Exception> response = ApiResponse.<Exception>builder()
+        ApiResponse<String> response = ApiResponse.<String>builder()
                 .message(ex.getMessage())
                 .success(false)
-                .errors(ex)
+                .errors("Internal Server error.")
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .build();
 
@@ -74,12 +73,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<ResourceNotFoundException>> handleNotFound(ResourceNotFoundException ex) {
+    public ResponseEntity<ApiResponse<String>> handleNotFound(ResourceNotFoundException ex) {
 
-        ApiResponse<ResourceNotFoundException> response = ApiResponse.<ResourceNotFoundException>builder()
-                .message(ex.getMessage())
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .message("Resource not found.")
                 .success(false)
-                .errors(ex)
+                .errors(ex.getMessage())
                 .status(HttpStatus.NOT_FOUND)
                 .build();
 
@@ -87,12 +86,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<IllegalArgumentException>> handleBadRequest(IllegalArgumentException ex) {
+    public ResponseEntity<ApiResponse<String>> handleBadRequest(IllegalArgumentException ex) {
 
-        ApiResponse<IllegalArgumentException> response = ApiResponse.<IllegalArgumentException>builder()
-                .message(ex.getMessage())
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .message("Invalid argument.")
                 .success(false)
-                .errors(ex)
+                .errors(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
 
@@ -100,11 +99,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ApiResponse<BusinessException>> handleBusinessException(BusinessException ex) {
-        ApiResponse<BusinessException> apiResponse = ApiResponse.<BusinessException>builder()
-                .message(ex.getMessage())
+    public ResponseEntity<ApiResponse<String>> handleBusinessException(BusinessException ex) {
+        ApiResponse<String> apiResponse = ApiResponse.<String>builder()
+                .message("")
                 .success(false)
-                .errors(ex)
+                .errors(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
 
@@ -133,13 +132,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidRequestException.class)
-    public ResponseEntity<ApiResponse<InvalidRequestException>> handleInvalidRequest(InvalidRequestException ex) {
+    public ResponseEntity<ApiResponse<String>> handleInvalidRequest(InvalidRequestException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(
-                        ApiResponse.<InvalidRequestException>builder()
-                                .message(ex.getMessage())
+                        ApiResponse.<String>builder()
+                                .message("")
                                 .success(false)
-                                .errors(ex)
+                                .errors(ex.getMessage())
                                 .status(HttpStatus.BAD_REQUEST)
                                 .build()
                 );
@@ -166,7 +165,7 @@ public class GlobalExceptionHandler {
                 ? "dd MMMM yyyy, hh:mm am/pm (e.g., 17 April 2026, 10:30 am)"
                 : Arrays.toString(AppointmentStatus.values());
 
-        String message = STR."Invalid input for '\{name}'. Expected: \{expectedFormat}";
+        String message = String.format("Invalid input for '%s'. Expected: %s",name,expectedFormat);
         return ResponseEntity.badRequest().body(
                 ApiResponse.<MethodArgumentTypeMismatchException>builder()
                         .status(HttpStatus.BAD_REQUEST)

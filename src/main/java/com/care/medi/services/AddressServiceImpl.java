@@ -24,8 +24,8 @@ public class AddressServiceImpl implements AddressService {
     private final UserRepository userRepository;
 
     public List<AddressResponseDTO> getAddressesByDoctorId(Long id) {
-        addressRepository.findByUserId(id);
-        return addressRepository.findByUserId(id).stream()
+        List<Address> byUserId = addressRepository.findByUserId(id);
+        return byUserId.stream()
                 .map(this::toAddressResponse)
                 .toList();
     }
