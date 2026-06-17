@@ -5,6 +5,7 @@ import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
 import com.care.medi.dtos.response.PatientResponseDTO;
+import com.care.medi.emails.EmailService;
 import com.care.medi.entity.*;
 import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.ResourceNotFoundException;
@@ -13,6 +14,7 @@ import com.care.medi.repository.*;
 import com.care.medi.utils.Constants;
 import com.care.medi.utils.Helpers;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +25,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -38,6 +40,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PatientServiceImpl patientService;
     private final HospitalRepository hospitalRepository;
     private final PrescriptionRepository prescriptionRepository;
+    private final EmailService emailService;
+
+    @Value("${app.appointment.notification-email}")
+    private String devEmail;
+
+    @Value("${app.environment}")
+    private boolean isDevEnvironment;
 
     @Override
     public Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses) {
@@ -82,7 +91,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDate date = Helpers.parseAppointmentDate(request.getAppointmentDate(), errorMap);
         LocalTime time = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
         // 3. validate appointment slot
-        boolean b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(10));
+        boolean b = false;
+        if (time != null) {
+            b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(10));
+        }
         if (b) {
             errorMap.put("conflictingAppointment", Constants.CONFLICTING_APPOINTMENT);
         }
@@ -98,7 +110,25 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         // 8. Build and persist
         Appointment appointment = Appointment.toEntity(patientEntity, doctor, department, hospitalId, date, time);
-        return AppointmentResponseDTO.fromEntity(appointmentRepository.save(appointment));
+        Appointment save = appointmentRepository.save(appointment);
+        // 9. Sent confirmation Email
+        String recipientEmail= null;
+        if (isDevEnvironment) {
+            // Dev/Test environment: Route everything to the developer group
+            recipientEmail = devEmail;
+        } else {
+            // Production environment: Send to the actual user who booked it
+            recipientEmail = patientEntity.getUser().getEmail();
+        }
+        emailService.sendAppointmentConfirmation(
+                recipientEmail,
+                STR."\{patientEntity.getFirstName()} \{patientEntity.getLastName()}",
+                STR."\{doctor.getFirstName()} \{doctor.getLastName()}",
+                save.getAppointmentDate().toString(),
+                save.getStartTime().format(DateTimeFormatter.ofPattern("hh:mm a")),
+                save.getId()
+        );
+        return AppointmentResponseDTO.fromEntity(save);
     }
 
     @Override

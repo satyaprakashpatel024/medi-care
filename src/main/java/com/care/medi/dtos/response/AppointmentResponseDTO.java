@@ -47,7 +47,22 @@ public record AppointmentResponseDTO(
                 .build();
     }
 
+    public static AppointmentResponseDTO toResponse(Appointment appointment) {
+        return AppointmentResponseDTO.builder()
+                .appointmentId(appointment.getId())
+                .doctorId(appointment.getDoctor().getId())
+                .doctorName(STR."\{appointment.getDoctor().getFirstName()} \{appointment.getDoctor().getLastName()}")
+                .departmentId(appointment.getDepartment().getId())
+                .departmentName(appointment.getDepartment().getName())
+                .appointmentDate(appointment.getAppointmentDate().format(Constants.HUMAN_DATE_FORMAT))
+                .appointmentTime(appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT))
+                .status(appointment.getStatus().name())
+                .treatment(appointment.getTreatment())
+                .notes(appointment.getNotes())
+                .build();
+    }
+
     public static Set<AppointmentResponseDTO> fromEntity(Set<Appointment> appointment) {
-        return appointment.stream().map(AppointmentResponseDTO::fromEntity).collect(Collectors.toSet());
+        return appointment.stream().map(AppointmentResponseDTO::toResponse).collect(Collectors.toSet());
     }
 }

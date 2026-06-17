@@ -40,6 +40,14 @@ public final class Constants {
     public static final String CONFLICTING_APPOINTMENT = "Action denied: This doctor is already scheduled for this time.";
     public static final String INVALID_REQUEST = "Action Denied : Cannot Reschedule Appointment that is already COMPLETED.";
 
+    // notification
+    public static final String FAILED_TO_SEND_NOTIFICATION = "Failed to send email to: {}";
+    public static final String NOTIFICATION_BODY = "You have a new appointment scheduled for %s at %s.";
+    public static final String NOTIFICATION_CANCELLED_BODY = "Your appointment has been cancelled. Below are the details of the cancelled appointment:";
+
+
+    // ENCODING
+    public static final String ENCODING = "UTF-8";
     private Constants() {
         // Prevent instantiation
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
