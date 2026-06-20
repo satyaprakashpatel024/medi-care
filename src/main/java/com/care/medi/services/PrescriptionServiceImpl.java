@@ -39,7 +39,6 @@ public class PrescriptionServiceImpl {
         return prescriptionRepository.findByPatientId(patientId,pageable);
     }
 
-
     public Page<PrescriptionResponseDTO> getPrescriptionByAppointmentId(Long hospitalId, Long appointmentId, int page, int size, String sortBy) {
         if(!appointmentService.existsByIdAndHospitalId(appointmentId,hospitalId)){
             throw new ResourceNotFoundException(String.format(Constants.APPOINTMENT_NOT_FOUND_IN_HOSPITAL, appointmentId));
@@ -60,8 +59,7 @@ public class PrescriptionServiceImpl {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Appointment not found or is already completed/cancelled."));
         Prescription save = prescriptionRepository.save(Prescription.toEntity(appointment, request));
-        AppointmentResponseDTO appointmentResponseDTO = appointmentService.updateAppointmentStatus(appointment.getId(), AppointmentStatus.COMPLETED);
-
+        appointmentService.updateAppointmentStatus(appointment.getId(), AppointmentStatus.COMPLETED);
         return PrescriptionResponseDTO.toResponse(save);
     }
 }

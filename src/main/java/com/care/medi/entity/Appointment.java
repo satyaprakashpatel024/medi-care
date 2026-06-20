@@ -38,9 +38,9 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_patient"))
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_doctor"))
-    private Doctor doctor;
+    @NotNull(message = "Doctor is required")
+    @Column(name = "doctor_id")
+    private Long  doctorId;
 
     @NotNull(message = "Hospital is required")
     @Column(name = "hospital_id")
@@ -88,10 +88,13 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "hospital_id", foreignKey = @ForeignKey(name = "fk_appointment_hospital"), insertable = false, updatable = false)
     private Hospital hospital;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", foreignKey = @ForeignKey(name = "fk_appointment_doctor"), insertable = false, updatable = false)
+    private Doctor doctor;
     public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime){
         return Appointment.builder()
                 .patient(patientEntity)
-                .doctor(doctor)
+                .doctorId(doctor.getId())
                 .department(department)
                 .hospitalId(hospitalId)
                 .appointmentDate(date)
@@ -102,7 +105,7 @@ public class Appointment extends BaseEntity {
                 .build();
     }
 
-    public LocalTime setEndTime() {
+    public  LocalTime setEndTime() {
         if(this.startTime!=null)
             this.endTime = startTime.plusMinutes(10);
         return this.endTime;

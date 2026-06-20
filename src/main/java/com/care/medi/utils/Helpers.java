@@ -1,5 +1,8 @@
 package com.care.medi.utils;
 
+import com.care.medi.entity.Patient;
+import org.springframework.beans.factory.annotation.Value;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -10,6 +13,9 @@ public class Helpers {
     private Helpers() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
+    // 1. Keep the fields static, but DO NOT put @Value here
+    private static final String devEmail = "1008tonystark@gmail.com";
+    private static final boolean isDevEnvironment = true;
 
     public static LocalDate getStartOfTheDay(LocalDate date) {
         return date.atStartOfDay().toLocalDate();
@@ -40,12 +46,20 @@ public class Helpers {
             return null;
         }
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
-            return LocalTime.parse(appointmentTime.toUpperCase(), formatter);
-
+            return LocalTime.parse(appointmentTime.toUpperCase(), Constants.HUMAN_TIME_FORMAT);
         } catch (Exception e) {
             errorMap.put("appointmentTime", "Invalid format. Expected: 10:30 AM");
             return null;
+        }
+    }
+
+    public static String getRecipientEmail(Patient patientEntity) {
+        if (Helpers.isDevEnvironment) {
+            // Dev/Test environment: Route everything to the developer group
+            return devEmail;
+        } else {
+            // Production environment: Send to the actual user who booked it
+            return patientEntity.getUser().getEmail();
         }
     }
 }

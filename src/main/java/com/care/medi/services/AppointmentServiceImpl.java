@@ -14,7 +14,6 @@ import com.care.medi.repository.*;
 import com.care.medi.utils.Constants;
 import com.care.medi.utils.Helpers;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -41,12 +41,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final HospitalRepository hospitalRepository;
     private final PrescriptionRepository prescriptionRepository;
     private final EmailService emailService;
+    private final Logger logger = Logger.getLogger(AppointmentServiceImpl.class.getName());
 
-    @Value("${app.appointment.notification-email}")
-    private String devEmail;
-
-    @Value("${app.environment}")
-    private boolean isDevEnvironment;
 
     @Override
     public Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses) {
@@ -58,6 +54,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public boolean isAppointmentContextValid(Long appointmentId, Long hospitalId, Long doctorId, Long patientId) {
         return appointmentRepository.isAppointmentContextValid(appointmentId, hospitalId, doctorId, patientId);
     }
+
     @Override
     public boolean existsByIdAndHospitalId(Long id, Long hospitalId) {
         return appointmentRepository.existsByIdAndHospitalId(id, hospitalId);
@@ -92,7 +89,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalTime time = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
         // 3. validate appointment slot
         boolean b = false;
-        if (time != null) {
+        if (date !=null || time != null) {
             b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(10));
         }
         if (b) {
@@ -112,18 +109,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = Appointment.toEntity(patientEntity, doctor, department, hospitalId, date, time);
         Appointment save = appointmentRepository.save(appointment);
         // 9. Sent confirmation Email
-        String recipientEmail= null;
-        if (isDevEnvironment) {
-            // Dev/Test environment: Route everything to the developer group
-            recipientEmail = devEmail;
-        } else {
-            // Production environment: Send to the actual user who booked it
-            recipientEmail = patientEntity.getUser().getEmail();
-        }
+        String recipientEmail= Helpers.getRecipientEmail(patientEntity);
         emailService.sendAppointmentConfirmation(
                 recipientEmail,
-                STR."\{patientEntity.getFirstName()} \{patientEntity.getLastName()}",
-                STR."\{doctor.getFirstName()} \{doctor.getLastName()}",
+                String.format("%s %s", patientEntity.getFirstName(), patientEntity.getLastName()),
+                String.format("%s %s", doctor.getFirstName(), doctor.getLastName()),
                 save.getAppointmentDate().toString(),
                 save.getStartTime().format(DateTimeFormatter.ofPattern("hh:mm a")),
                 save.getId()
@@ -134,10 +124,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentResponseDTO getAppointmentByIdAndHospital(Long id, Long hospitalId) {
         Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id, hospitalId);
-        if (byId.isPresent()) {
-            return AppointmentResponseDTO.fromEntity(byId.get());
+        if (byId.isEmpty()) {
+            logger.warning(String.format("Appointment with Id %s and Hospital Id %s not found.", id, hospitalId));
+            throw new ResourceNotFoundException(String.format("%s %%s And Hospital Id : %%s".formatted(Constants.APPOINTMENT_NOT_FOUND), id, hospitalId));
         }
-        throw new ResourceNotFoundException(String.format("%s %%s And Hospital Id : %%s".formatted(Constants.APPOINTMENT_NOT_FOUND), id, hospitalId));
+        return AppointmentResponseDTO.fromEntity(byId.get());
     }
 
     @Transactional
@@ -149,6 +140,20 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new ResourceValidationException(errorMap);
         }
         appointment = appointmentRepository.saveAndFlush(appointment);
+        Patient patient = appointment.getPatient();
+        String recipientEmail = Helpers.getRecipientEmail(patient);
+
+        // Construct names cleanly using String.format()
+        String patientFullName = String.format("%s %s", patient.getFirstName(), patient.getLastName());
+        String doctorFullName = String.format("%s %s", appointment.getDoctor().getFirstName(), appointment.getDoctor().getLastName());
+        emailService.sendAppointmentReschedule(
+                recipientEmail,
+                patientFullName,
+                doctorFullName,
+                appointment.getAppointmentDate().toString(),
+                appointment.getStartTime().format(DateTimeFormatter.ofPattern("hh:mm a")),
+                appointment.getId()
+        );
         return AppointmentResponseDTO.fromEntity(appointment);
     }
 
@@ -158,8 +163,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
 
-        if(appointment.getStatus().toString().equals("COMPLETED")){
-            throw new InvalidRequestException(Constants.INVALID_REQUEST);
+        if(appointment.getStatus() == AppointmentStatus.COMPLETED){
+            throw new InvalidRequestException(Constants.INVALID_REQUEST_APPOINTMENT_IS_COMPLETED);
         }
         // 1. Handle Prescription (Update existing or Create new)
         PrescriptionRequestDTO pDto = request.getPrescription();
@@ -303,10 +308,31 @@ public class AppointmentServiceImpl implements AppointmentService {
         try {
             Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId)
                     .orElseThrow(()->new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND+id));
+            LocalDate rawDate = null;
+            LocalTime rawTime = null;
             if (request.getAppointmentDate() != null) {
-                LocalDate rawTime = Helpers.parseAppointmentDate(request.getAppointmentDate(), errorMap);
-                appointment.setAppointmentDate(rawTime);
+                rawDate = Helpers.parseAppointmentDate(request.getAppointmentDate(), errorMap);
             }
+            if(request.getAppointmentTime() != null) {
+                rawTime = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
+            }
+            if(rawDate == null || rawTime == null){
+                errorMap.put("appointmentDateTime", "Both appointmentDate and appointmentTime are required for rescheduling.");
+                return null;
+            }
+            boolean b = appointmentRepository.existsConflictingAppointment(
+                    appointment.getDoctor().getId(),
+                    hospitalId,
+                    rawDate,
+                    rawTime,
+                    rawTime.plusMinutes(10));
+            if (b) {
+                errorMap.put("conflictingAppointment", Constants.CONFLICTING_APPOINTMENT);
+                return null;
+            }
+            appointment.setAppointmentDate(rawDate);
+            appointment.setStartTime(rawTime);
+            appointment.setEndTime(rawTime.plusMinutes(10));
             if (request.getStatus() != null) {
                 appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
             }
