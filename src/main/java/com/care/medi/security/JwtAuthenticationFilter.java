@@ -32,8 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NotNull @NonNull HttpServletResponse response,
             @NotNull @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        System.out.println("JwtAuthenticationFilter: doFilterInternal called for request: " + request.getRequestURI());
-        System.out.println("Authorization header: " + request.getHeader("Authorization"));
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
@@ -60,7 +58,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // Extract hospitalId from token (if present) and set it on the response header for downstream services
                 try {
                     Long hospitalId = jwtService.extractHospitalId(jwt);
-                    System.out.println("Extracted hospitalId from JWT token: " + hospitalId);
                     if (hospitalId != null) {
                         request.setAttribute("X-Hospital-Id", hospitalId);
                     }

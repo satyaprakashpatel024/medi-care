@@ -89,7 +89,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalTime time = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
         // 3. validate appointment slot
         boolean b = false;
-        if (date !=null || time != null) {
+        if (date !=null && time != null) {
             b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(10));
         }
         if (b) {

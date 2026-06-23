@@ -108,7 +108,7 @@ public class AppointmentController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAnAppointment(
-            @RequestAttribute(value = "X-Hospital-Id")
+            @RequestHeader(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestBody @Valid AppointmentRequestDTO request
     ) {

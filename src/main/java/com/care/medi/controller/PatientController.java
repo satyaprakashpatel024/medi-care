@@ -52,7 +52,6 @@ public class PatientController {
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") long hospitalId,
             @PathVariable("id") Long patientId
     ) {
-        System.out.println("Fetching patient details for patientId: " + patientId + " and hospitalId: " + hospitalId);
         PatientResponseDTO patientById = patientService.getPatientByIdAndHospitalId(hospitalId, patientId);
         String msg = String.format("Successfully retrieved patient details for id : %d.", patientId);
         return ResponseEntity.ok(
