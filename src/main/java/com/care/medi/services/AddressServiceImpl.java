@@ -7,7 +7,7 @@ import com.care.medi.entity.AddressType;
 import com.care.medi.entity.Users;
 import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.repository.AddressRepository;
-import com.care.medi.repository.UserRepository;
+import com.care.medi.repository.UsersRepository;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.List;
 public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
-    private final UserRepository userRepository;
+    private final UsersRepository usersRepository;
 
     public List<AddressResponseDTO> getAddressesByDoctorId(Long id) {
         List<Address> byUserId = addressRepository.findByUserId(id);
@@ -65,7 +65,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public List<AddressResponseDTO> getAddressesByUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
+        if (!usersRepository.existsById(userId)) {
             throw new ResourceNotFoundException(Constants.USER_NOT_FOUND + userId);
         }
         return addressRepository.findByUserId(userId).stream()

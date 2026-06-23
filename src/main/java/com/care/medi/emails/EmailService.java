@@ -39,6 +39,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
             log.info("Appointment confirmation email sent to: {}", toEmail);
         } catch (MessagingException e) {
+//            e.printStackTrace();
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
         }
     }
@@ -63,6 +64,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment cancellation email sent to: {}", toEmail);
         } catch (MessagingException e) {
+//            e.printStackTrace();
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
         }
     }
@@ -87,6 +89,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment reminder email sent to: {}", toEmail);
         } catch (MessagingException e) {
+//            e.printStackTrace();
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
         }
     }
@@ -101,19 +104,16 @@ public class EmailService {
             Long appointmentId
     ) {
         try {
-            System.out.println("building email .. line no 104 EmailService.sendAppointmentReschedule()");
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, Constants.ENCODING);
 
             helper.setTo(toEmail);
             helper.setSubject("🔄 Appointment Rescheduled - Hospital Management System");
-            System.out.println("building email .. line no 110 EmailService.sendAppointmentReschedule()");
             helper.setText(buildAppointmentRescheduleEmail(patientName, doctorName, date, time, appointmentId), true);
-            System.out.println("sending actual email .. line no 112 EmailService.sendAppointmentReschedule()");
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment reschedule email to: {}", toEmail);
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
         }
     }

@@ -24,6 +24,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleGenericException(HttpServletRequest request,Exception ex) {
         if (request.getRequestURI().startsWith("/h2-console")) {
+            ex.printStackTrace();
             throw (RuntimeException) ex;
         }
         ApiResponse<String> response = ApiResponse.<String>builder()
@@ -51,7 +52,7 @@ public class GlobalExceptionHandler {
                 .errors(errors)
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -68,7 +69,7 @@ public class GlobalExceptionHandler {
                         )))
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -81,7 +82,7 @@ public class GlobalExceptionHandler {
                 .errors(ex.getMessage())
                 .status(HttpStatus.NOT_FOUND)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -94,7 +95,7 @@ public class GlobalExceptionHandler {
                 .errors(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -106,7 +107,7 @@ public class GlobalExceptionHandler {
                 .errors(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -118,11 +119,13 @@ public class GlobalExceptionHandler {
                 .errors(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
+        ex.printStackTrace();
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceValidationException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(ResourceValidationException ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.<Map<String, String>>builder()
                         .success(false)
@@ -133,6 +136,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<ApiResponse<String>> handleInvalidRequest(InvalidRequestException ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(
                         ApiResponse.<String>builder()
@@ -146,6 +150,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<BadRequestException>> handleBadRequest(BadRequestException ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(
                         ApiResponse.<BadRequestException>builder()
@@ -160,6 +165,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse<MethodArgumentTypeMismatchException>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        ex.printStackTrace();
         String name = ex.getName();
         String expectedFormat = name.contains("date")
                 ? "dd MMMM yyyy, hh:mm am/pm (e.g., 17 April 2026, 10:30 am)"
@@ -172,6 +178,19 @@ public class GlobalExceptionHandler {
                         .message(message)
                         .success(false)
                         .errors(ex)
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<String>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        ex.printStackTrace();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                ApiResponse.<String>builder()
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .message(ex.getMessage())
+                        .success(false)
+                        .errors(ex.getMessage())
                         .build()
         );
     }

@@ -115,7 +115,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 String.format("%s %s", patientEntity.getFirstName(), patientEntity.getLastName()),
                 String.format("%s %s", doctor.getFirstName(), doctor.getLastName()),
                 save.getAppointmentDate().toString(),
-                save.getStartTime().format(DateTimeFormatter.ofPattern("hh:mm a")),
+                save.getStartTime().format(Constants.HUMAN_TIME_FORMAT),
                 save.getId()
         );
         return AppointmentResponseDTO.fromEntity(save);
@@ -151,7 +151,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 patientFullName,
                 doctorFullName,
                 appointment.getAppointmentDate().toString(),
-                appointment.getStartTime().format(DateTimeFormatter.ofPattern("hh:mm a")),
+                appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT),
                 appointment.getId()
         );
         return AppointmentResponseDTO.fromEntity(appointment);
@@ -189,7 +189,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         return AppointmentResponseDTO.fromEntity(appointmentRepository.saveAndFlush(appointment));
     }
 
-    @Transactional
     @Override
     public void cancelAppointment(Long id, Long hospitalId) {
         Appointment appointment = appointmentRepository.findByIdAndHospitalId(id,hospitalId)
@@ -200,9 +199,23 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.setStatus(AppointmentStatus.CANCELLED);
                 appointmentRepository.save(appointment); // saveAndFlush is usually overkill here
             }
+            case COMPLETED -> {
+                throw new InvalidRequestException(Constants.INVALID_REQUEST_APPOINTMENT_IS_COMPLETED);
+            }
+            case CANCELLED -> {
+                throw new InvalidRequestException(Constants.INVALID_REQUEST_APPOINTMENT_IS_CANCELLED);
+            }
             default ->
                     throw new InvalidRequestException(Constants.INVALID_APPOINTMENT_STATUS + appointment.getStatus().name());
         }
+        emailService.sendAppointmentCancellation(
+                Helpers.getRecipientEmail(appointment.getPatient()),
+                String.format("%s %s", appointment.getPatient().getFirstName(), appointment.getPatient().getLastName()),
+                String.format("%s %s", appointment.getDoctor().getFirstName(), appointment.getDoctor().getLastName()),
+                appointment.getAppointmentDate().toString(),
+                appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT),
+                appointment.getId()
+        );
     }
 
     @Transactional

@@ -13,4 +13,8 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
     @EntityGraph(attributePaths = {"user", "hospital"})
     @Query("SELECT s FROM Staff s WHERE s.hospital.id = :hospitalId")
     List<Staff> findByHospitalId(Long hospitalId);
+
+    @EntityGraph(attributePaths = {"user", "hospital"})
+    @Query("SELECT s FROM Staff s WHERE s.user.id = :userId")
+    java.util.Optional<Staff> findByUserId(Long userId);
 }

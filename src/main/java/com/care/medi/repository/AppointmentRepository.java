@@ -32,7 +32,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             dept.name,a.startTime) 
         FROM Appointment a 
         JOIN a.patient p 
-        JOIN a.doctor d,LEFT 
+        JOIN a.doctor d
         JOIN a.department dept 
         WHERE a.hospitalId = :hospitalId AND a.appointmentDate BETWEEN :start AND :end""")
     Page<AppointmentSummaryResponseDTO> findByHospitalIdAndAppointmentDateBetween(
@@ -49,7 +49,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         "FROM Appointment a " +
         "JOIN a.patient p " +
         "JOIN a.doctor d " +
-        "LEFT JOIN a.department dept " +
+        "JOIN a.department dept " +
         "WHERE a.hospitalId = :hospitalId " +
         "AND a.status = :status " +
         "AND a.appointmentDate BETWEEN :start AND :end")
