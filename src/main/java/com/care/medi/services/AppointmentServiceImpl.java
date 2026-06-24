@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -86,15 +85,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         validateHospital(hospitalId, errorMap);
         // 2. Validate Date and Time
         LocalDate date = Helpers.parseAppointmentDate(request.getAppointmentDate(), errorMap);
+        System.out.println("appointmentTime = [" + request.getAppointmentTime() + "]");
         LocalTime time = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
         // 3. validate appointment slot
-        boolean b = false;
         if (date !=null && time != null) {
-            b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(10));
+            boolean b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(10));
+            if (b) {
+                errorMap.put("conflictingAppointment", Constants.CONFLICTING_APPOINTMENT);
+            }
         }
-        if (b) {
-            errorMap.put("conflictingAppointment", Constants.CONFLICTING_APPOINTMENT);
-        }
+
         // 4. Resolve Patient (Existing or New)
         Patient patientEntity = resolvePatient(hospitalId, request.getPatient(), errorMap);
         // 5. Validate Domain Entities Doctor

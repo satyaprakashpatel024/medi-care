@@ -30,10 +30,10 @@ public final class Constants {
 
     // Set Time Zone
     public static final String TIME_ZONE = "Asia/Kolkata";
-    public static final DateTimeFormatter HUMAN_DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy",Locale.ENGLISH);
-    public static final DateTimeFormatter HUMAN_TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.ENGLISH);
+    public static final DateTimeFormatter HUMAN_DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+    public static final DateTimeFormatter HUMAN_TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
     public static final ZoneId ZONE_ID = ZoneId.of(TIME_ZONE);              // 10:30 AM
-    public static final DateTimeFormatter HUMAN_DATETIME_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a", Locale.ENGLISH);    // 15 April 2025, 10:30 AM
+    public static final DateTimeFormatter HUMAN_DATETIME_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a");    // 15 April 2025, 10:30 AM
     public static final String APPOINTMENT_NOT_FOUND_IN_HOSPITAL = "Appointment not found with ID: %s in this Hospital. Please provide correct appointmentId or hospitalId";
     public static final String INVALID_REQUEST_APPOINTMENT_IS_CANCELLED = "Action denied: Cannot add prescription to an appointment that is already CANCELLED.";
     public static final String CONFLICTING_APPOINTMENT = "Action denied: This doctor is already scheduled for this time.";

@@ -1,7 +1,6 @@
 package com.care.medi.utils;
 
 import com.care.medi.entity.Patient;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -46,9 +45,10 @@ public class Helpers {
             return null;
         }
         try {
-            return LocalTime.parse(appointmentTime.toUpperCase(), Constants.HUMAN_TIME_FORMAT);
+            String time = appointmentTime.trim().toUpperCase(Locale.ENGLISH);
+            return LocalTime.parse(time, Constants.HUMAN_TIME_FORMAT);
         } catch (Exception e) {
-            errorMap.put("appointmentTime", "Invalid format. Expected: 10:30 AM");
+            errorMap.put("appointmentTime", "Invalid format. Expected: 10:00 AM");
             return null;
         }
     }

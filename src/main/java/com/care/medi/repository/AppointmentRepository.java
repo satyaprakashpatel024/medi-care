@@ -112,7 +112,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     boolean isAppointmentContextValid(@Param("appointmentId") Long appointmentId, @Param("hospitalId") Long hospitalId, @Param("doctorId") Long doctorId, @Param("patientId") Long patientId);
 
     @Query(value = """
-        SELECT EXISTS ( SELECT 1 FROM appointment a WHERE a.hospital_id = :hospitalId
+                SELECT EXISTS ( SELECT 1 FROM appointments a WHERE a.hospital_id = :hospitalId
         AND a.doctor_id = :doctorId AND a.appointment_date = :date AND a.start_time < :endTime
         AND a.end_time > :startTime )""",
         nativeQuery = true)
