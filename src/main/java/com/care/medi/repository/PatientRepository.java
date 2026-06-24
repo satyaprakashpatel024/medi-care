@@ -27,13 +27,12 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     @EntityGraph(attributePaths = {"user","appointments","appointments.doctor","appointments.department"})
     Optional<Patient> findByIdAndHospitalId(@NonNull Long id, @NonNull Long hospitalId);
 
-    @Query("SELECT DISTINCT new com.care.medi.dtos.response.PatientListResponseDTO(" +
+    @Query("SELECT new com.care.medi.dtos.response.PatientListResponseDTO(" +
             "p.id, p.user.id, p.firstName, p.lastName, p.dateOfBirth, " +
             "CAST(p.gender AS string), p.phone, p.emergencyContact, " +
             "CAST(p.bloodGroup AS string), p.createdAt) " +
             "FROM Patient p " +
-            "JOIN p.appointments a " +
-            "WHERE a.hospital.id = :hospitalId")
+            "WHERE p.hospital.id = :hospitalId")
     Page<PatientListResponseDTO> findAllByHospitalId(
             @Param("hospitalId") Long hospitalId,
             Pageable pageable

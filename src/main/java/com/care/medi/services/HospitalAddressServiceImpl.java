@@ -25,7 +25,7 @@ public class HospitalAddressServiceImpl implements HospitalAddressService {
 
     public HospitalAddress createHospitalAddress(Long id, HospitalAddressRequestDTO request) {
         Hospital hospital = hospitalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + id));
-        HospitalAddress entity = HospitalAddress.toEntity(hospital, request);
+        HospitalAddress entity = HospitalAddress.toEntity(hospital.getId(), request);
         return hospitalAddressRepository.save(entity);
     }
 

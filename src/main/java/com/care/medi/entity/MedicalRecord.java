@@ -2,6 +2,7 @@ package com.care.medi.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -26,27 +27,19 @@ import java.time.LocalDate;
 @SuperBuilder
 public class MedicalRecord extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false,foreignKey = @ForeignKey(name = "fk_medical_record_patient"))
-    private Patient patient;
+    @Column(name = "patient_id")
+    @NotNull(message = "Patient Id is required.")
+    private Long patientId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false,foreignKey = @ForeignKey(name = "fk_medical_record_doctor"))
-    private Doctor doctor;
 
-    /**
-     * Optional link to the appointment that generated this record.
-     * Nullable — records can also be created retrospectively
-     * (e.g. importing historical data).
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id",foreignKey = @ForeignKey(name = "fk_medical_record_appointment"))
-    private Appointment appointment;
+    @NotNull(message = "Doctor Id is required.")
+    @Column(name = "doctor_id")
+    private Long doctorId;
 
-    /**
-     * Denormalized hospital ID for fast multi-tenant filtering
-     * without joining through patient or doctor.
-     */
+    @Column(name = "appointment_id")
+    @NotNull(message = "Appointment ID is required.")
+    private Long appointmentId;
+
     @Column(name = "hospital_id", nullable = false)
     private Long hospitalId;
 
@@ -74,4 +67,18 @@ public class MedicalRecord extends BaseEntity {
     @Builder.Default
     private RecordStatus status = RecordStatus.ACTIVE;
 
+    /**
+    * -------------BIDIRECTIONAL MAPPING------------------------
+     **/
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id",insertable = false,updatable = false, foreignKey = @ForeignKey(name = "fk_medical_record_appointment"))
+    private Appointment appointment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", insertable = false,updatable = false,foreignKey = @ForeignKey(name = "fk_medical_record_doctor"))
+    private Doctor doctor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", updatable = false,insertable = false,foreignKey = @ForeignKey(name = "fk_medical_record_patient"))
+    private Patient patient;
 }

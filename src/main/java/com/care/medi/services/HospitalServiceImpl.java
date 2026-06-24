@@ -22,7 +22,6 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -91,7 +90,6 @@ public class HospitalServiceImpl implements HospitalService {
         hospital.addAddress(hospitalAddress);
         return toResponse(hospitalRepository.save(hospital));
     }
-
 
     // ── Department Assignment ─────────────────────────────────────────────────
 

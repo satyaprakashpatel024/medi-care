@@ -42,11 +42,9 @@ public interface AppointmentService {
 
     Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, AppointmentStatus status, int page, int size, String sortBy, LocalDate date);
 
-    Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndDate(Long doctorId, int page, int size, String sortBy, LocalDate filterDate);
+    Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndHospitalIdAndDate(Long doctorId, Long hospitalId, int page, int size, String sortBy, LocalDate date);
 
     Page<AppointmentResponseDTO> getAppointmentsByPatientAndDate(Long patientId, LocalDate date, int page, int size, String sortBy);
-
-    Optional<Appointment> findValidAppointmentForPrescription(Long id);
 
     Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);
 

@@ -4,6 +4,7 @@ import com.care.medi.entity.Appointment;
 import com.care.medi.utils.Constants;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
+import org.apache.tomcat.util.bcel.Const;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record AppointmentResponseDTO(
-        Long id,
+        Long appointmentId,
         Long patientId,
         String patientName,
         Long doctorId,
@@ -21,31 +22,47 @@ public record AppointmentResponseDTO(
         Long departmentId,
         String departmentName,
         String appointmentDate,
+        String appointmentTime,
         String status,
         String treatment,
         String notes,
-        ZonedDateTime updatedAt) {
+        String updatedAt) {
 
 
     public static AppointmentResponseDTO fromEntity(Appointment appointment) {
-        ZonedDateTime zonedDateTime = appointment.getAppointmentDate().withZoneSameInstant(Constants.ZONE_ID);
         return AppointmentResponseDTO.builder()
-                .id(appointment.getId())
+                .appointmentId(appointment.getId())
                 .patientId(appointment.getPatient().getId())
                 .patientName(STR."\{appointment.getPatient().getFirstName()} \{appointment.getPatient().getLastName()}")
                 .doctorId(appointment.getDoctor().getId())
                 .doctorName(STR."\{appointment.getDoctor().getFirstName()} \{appointment.getDoctor().getLastName()}")
                 .departmentId(appointment.getDepartment().getId())
                 .departmentName(appointment.getDepartment().getName())
-                .appointmentDate(zonedDateTime.format(Constants.HUMAN_DATETIME_FORMAT))
+                .appointmentDate(appointment.getAppointmentDate().format(Constants.HUMAN_DATE_FORMAT))
+                .appointmentTime(appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT))
                 .status(appointment.getStatus().name())
                 .treatment(appointment.getTreatment())
                 .notes(appointment.getNotes())
-                .updatedAt(appointment.getUpdatedAt())
+                .updatedAt(appointment.getUpdatedAt().format(Constants.HUMAN_DATETIME_FORMAT))
+                .build();
+    }
+
+    public static AppointmentResponseDTO toResponse(Appointment appointment) {
+        return AppointmentResponseDTO.builder()
+                .appointmentId(appointment.getId())
+                .doctorId(appointment.getDoctor().getId())
+                .doctorName(STR."\{appointment.getDoctor().getFirstName()} \{appointment.getDoctor().getLastName()}")
+                .departmentId(appointment.getDepartment().getId())
+                .departmentName(appointment.getDepartment().getName())
+                .appointmentDate(appointment.getAppointmentDate().format(Constants.HUMAN_DATE_FORMAT))
+                .appointmentTime(appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT))
+                .status(appointment.getStatus().name())
+                .treatment(appointment.getTreatment())
+                .notes(appointment.getNotes())
                 .build();
     }
 
     public static Set<AppointmentResponseDTO> fromEntity(Set<Appointment> appointment) {
-        return appointment.stream().map(AppointmentResponseDTO::fromEntity).collect(Collectors.toSet());
+        return appointment.stream().map(AppointmentResponseDTO::toResponse).collect(Collectors.toSet());
     }
 }

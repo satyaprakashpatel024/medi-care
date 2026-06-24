@@ -35,7 +35,7 @@ public class MedicalRecordController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> createRecord(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @Valid @RequestBody MedicalRecordRequestDTO request) {
 
@@ -59,7 +59,7 @@ public class MedicalRecordController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> getRecordById(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long id) {
 
@@ -83,7 +83,7 @@ public class MedicalRecordController {
 
     @GetMapping("/appointment/{appointmentId}")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> getRecordByAppointment(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long appointmentId) {
 
@@ -107,7 +107,7 @@ public class MedicalRecordController {
 
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getRecordsByPatient(
-            @RequestHeader(value = "X-Hospital-Id")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long patientId,
             @RequestParam(defaultValue = "0")  int page,
@@ -135,7 +135,7 @@ public class MedicalRecordController {
 
     @GetMapping("/patient/{patientId}/active")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getActiveRecordsByPatient(
-            @RequestHeader(value = "X-Hospital-Id",defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")  Long hospitalId,
             @PathVariable Long patientId,
             @RequestParam(defaultValue = "0")  int page,
@@ -162,7 +162,7 @@ public class MedicalRecordController {
 
     @GetMapping("/patient/{patientId}/latest")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> getLatestRecordByPatient(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long patientId) {
 
@@ -186,7 +186,7 @@ public class MedicalRecordController {
 
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getRecordsByDoctor(
-            @RequestHeader(value = "X-Hospital-Id",defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long doctorId,
             @RequestParam(defaultValue = "0")  int page,
@@ -214,7 +214,7 @@ public class MedicalRecordController {
 
     @GetMapping("/hospital")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getRecordsByHospital(
-            @RequestHeader(value = "X-Hospital-Id",defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestParam(required = false) RecordStatus status,
             @RequestParam(required = false)
@@ -247,7 +247,7 @@ public class MedicalRecordController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> updateRecord(
-            @RequestHeader(value = "X-Hospital-Id",defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long id,
             @Valid @RequestBody MedicalRecordUpdateRequestDTO request) {
@@ -272,7 +272,7 @@ public class MedicalRecordController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteRecord(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long id) {
 

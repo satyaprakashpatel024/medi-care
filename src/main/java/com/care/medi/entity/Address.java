@@ -3,6 +3,7 @@ package com.care.medi.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -19,9 +20,9 @@ import lombok.*;
 @Builder
 public class Address extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_address_user"))
-    private Users user;
+    @NotNull(message = "User ID is required.")
+    @Column(name = "user_id")
+    private Long userId;
 
     @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
     @Column(name = "phone_number", length = 20)
@@ -68,4 +69,7 @@ public class Address extends BaseEntity {
     @Builder.Default
     private Boolean isDefault = false;
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_address_user"))
+    private Users user;
 }

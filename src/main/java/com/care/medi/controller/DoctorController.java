@@ -47,7 +47,7 @@ public class DoctorController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> getActiveDoctorByIdAndHospital(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
         DoctorResponseDTO doctorById = doctorService.getDoctorByIdAndHospital(id, hospitalId);
@@ -64,7 +64,7 @@ public class DoctorController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getAllActiveDoctorsByHospital(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -82,7 +82,7 @@ public class DoctorController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> createDoctorInHospital(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestBody DoctorRequestDTO request
     ) {
@@ -107,7 +107,7 @@ public class DoctorController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> updateDoctor(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id, @RequestBody DoctorUpdateRequestDTO request) {
         DoctorResponseDTO doctorResponseDTO = doctorService.updateDoctorByIdAndHospital(id, hospitalId, request);
@@ -123,7 +123,7 @@ public class DoctorController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteDoctorByIdAndHospital(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
         doctorService.deleteDoctorByIdAndHospital(id, hospitalId);
@@ -139,7 +139,7 @@ public class DoctorController {
 
     @GetMapping("/{id}/appointments")
     public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByDoctorAndHospital(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long doctorId,
             @RequestParam(defaultValue = "0") Integer page,
@@ -165,7 +165,7 @@ public class DoctorController {
 
     @GetMapping("/dept/{departmentId}")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorsByDepartmentAndHospital(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("departmentId") Long departmentId,
             @RequestParam(defaultValue = "0") int page,
@@ -183,7 +183,7 @@ public class DoctorController {
 
     @GetMapping("/speciality")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getActiveDoctorBySpecialityAndHospital(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestParam("speciality") String speciality,
             @RequestParam(defaultValue = "0") int page,

@@ -35,7 +35,7 @@ public class AppointmentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
         AppointmentResponseDTO appointmentById = appointmentService.getAppointmentByIdAndHospital(id, hospitalId);
@@ -52,7 +52,7 @@ public class AppointmentController {
 
     @GetMapping("/hospital")
     public ResponseEntity<ApiResponse<Page<AppointmentSummaryResponseDTO>>> getAllAppointmentsByHospitalAndDate(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
@@ -75,7 +75,7 @@ public class AppointmentController {
 
     @GetMapping("/status")
     public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAppointmentByHospitalAndStatusAndDate(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestParam("status") AppointmentStatus status,
             @RequestParam(defaultValue = "0") Integer page,
@@ -108,7 +108,7 @@ public class AppointmentController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAnAppointment(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestHeader(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestBody @Valid AppointmentRequestDTO request
     ) {
@@ -116,7 +116,7 @@ public class AppointmentController {
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(appointment.id())
+                .buildAndExpand(appointment.appointmentId())
                 .toUri();
         return ResponseEntity.created(location)
                 .body(
@@ -131,7 +131,7 @@ public class AppointmentController {
 
     @PatchMapping("/reschedule/{id}")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id,
             @RequestBody @Valid AppointmentRescheduleDTO request
@@ -150,7 +150,7 @@ public class AppointmentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateAppointment(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id,
             @RequestBody @Valid AppointmentUpdateRequestDTO request
@@ -168,7 +168,7 @@ public class AppointmentController {
 
     @PutMapping("/{id}/cancel")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
 
@@ -185,7 +185,7 @@ public class AppointmentController {
 
     @GetMapping("/patient/{id}")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllAppointmentsByHospitalAndPatientId(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long patientId,
             @RequestParam(defaultValue = "0") Integer page,
@@ -205,7 +205,7 @@ public class AppointmentController {
 
     @DeleteMapping("{id}")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> deleteAppointment(
-            @RequestHeader(value = "X-Hospital-Id", defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("id") Long id) {
         appointmentService.deleteAppointment(id, hospitalId);

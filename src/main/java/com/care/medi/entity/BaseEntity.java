@@ -27,5 +27,5 @@ public abstract class BaseEntity {
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    public ZonedDateTime updatedAt;
+    public ZonedDateTime updatedAt = ZonedDateTime.now();
 }

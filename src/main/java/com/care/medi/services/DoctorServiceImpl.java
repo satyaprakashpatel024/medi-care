@@ -12,7 +12,7 @@ import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.repository.DepartmentRepository;
 import com.care.medi.repository.DoctorRepository;
 import com.care.medi.repository.HospitalRepository;
-import com.care.medi.repository.UserRepository;
+import com.care.medi.repository.UsersRepository;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -28,7 +28,7 @@ import java.util.List;
 public class DoctorServiceImpl implements DoctorService {
 
     private final DoctorRepository doctorRepository;
-    private final UserRepository userRepository;
+    private final UsersRepository usersRepository;
     private final HospitalRepository hospitalRepository;
     private final DepartmentRepository departmentRepository;
     private final AddressServiceImpl addressService;
@@ -40,13 +40,11 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public DoctorResponseDTO createDoctorInHospital(Long hospitalId, DoctorRequestDTO request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (usersRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_DOCTOR + request.getEmail());
         }
-        Hospital hospital = null;
-        if (hospitalId != null) {
-            hospital = hospitalRepository.findById(hospitalId)
-                    .orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + request.getHospitalId()));
+        if (!hospitalRepository.existsById(hospitalId)) {
+            throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + request.getHospitalId());
         }
 
         Department department = null;
@@ -55,8 +53,8 @@ public class DoctorServiceImpl implements DoctorService {
                     .orElseThrow(() -> new ResourceNotFoundException(Constants.DEPARTMENT_NOT_FOUND + request.getDepartmentId()));
         }
 
-        Users save = userRepository.save(Users.toEntity(request.getEmail(), "default", Role.DOCTOR));
-        Doctor doctor = Doctor.toEntity(request,save,department,hospital);
+        Users save = usersRepository.save(Users.toEntity(request.getEmail(), "default", Role.DOCTOR));
+        Doctor doctor = Doctor.toEntity(request,save.getId(),department,hospitalId);
 
         return DoctorResponseDTO.toResponse(doctorRepository.save(doctor));
     }
@@ -88,7 +86,7 @@ public class DoctorServiceImpl implements DoctorService {
     public DoctorResponseDTO getDoctorByIdAndHospital(Long id, Long hospitalId) {
         Doctor doctor = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
-        List<AddressResponseDTO> addresses = addressService.getAddressesByDoctorId(doctor.getUser().getId());
+        List<AddressResponseDTO> addresses = addressService.getAddressesByDoctorId(doctor.getUserId());
         return DoctorResponseDTO.toResponse(doctor, addresses);
     }
 
@@ -102,9 +100,9 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndHospitalAndDate(Long id, Long hospitalId, LocalDate date, Integer page, Integer size, String sortBy) {
-        boolean b = doctorRepository.existsById(id);
-        if (!b) throw new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id);
-        return appointmentService.getAppointmentsByDoctorAndDate(id, page, size, sortBy, date);
+        boolean b = doctorRepository.existsByIdAndHospitalId(id,hospitalId);
+        if (!b) throw new ResourceNotFoundException(String.format(Constants.DOCTOR_NOT_FOUND,id,hospitalId));
+        return appointmentService.getAppointmentsByDoctorAndHospitalIdAndDate(id,hospitalId, page, size, sortBy, date);
     }
 
     // ── Update ────────────────────────────────────────────────────────────────
@@ -113,7 +111,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public DoctorResponseDTO updateDoctorByIdAndHospital(Long id, Long hospitalId, DoctorUpdateRequestDTO request) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(Constants.DOCTOR_NOT_FOUND, id, hospitalId)));
 
         if (request.getFirstName() != null) doctor.setFirstName(request.getFirstName());
         if (request.getLastName() != null) doctor.setLastName(request.getLastName());

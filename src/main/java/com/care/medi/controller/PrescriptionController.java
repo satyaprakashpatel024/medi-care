@@ -24,10 +24,10 @@ public class PrescriptionController {
 
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<ApiResponse<Page<PrescriptionResponseDTO>>> getPrescriptionByPatientId(
-            @RequestHeader(value = "X-Hospital-Id",defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("patientId") Long patientId,
-            @RequestParam(value = "page",defaultValue = "0") int page,
+            @RequestParam(value = "page") int page,
             @RequestParam(value = "size",defaultValue = "5") int size,
             @RequestParam(value = "sort",defaultValue = "id") String sortBy) {
         Page<PrescriptionResponseDTO> prescriptionByPatientId = prescriptionService.getPrescriptionByPatientId(hospitalId,patientId,page,size,sortBy);
@@ -43,7 +43,7 @@ public class PrescriptionController {
 
     @GetMapping({"/appt/{appointmentId}"})
     public  ResponseEntity<ApiResponse<Page<PrescriptionResponseDTO>>> getPrescriptionByAppointmentId(
-            @RequestHeader(value = "X-Hospital-Id",defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("appointmentId") Long appointmentId
     ){
@@ -61,7 +61,7 @@ public class PrescriptionController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<PrescriptionResponseDTO>> assignPrescription(
-            @RequestHeader(value = "X-Hospital-Id",defaultValue = "0")
+            @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestBody @Valid PrescriptionRequestDTO request
     ){
