@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> createRecord(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -58,6 +60,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> getRecordById(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -82,6 +85,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @GetMapping("/appointment/{appointmentId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> getRecordByAppointment(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -106,6 +110,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getRecordsByPatient(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -134,6 +139,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @GetMapping("/patient/{patientId}/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getActiveRecordsByPatient(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")  Long hospitalId,
@@ -161,6 +167,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @GetMapping("/patient/{patientId}/latest")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> getLatestRecordByPatient(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -185,6 +192,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @GetMapping("/doctor/{doctorId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getRecordsByDoctor(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -213,6 +221,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @GetMapping("/hospital")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getRecordsByHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -246,6 +255,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> updateRecord(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -271,6 +281,7 @@ public class MedicalRecordController {
     // -------------------------------------------------------------------------
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<String>> deleteRecord(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
