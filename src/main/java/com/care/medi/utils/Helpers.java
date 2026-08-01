@@ -9,12 +9,13 @@ import java.util.Locale;
 import java.util.Map;
 
 public class Helpers {
-    private Helpers() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-    }
     // 1. Keep the fields static, but DO NOT put @Value here
     private static final String devEmail = "1008tonystark@gmail.com";
     private static final boolean isDevEnvironment = true;
+
+    private Helpers() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     public static LocalDate getStartOfTheDay(LocalDate date) {
         return date.atStartOfDay().toLocalDate();

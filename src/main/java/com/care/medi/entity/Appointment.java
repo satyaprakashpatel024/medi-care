@@ -29,7 +29,7 @@ import java.util.List;
                 @Index(name = "idx_appt_date", columnList = "appointment_date")
         },
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_appt_doctor_date_time", columnNames = {"doctor_id", "appointment_date","start_time","end_time"})
+                @UniqueConstraint(name = "uk_appt_doctor_date_time", columnNames = {"doctor_id", "appointment_date", "start_time", "end_time"})
         }
 )
 public class Appointment extends BaseEntity {
@@ -40,7 +40,7 @@ public class Appointment extends BaseEntity {
 
     @NotNull(message = "Doctor is required")
     @Column(name = "doctor_id")
-    private Long  doctorId;
+    private Long doctorId;
 
     @NotNull(message = "Hospital is required")
     @Column(name = "hospital_id")
@@ -79,7 +79,7 @@ public class Appointment extends BaseEntity {
 
     // ── Bidirectional mappings ──────────────────────────────────────────────
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "appointment", cascade = CascadeType.MERGE)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "appointment", cascade = CascadeType.MERGE)
     @Builder.Default
     private List<Prescription> prescription = new ArrayList<>();
 
@@ -91,7 +91,8 @@ public class Appointment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", foreignKey = @ForeignKey(name = "fk_appointment_doctor"), insertable = false, updatable = false)
     private Doctor doctor;
-    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime){
+
+    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime) {
         return Appointment.builder()
                 .patient(patientEntity)
                 .doctorId(doctor.getId())
@@ -105,8 +106,8 @@ public class Appointment extends BaseEntity {
                 .build();
     }
 
-    public  LocalTime setEndTime() {
-        if(this.startTime!=null)
+    public LocalTime setEndTime() {
+        if (this.startTime != null)
             this.endTime = startTime.plusMinutes(10);
         return this.endTime;
     }

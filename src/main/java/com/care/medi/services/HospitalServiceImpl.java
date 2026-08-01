@@ -18,7 +18,10 @@ import com.care.medi.repository.HospitalDepartmentRepository;
 import com.care.medi.repository.HospitalRepository;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -156,6 +159,7 @@ public class HospitalServiceImpl implements HospitalService {
                 .departments(toDepartmentResponse(save.getHospitalDepartments()))
                 .build();
     }
+
     private HospitalListResponseDTO toListResponse(Hospital save) {
         return HospitalListResponseDTO.builder()
                 .id(save.getId())

@@ -5,6 +5,7 @@ import com.care.medi.services.UsersDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -29,24 +30,24 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final UsersDetailsService userDetailsService;
     public final JwtAuthenticationFilter jwtAuthFilter;
+    private final UsersDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/v1/auth/**",
                                 "/api/v1/health/**",
-                                "/api/v1/appointments",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/api-docs/**"
                         )
                         .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/appointments/**").permitAll()
+                        .requestMatchers("/api/v1/appointments/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

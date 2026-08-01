@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<String>> handleGenericException(HttpServletRequest request,Exception ex) {
+    public ResponseEntity<ApiResponse<String>> handleGenericException(HttpServletRequest request, Exception ex) {
         if (request.getRequestURI().startsWith("/h2-console")) {
             ex.printStackTrace();
             throw (RuntimeException) ex;
@@ -184,7 +184,7 @@ public class GlobalExceptionHandler {
                 ? "dd MMMM yyyy, hh:mm am/pm (e.g., 17 April 2026, 10:30 am)"
                 : Arrays.toString(AppointmentStatus.values());
 
-        String message = String.format("Invalid input for '%s'. Expected: %s",name,expectedFormat);
+        String message = String.format("Invalid input for '%s'. Expected: %s", name, expectedFormat);
         return ResponseEntity.badRequest().body(
                 ApiResponse.<MethodArgumentTypeMismatchException>builder()
                         .status(HttpStatus.BAD_REQUEST)

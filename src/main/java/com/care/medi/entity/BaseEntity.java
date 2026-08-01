@@ -17,15 +17,13 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 public abstract class BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false,nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @Column(name = "created_at", updatable = false, nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     public ZonedDateTime createdAt;
-
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     public ZonedDateTime updatedAt = ZonedDateTime.now();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 }

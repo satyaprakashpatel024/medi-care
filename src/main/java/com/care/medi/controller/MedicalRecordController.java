@@ -115,7 +115,7 @@ public class MedicalRecordController {
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long patientId,
-            @RequestParam(defaultValue = "0")  int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "recordDate") String sortBy) {
 
@@ -142,9 +142,9 @@ public class MedicalRecordController {
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getActiveRecordsByPatient(
             @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0")  Long hospitalId,
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long patientId,
-            @RequestParam(defaultValue = "0")  int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("recordDate").descending());
@@ -197,7 +197,7 @@ public class MedicalRecordController {
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable Long doctorId,
-            @RequestParam(defaultValue = "0")  int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "recordDate") String sortBy) {
 
@@ -230,7 +230,7 @@ public class MedicalRecordController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @RequestParam(defaultValue = "0")  int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "recordDate") String sortBy) {
 

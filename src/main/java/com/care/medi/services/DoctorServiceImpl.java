@@ -15,7 +15,10 @@ import com.care.medi.repository.HospitalRepository;
 import com.care.medi.repository.UsersRepository;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +57,7 @@ public class DoctorServiceImpl implements DoctorService {
         }
 
         Users save = usersRepository.save(Users.toEntity(request.getEmail(), "default", Role.DOCTOR));
-        Doctor doctor = Doctor.toEntity(request,save.getId(),department,hospitalId);
+        Doctor doctor = Doctor.toEntity(request, save.getId(), department, hospitalId);
 
         return DoctorResponseDTO.toResponse(doctorRepository.save(doctor));
     }
@@ -94,15 +97,15 @@ public class DoctorServiceImpl implements DoctorService {
     public Page<DoctorListResponseDTO> getAllActiveDoctors(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Doctor> doctors = doctorRepository.findByIsActiveTrue(pageable);
-        return  doctors.map(DoctorListResponseDTO::toDoctorListResponse);
+        return doctors.map(DoctorListResponseDTO::toDoctorListResponse);
     }
 
 
     @Override
     public Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndHospitalAndDate(Long id, Long hospitalId, LocalDate date, Integer page, Integer size, String sortBy) {
-        boolean b = doctorRepository.existsByIdAndHospitalId(id,hospitalId);
-        if (!b) throw new ResourceNotFoundException(String.format(Constants.DOCTOR_NOT_FOUND,id,hospitalId));
-        return appointmentService.getAppointmentsByDoctorAndHospitalIdAndDate(id,hospitalId, page, size, sortBy, date);
+        boolean b = doctorRepository.existsByIdAndHospitalId(id, hospitalId);
+        if (!b) throw new ResourceNotFoundException(String.format(Constants.DOCTOR_NOT_FOUND, id, hospitalId));
+        return appointmentService.getAppointmentsByDoctorAndHospitalIdAndDate(id, hospitalId, page, size, sortBy, date);
     }
 
     // ── Update ────────────────────────────────────────────────────────────────

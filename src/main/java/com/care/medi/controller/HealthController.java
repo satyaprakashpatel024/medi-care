@@ -17,6 +17,7 @@ import java.time.OffsetDateTime;
 public class HealthController {
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
+
     @GetMapping
     public ResponseEntity<ApiResponse<String>> health() {
         String dateStr = OffsetDateTime.now(Constants.ZONE_ID).format(Constants.HUMAN_DATETIME_FORMAT);

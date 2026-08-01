@@ -12,10 +12,10 @@ import java.time.LocalDate;
 @Table(
         name = "medical_records",
         indexes = {
-                @Index(name = "idx_mr_patient",     columnList = "patient_id"),
-                @Index(name = "idx_mr_doctor",      columnList = "doctor_id"),
+                @Index(name = "idx_mr_patient", columnList = "patient_id"),
+                @Index(name = "idx_mr_doctor", columnList = "doctor_id"),
                 @Index(name = "idx_mr_appointment", columnList = "appointment_id"),
-                @Index(name = "idx_mr_hospital",    columnList = "hospital_id"),
+                @Index(name = "idx_mr_hospital", columnList = "hospital_id"),
                 @Index(name = "idx_mr_record_date", columnList = "record_date")
         }
 )
@@ -68,17 +68,17 @@ public class MedicalRecord extends BaseEntity {
     private RecordStatus status = RecordStatus.ACTIVE;
 
     /**
-    * -------------BIDIRECTIONAL MAPPING------------------------
+     * -------------BIDIRECTIONAL MAPPING------------------------
      **/
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id",insertable = false,updatable = false, foreignKey = @ForeignKey(name = "fk_medical_record_appointment"))
+    @JoinColumn(name = "appointment_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_medical_record_appointment"))
     private Appointment appointment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", insertable = false,updatable = false,foreignKey = @ForeignKey(name = "fk_medical_record_doctor"))
+    @JoinColumn(name = "doctor_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_medical_record_doctor"))
     private Doctor doctor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", updatable = false,insertable = false,foreignKey = @ForeignKey(name = "fk_medical_record_patient"))
+    @JoinColumn(name = "patient_id", updatable = false, insertable = false, foreignKey = @ForeignKey(name = "fk_medical_record_patient"))
     private Patient patient;
 }

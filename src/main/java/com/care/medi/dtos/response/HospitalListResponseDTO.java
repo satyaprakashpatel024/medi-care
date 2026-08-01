@@ -12,7 +12,7 @@ public record HospitalListResponseDTO(
         String phone,
         Set<HospitalAddressResponseDTO> address
 ) {
-    public static  HospitalListResponseDTO fromEntity(Hospital hospital) {
+    public static HospitalListResponseDTO fromEntity(Hospital hospital) {
         return HospitalListResponseDTO.builder()
                 .id(hospital.getId())
                 .name(hospital.getName())

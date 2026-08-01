@@ -99,13 +99,13 @@ public class PatientServiceImpl implements PatientService {
     @Transactional
     @Override
     public InsuranceResponseDTO assignInsurance(Long patientId, Long hospitalId, InsuranceRequestDTO request) {
-        Patient byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId).orElseThrow(()-> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
+        Patient byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId).orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
 
         if (insuranceRepository.existsByPolicyNumber(request.getPolicyNumber())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_POLICY);
         }
 
-        Insurance insurance = Insurance.toEntity(request,byId);
+        Insurance insurance = Insurance.toEntity(request, byId);
         insurance = insuranceRepository.save(insurance);
         return InsuranceResponseDTO.fromEntity(insurance);
     }
