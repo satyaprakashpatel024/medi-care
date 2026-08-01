@@ -68,12 +68,15 @@ public class Patient extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BloodGroup bloodGroup;
 
-    @NotNull(message = "Hospital ID is required")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "hospital_id", nullable = false, foreignKey = @ForeignKey(name = "fk_patient_hospital"))
-    private Hospital hospital;
+    @Column(name = "hospital_id")
+    @NotNull(message = "Hospital is required")
+    private Long hospitalId;
 
     // ── Bidirectional mappings ──────────────────────────────────────────────
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "hospital_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_patient_hospital"))
+    private Hospital hospital;
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
@@ -88,7 +91,7 @@ public class Patient extends BaseEntity {
 
     @Override
     public String toString() {
-        return String.format(this.getId()+" "+this.hospital.getId());
+        return new StringBuilder().append("Patient{").append("firstName='").append(firstName).append('\'').append(", lastName='").append(lastName).append('\'').append(", dateOfBirth=").append(dateOfBirth).append(", gender=").append(gender).append(", phone='").append(phone).append('\'').append(", emergencyContact='").append(emergencyContact).append('\'').append(", bloodGroup=").append(bloodGroup).append(", hospitalId=").append(hospitalId).append('}').toString();
     }
 
     public void addAppointment(Appointment appointment) {

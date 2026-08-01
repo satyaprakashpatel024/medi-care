@@ -19,7 +19,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     Page<Doctor> findAll(@NonNull Pageable pageable);
 
     @NonNull
-    @EntityGraph(attributePaths = {"user", "hospital", "department"})
+    @EntityGraph(attributePaths = {"hospital", "department"})
     Optional<Doctor> findByIdAndHospitalIdAndIsActiveTrue(@NonNull Long id, @NonNull Long hospitalId);
 
     @EntityGraph(attributePaths = {"hospital", "department"})
@@ -33,4 +33,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     @EntityGraph(attributePaths = {"hospital", "department"})
     Page<Doctor> findByIsActiveTrue(Pageable pageable);
+
+    boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 }

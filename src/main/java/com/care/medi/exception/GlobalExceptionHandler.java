@@ -2,6 +2,7 @@ package com.care.medi.exception;
 
 import com.care.medi.dtos.response.ApiResponse;
 import com.care.medi.entity.AppointmentStatus;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.coyote.BadRequestException;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Arrays;
@@ -22,11 +22,15 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Exception>> handleGenericException(Exception ex) {
-        ApiResponse<Exception> response = ApiResponse.<Exception>builder()
+    public ResponseEntity<ApiResponse<String>> handleGenericException(HttpServletRequest request,Exception ex) {
+        if (request.getRequestURI().startsWith("/h2-console")) {
+            ex.printStackTrace();
+            throw (RuntimeException) ex;
+        }
+        ApiResponse<String> response = ApiResponse.<String>builder()
                 .message(ex.getMessage())
                 .success(false)
-                .errors(ex)
+                .errors("Internal Server error.")
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .build();
 
@@ -48,7 +52,7 @@ public class GlobalExceptionHandler {
                 .errors(errors)
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -65,45 +69,45 @@ public class GlobalExceptionHandler {
                         )))
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<ResourceNotFoundException>> handleNotFound(ResourceNotFoundException ex) {
+    public ResponseEntity<ApiResponse<String>> handleNotFound(ResourceNotFoundException ex) {
 
-        ApiResponse<ResourceNotFoundException> response = ApiResponse.<ResourceNotFoundException>builder()
-                .message(ex.getMessage())
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .message("Resource not found.")
                 .success(false)
-                .errors(ex)
+                .errors(ex.getMessage())
                 .status(HttpStatus.NOT_FOUND)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<IllegalArgumentException>> handleBadRequest(IllegalArgumentException ex) {
+    public ResponseEntity<ApiResponse<String>> handleBadRequest(IllegalArgumentException ex) {
 
-        ApiResponse<IllegalArgumentException> response = ApiResponse.<IllegalArgumentException>builder()
-                .message(ex.getMessage())
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .message("Invalid argument.")
                 .success(false)
-                .errors(ex)
+                .errors(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ApiResponse<BusinessException>> handleBusinessException(BusinessException ex) {
-        ApiResponse<BusinessException> apiResponse = ApiResponse.<BusinessException>builder()
-                .message(ex.getMessage())
+    public ResponseEntity<ApiResponse<String>> handleBusinessException(BusinessException ex) {
+        ApiResponse<String> apiResponse = ApiResponse.<String>builder()
+                .message("")
                 .success(false)
-                .errors(ex)
+                .errors(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
-
+        ex.printStackTrace();
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -115,11 +119,13 @@ public class GlobalExceptionHandler {
                 .errors(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
+        ex.printStackTrace();
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceValidationException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(ResourceValidationException ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.<Map<String, String>>builder()
                         .success(false)
@@ -129,13 +135,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidRequestException.class)
-    public ResponseEntity<ApiResponse<InvalidRequestException>> handleInvalidRequest(InvalidRequestException ex) {
+    public ResponseEntity<ApiResponse<String>> handleInvalidRequest(InvalidRequestException ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(
-                        ApiResponse.<InvalidRequestException>builder()
-                                .message(ex.getMessage())
+                        ApiResponse.<String>builder()
+                                .message("")
                                 .success(false)
-                                .errors(ex)
+                                .errors(ex.getMessage())
                                 .status(HttpStatus.BAD_REQUEST)
                                 .build()
                 );
@@ -143,6 +150,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<BadRequestException>> handleBadRequest(BadRequestException ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(
                         ApiResponse.<BadRequestException>builder()
@@ -157,12 +165,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse<MethodArgumentTypeMismatchException>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        ex.printStackTrace();
         String name = ex.getName();
         String expectedFormat = name.contains("date")
                 ? "dd MMMM yyyy, hh:mm am/pm (e.g., 17 April 2026, 10:30 am)"
                 : Arrays.toString(AppointmentStatus.values());
 
-        String message = STR."Invalid input for '\{name}'. Expected: \{expectedFormat}";
+        String message = String.format("Invalid input for '%s'. Expected: %s",name,expectedFormat);
         return ResponseEntity.badRequest().body(
                 ApiResponse.<MethodArgumentTypeMismatchException>builder()
                         .status(HttpStatus.BAD_REQUEST)
@@ -173,26 +182,16 @@ public class GlobalExceptionHandler {
         );
     }
 
-
-    @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleMethodValidation(HandlerMethodValidationException ex) {
-        Map<String, String> errors = new HashMap<>();
-
-        // Extract property names and messages
-        ex.getParameterValidationResults().forEach(result -> {
-            String parameterName = result.getMethodParameter().getParameterName();
-            result.getResolvableErrors().forEach(error -> {
-                errors.put(parameterName, error.getDefaultMessage());
-            });
-        });
-
-        ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
-                .message("Validation failed for one or more parameters")
-                .success(false)
-                .errors(errors)
-                .status(HttpStatus.BAD_REQUEST)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<String>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        ex.printStackTrace();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                ApiResponse.<String>builder()
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .message(ex.getMessage())
+                        .success(false)
+                        .errors(ex.getMessage())
+                        .build()
+        );
     }
 }

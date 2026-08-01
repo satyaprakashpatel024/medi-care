@@ -1,12 +1,10 @@
 package com.care.medi.utils;
 
+import com.care.medi.entity.Patient;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.Locale;
 import java.util.Map;
 
@@ -14,60 +12,54 @@ public class Helpers {
     private Helpers() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
+    // 1. Keep the fields static, but DO NOT put @Value here
+    private static final String devEmail = "1008tonystark@gmail.com";
+    private static final boolean isDevEnvironment = true;
 
-    public static ZonedDateTime getStartOfTheDay(LocalDate date) {
-        return date.atStartOfDay(Constants.ZONE_ID);
+    public static LocalDate getStartOfTheDay(LocalDate date) {
+        return date.atStartOfDay().toLocalDate();
     }
 
-    public static ZonedDateTime getEndOfTheDay(LocalDate date) {
-        return date.atTime(LocalTime.MAX).atZone(Constants.ZONE_ID);
+    public static LocalDate getEndOfTheDay(LocalDate date) {
+        return date.atTime(LocalTime.MAX).toLocalDate();
     }
 
-    public static ZonedDateTime parseAndRoundToNearestTenMinutes(String dateString, Map<String, String> errorMap) {
+
+    public static LocalDate parseAppointmentDate(String dateString, Map<String, String> errorMap) {
         if (dateString == null || dateString.isBlank()) {
             return null;
         }
-        // 1. Parse and Normalize Date
         try {
-            DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-                    .parseCaseInsensitive()
-                    .appendPattern("dd MMMM yyyy, hh:mm a")
-                    .toFormatter(Locale.ENGLISH);
-
-            // 2. Parse string to LocalDateTime (it doesn't have a zone yet)
-            LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
-            // Parse using your helper
-            ZonedDateTime rawTime = localDateTime.atZone(Constants.ZONE_ID);
-            // Apply the 10-minute rounding
-            ZonedDateTime normalizedTime = Helpers.roundToNearestTenMinutes(rawTime);
-            // Validation: Must be in the future
-            ZonedDateTime now = ZonedDateTime.now(Constants.ZONE_ID);
-            if (normalizedTime != null && normalizedTime.isBefore(now)) {
-                errorMap.put("appointmentDate", "Appointment must be scheduled for a future time.");
-            }
-            return normalizedTime;
+            // Standard ISO_LOCAL_DATE (yyyy-MM-dd)
+            return LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
         } catch (Exception e) {
-            errorMap.put("appointmentDate", "Invalid date format. Expected: 17 April 2026, 10:30 am");
+            errorMap.put("appointmentDate", "Invalid date format. Expected: yyyy-MM-dd (e.g., 2026-04-17)");
             return null;
         }
     }
 
-    /**
-     * Rounds a given datetime to the nearest 10-minute boundary.
-     * Examples:
-     * 10:07 → 10:10
-     * 10:04 → 10:00
-     * 10:05 → 10:10  (rounds up on exact half)
-     */
-    public static ZonedDateTime roundToNearestTenMinutes(ZonedDateTime dateTime) {
-        int minute = dateTime.getMinute();
-        int roundedMinute = (int) (Math.round(minute / 10.0) * 10);
+    public static LocalTime parseAppointmentTime(String appointmentTime, Map<String, String> errorMap) {
 
-        if (roundedMinute == 60) {
-            // e.g. 10:55 rounds to 11:00
-            return dateTime.withMinute(0).withSecond(0).withNano(0).plusHours(1);
+        if (appointmentTime == null || appointmentTime.trim().isEmpty()) {
+            errorMap.put("appointmentTime", "Time is required");
+            return null;
         }
+        try {
+            String time = appointmentTime.trim().toUpperCase(Locale.ENGLISH);
+            return LocalTime.parse(time, Constants.HUMAN_TIME_FORMAT);
+        } catch (Exception e) {
+            errorMap.put("appointmentTime", "Invalid format. Expected: 10:00 AM");
+            return null;
+        }
+    }
 
-        return dateTime.withMinute(roundedMinute).withSecond(0).withNano(0);
+    public static String getRecipientEmail(Patient patientEntity) {
+        if (Helpers.isDevEnvironment) {
+            // Dev/Test environment: Route everything to the developer group
+            return devEmail;
+        } else {
+            // Production environment: Send to the actual user who booked it
+            return patientEntity.getUser().getEmail();
+        }
     }
 }

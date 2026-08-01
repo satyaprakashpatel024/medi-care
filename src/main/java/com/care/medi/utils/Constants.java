@@ -2,6 +2,7 @@ package com.care.medi.utils;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public final class Constants {
 
@@ -10,7 +11,7 @@ public final class Constants {
 
     public static final String HOSPITAL_NOT_FOUND = "Hospital not found with ID: ";
     public static final String DEPARTMENT_NOT_FOUND = "Department not found with ID: ";
-    public static final String DOCTOR_NOT_FOUND = "Doctor not found with ID: ";
+    public static final String DOCTOR_NOT_FOUND = "Doctor not found with ID: %s and Hospital ID: %s";
     public static final String PATIENT_NOT_FOUND = "Patient not found with ID: ";
     public static final String PATIENT_NOT_FOUND_IN_HOSPITAL = "Patient not found with ID: %s in this Hospital. Please provide correct patientId or hospitalId";
     public static final String APPOINTMENT_NOT_FOUND = "Appointment not found with ID: ";
@@ -19,9 +20,7 @@ public final class Constants {
 
     // --- Duplicate/Conflict Messages ---
     public static final String DUPLICATE_EMAIL = "An account with this email already exists: ";
-    public static final String DUPLICATE_HOSPITAL = "A hospital with this name is already registered.";
     public static final String DUPLICATE_POLICY = "This insurance policy number is already in use.";
-    public static final String DUPLICATE_SPECIALTY = "This specialty is already defined in the system.";
     public static final String DUPLICATE_DOCTOR = "This doctor is already defined in the system.";
 
     // --- Validation & Business Logic Messages ---
@@ -32,11 +31,19 @@ public final class Constants {
     // Set Time Zone
     public static final String TIME_ZONE = "Asia/Kolkata";
     public static final DateTimeFormatter HUMAN_DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+    public static final DateTimeFormatter HUMAN_TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
     public static final ZoneId ZONE_ID = ZoneId.of(TIME_ZONE);              // 10:30 AM
     public static final DateTimeFormatter HUMAN_DATETIME_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a");    // 15 April 2025, 10:30 AM
     public static final String APPOINTMENT_NOT_FOUND_IN_HOSPITAL = "Appointment not found with ID: %s in this Hospital. Please provide correct appointmentId or hospitalId";
-    public static final String INVALID_REQUEST_APPOINTMENT_IS_CANCELLED_OR_COMPLETED = "Action denied: Cannot add prescription to an appointment that is already CANCELLED OR COMPLETED.";
+    public static final String INVALID_REQUEST_APPOINTMENT_IS_CANCELLED = "Action denied: Cannot add prescription to an appointment that is already CANCELLED.";
+    public static final String CONFLICTING_APPOINTMENT = "Action denied: This doctor is already scheduled for this time.";
+    public static final String INVALID_REQUEST_APPOINTMENT_IS_COMPLETED  = "Action Denied : Cannot Reschedule Appointment that is already COMPLETED.";
 
+    // notification
+    public static final String FAILED_TO_SEND_NOTIFICATION = "Failed to send email to: {}";
+
+    // ENCODING
+    public static final String ENCODING = "UTF-8";
     private Constants() {
         // Prevent instantiation
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

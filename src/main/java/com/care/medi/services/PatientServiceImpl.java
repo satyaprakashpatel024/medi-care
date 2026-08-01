@@ -11,7 +11,7 @@ import com.care.medi.exception.DuplicateResourceException;
 import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.repository.InsuranceRepository;
 import com.care.medi.repository.PatientRepository;
-import com.care.medi.repository.UserRepository;
+import com.care.medi.repository.UsersRepository;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,13 +28,13 @@ import java.util.Optional;
 public class PatientServiceImpl implements PatientService {
 
     private final PatientRepository patientRepository;
-    private final UserRepository userRepository;
+    private final UsersRepository usersRepository;
     private final InsuranceRepository insuranceRepository;
     private final HospitalService hospitalService;
 
     @Transactional(readOnly = true)
     @Override
-    public PatientResponseDTO getPatientByIdAndHospitalId(Long patientId, Long hospitalId) {
+    public PatientResponseDTO getPatientByIdAndHospitalId(long hospitalId, Long patientId) {
         Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
         if (byId.isEmpty()) {
             throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
@@ -45,11 +45,11 @@ public class PatientServiceImpl implements PatientService {
     @Transactional
     @Override
     public PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient) {
-        if (userRepository.existsByEmail(patient.getEmail())) {
+        if (usersRepository.existsByEmail(patient.getEmail())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_EMAIL + patient.getEmail());
         }
         Users user = Users.toEntity(patient.getEmail(), "default", Role.PATIENT);
-        user = userRepository.save(user);
+        user = usersRepository.save(user);
         Patient save = patientRepository.save(Patient.toEntity(patient, user));
         return PatientResponseDTO.fromEntity(save);
     }

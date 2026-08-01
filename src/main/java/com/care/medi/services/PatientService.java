@@ -14,7 +14,7 @@ import java.util.List;
 public interface PatientService {
     boolean existsByIdAndHospitalId(Long hospitalId, Long id);
 
-    PatientResponseDTO getPatientByIdAndHospitalId(Long hospitalId, Long id);
+    PatientResponseDTO getPatientByIdAndHospitalId(long hospitalId, Long id);
 
     @Transactional
     PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient);
