@@ -8,6 +8,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -21,8 +22,20 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<String>> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                ApiResponse.<String>builder()
+                        .status(HttpStatus.FORBIDDEN)
+                        .message("Access Denied")
+                        .success(false)
+                        .errors("You do not have permission to access this resource.")
+                        .build()
+        );
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<String>> handleGenericException(HttpServletRequest request,Exception ex) {
+    public ResponseEntity<ApiResponse<String>> handleGenericException(HttpServletRequest request, Exception ex) {
         if (request.getRequestURI().startsWith("/h2-console")) {
             ex.printStackTrace();
             throw (RuntimeException) ex;
@@ -171,7 +184,7 @@ public class GlobalExceptionHandler {
                 ? "dd MMMM yyyy, hh:mm am/pm (e.g., 17 April 2026, 10:30 am)"
                 : Arrays.toString(AppointmentStatus.values());
 
-        String message = String.format("Invalid input for '%s'. Expected: %s",name,expectedFormat);
+        String message = String.format("Invalid input for '%s'. Expected: %s", name, expectedFormat);
         return ResponseEntity.badRequest().body(
                 ApiResponse.<MethodArgumentTypeMismatchException>builder()
                         .status(HttpStatus.BAD_REQUEST)

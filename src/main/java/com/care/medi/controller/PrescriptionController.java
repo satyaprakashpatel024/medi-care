@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -23,14 +24,15 @@ public class PrescriptionController {
     private final PrescriptionServiceImpl prescriptionService;
 
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<PrescriptionResponseDTO>>> getPrescriptionByPatientId(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("patientId") Long patientId,
             @RequestParam(value = "page") int page,
-            @RequestParam(value = "size",defaultValue = "5") int size,
-            @RequestParam(value = "sort",defaultValue = "id") String sortBy) {
-        Page<PrescriptionResponseDTO> prescriptionByPatientId = prescriptionService.getPrescriptionByPatientId(hospitalId,patientId,page,size,sortBy);
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "sort", defaultValue = "id") String sortBy) {
+        Page<PrescriptionResponseDTO> prescriptionByPatientId = prescriptionService.getPrescriptionByPatientId(hospitalId, patientId, page, size, sortBy);
         return ResponseEntity.ok(
                 ApiResponse.<Page<PrescriptionResponseDTO>>builder()
                         .data(prescriptionByPatientId)
@@ -42,11 +44,12 @@ public class PrescriptionController {
     }
 
     @GetMapping({"/appt/{appointmentId}"})
-    public  ResponseEntity<ApiResponse<Page<PrescriptionResponseDTO>>> getPrescriptionByAppointmentId(
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
+    public ResponseEntity<ApiResponse<Page<PrescriptionResponseDTO>>> getPrescriptionByAppointmentId(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("appointmentId") Long appointmentId
-    ){
+    ) {
         Page<PrescriptionResponseDTO> byId = prescriptionService.getPrescriptionByAppointmentId(hospitalId, appointmentId, 0, 5, "id");
 
         return ResponseEntity.ok(
@@ -60,11 +63,12 @@ public class PrescriptionController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<PrescriptionResponseDTO>> assignPrescription(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestBody @Valid PrescriptionRequestDTO request
-    ){
+    ) {
         PrescriptionResponseDTO prescription = prescriptionService.assignPrescriptionToAppointment(hospitalId, request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -74,13 +78,13 @@ public class PrescriptionController {
         return ResponseEntity
                 .created(location)
                 .body(
-                ApiResponse.<PrescriptionResponseDTO>builder()
-                        .data(prescription)
-                        .message("Prescription created successfully")
-                        .status(HttpStatus.CREATED)
-                        .success(true)
-                        .build()
-        );
+                        ApiResponse.<PrescriptionResponseDTO>builder()
+                                .data(prescription)
+                                .message("Prescription created successfully")
+                                .status(HttpStatus.CREATED)
+                                .success(true)
+                                .build()
+                );
     }
 
 

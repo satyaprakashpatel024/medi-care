@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,6 +29,7 @@ public class PatientController {
     private final PatientServiceImpl patientService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<Page<PatientListResponseDTO>>> getAllPatientsByHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -47,6 +49,7 @@ public class PatientController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> getPatientByIdAndHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") long hospitalId,
@@ -64,6 +67,7 @@ public class PatientController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> savePatientInHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -88,6 +92,7 @@ public class PatientController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -107,6 +112,7 @@ public class PatientController {
     }
 
     @PostMapping("/{id}/insurance")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<InsuranceResponseDTO>> assignInsuranceToPatient(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -125,6 +131,7 @@ public class PatientController {
     }
 
     @GetMapping("{id}/insurances")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurancesOfPatient(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,

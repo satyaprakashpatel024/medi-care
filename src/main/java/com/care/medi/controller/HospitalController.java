@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +22,7 @@ public class HospitalController {
     private final HospitalServiceImpl hospitalService;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Page<HospitalListResponseDTO>>> getAllHospitals(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -38,6 +40,7 @@ public class HospitalController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> getHospitalById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 ApiResponse.<HospitalResponseDTO>builder()
@@ -50,6 +53,7 @@ public class HospitalController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> createHospital(@Valid @RequestBody HospitalRequestDTO request) {
         return ResponseEntity.ok(
                 ApiResponse.<HospitalResponseDTO>builder()
@@ -62,6 +66,7 @@ public class HospitalController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> updateHospital(@PathVariable("id") Long id, @Valid @RequestBody HospitalUpdateRequestDTO request) {
         return ResponseEntity.ok(
                 ApiResponse.<HospitalResponseDTO>builder()

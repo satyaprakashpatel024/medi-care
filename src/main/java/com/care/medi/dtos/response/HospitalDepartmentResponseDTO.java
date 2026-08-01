@@ -21,11 +21,10 @@ public record HospitalDepartmentResponseDTO(
                 .id(hd.getId())
                 .departmentName(hd.getDepartment() != null ? hd.getDepartment().getName() : "Unknown")
                 .headDoctorId(hd.getHeadDoctor() != null ? hd.getHeadDoctor().getId() : null)
-                .headDoctorName(hd.getHeadDoctor() != null ? STR."\{hd.getHeadDoctor().getFirstName()} \{hd.getHeadDoctor().getLastName()}" : "No Head Assigned")
+                .headDoctorName(hd.getHeadDoctor() != null ? String.format("%s %s", hd.getHeadDoctor().getFirstName(), hd.getHeadDoctor().getLastName()) : "No Head Assigned")
                 .active(hd.isActive())
                 .build();
     }
-
 
 
     public static Set<HospitalDepartmentResponseDTO> fromEntity(Set<HospitalDepartment> hospitalDepartments) {

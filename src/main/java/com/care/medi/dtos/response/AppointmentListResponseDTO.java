@@ -8,7 +8,6 @@ import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -47,8 +46,8 @@ public record AppointmentListResponseDTO(
         return AppointmentListResponseDTO
                 .builder()
                 .appointmentId(appointment.getId())
-                .patientName(STR."\{appointment.getPatient().getFirstName()} \{appointment.getPatient().getLastName()}")
-                .doctorName(STR."\{appointment.getDoctor().getFirstName()} \{appointment.getDoctor().getLastName()}")
+                .patientName(String.format("%s %s", appointment.getPatient().getFirstName(), appointment.getPatient().getLastName()))
+                .doctorName(String.format("%s %s", appointment.getDoctor().getFirstName(), appointment.getDoctor().getLastName()))
                 .departmentName(appointment.getDepartment().getName())
                 .appointmentDate(appointment.getAppointmentDate().format(Constants.HUMAN_DATE_FORMAT))
                 .appointmentTime(appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT))

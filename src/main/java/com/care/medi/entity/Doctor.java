@@ -67,10 +67,10 @@ public class Doctor extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String speciality;
 
-    @Column(name = "hospital_id",nullable = false)
+    @Column(name = "hospital_id", nullable = false)
     private Long hospitalId;
 
-    @Column(name = "department_id",nullable = false)
+    @Column(name = "department_id", nullable = false)
     private Long departmentId;
 
     @Size(max = 255)
@@ -116,17 +116,7 @@ public class Doctor extends BaseEntity {
 
     // ── Helper methods ──────────────────────────────────────────────────────
 
-    public void addAppointment(Appointment appointment) {
-        appointments.add(appointment);
-        appointment.setDoctor(this);
-    }
-
-    public void addPrescription(Prescription prescription) {
-        prescriptions.add(prescription);
-        prescription.setDoctor(this);
-    }
-
-    public static Doctor toEntity(DoctorRequestDTO request,Long userId,Department department,Long hospitalId){
+    public static Doctor toEntity(DoctorRequestDTO request, Long userId, Department department, Long hospitalId) {
         return Doctor.builder()
                 .userId(userId)
                 .firstName(request.getFirstName())
@@ -140,5 +130,15 @@ public class Doctor extends BaseEntity {
                 .emergencyContact(request.getEmergencyContact())
                 .bloodGroup(BloodGroup.valueOf(request.getBloodType()))
                 .build();
+    }
+
+    public void addAppointment(Appointment appointment) {
+        appointments.add(appointment);
+        appointment.setDoctor(this);
+    }
+
+    public void addPrescription(Prescription prescription) {
+        prescriptions.add(prescription);
+        prescription.setDoctor(this);
     }
 }

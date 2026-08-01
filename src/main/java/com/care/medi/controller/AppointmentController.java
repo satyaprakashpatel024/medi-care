@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -34,6 +35,7 @@ public class AppointmentController {
     private final AppointmentServiceImpl appointmentService;
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -51,6 +53,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/hospital")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<Page<AppointmentSummaryResponseDTO>>> getAllAppointmentsByHospitalAndDate(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -62,7 +65,7 @@ public class AppointmentController {
         LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
         Page<AppointmentSummaryResponseDTO> allAppointments = appointmentService.getAllAppointmentsByHospitalAndDate(hospitalId, page, size, sortBy, filterDate);
         String msg = String.format("Successfully retrieved %s appointments for Hospital ID %d on %s.",
-                   allAppointments.getTotalElements (),hospitalId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+                allAppointments.getTotalElements(), hospitalId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
         return ResponseEntity.ok(
                 ApiResponse.<Page<AppointmentSummaryResponseDTO>>builder()
                         .status(HttpStatus.OK)
@@ -74,6 +77,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAppointmentByHospitalAndStatusAndDate(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -107,6 +111,7 @@ public class AppointmentController {
     }
 
     @PostMapping
+    @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAnAppointment(
             @RequestHeader(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -130,6 +135,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/reschedule/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -149,6 +155,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateAppointment(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -167,6 +174,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -184,6 +192,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllAppointmentsByHospitalAndPatientId(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -204,6 +213,7 @@ public class AppointmentController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> deleteAppointment(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,

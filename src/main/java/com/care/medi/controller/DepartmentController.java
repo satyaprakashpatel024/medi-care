@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -23,6 +24,7 @@ public class DepartmentController {
     private final DepartmentService departmentService;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Page<DepartmentResponseDTO>>> getAllDepartments(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -40,6 +42,7 @@ public class DepartmentController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> createDepartment(
             @RequestBody @Valid DepartmentRequestDTO departmentRequestDTO) {
         DepartmentResponseDTO department = departmentService.createDepartment(departmentRequestDTO);
@@ -60,6 +63,7 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> getDepartmentById(@PathVariable Long id) {
         DepartmentResponseDTO departmentResponse = departmentService.getDepartmentById(id);
         return ResponseEntity.ok(
@@ -73,6 +77,7 @@ public class DepartmentController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> updateDepartment(
             @PathVariable("id") Long id,
             @RequestBody @Valid DepartmentRequestDTO request

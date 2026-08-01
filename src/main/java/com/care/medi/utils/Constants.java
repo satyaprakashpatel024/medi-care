@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public final class Constants {
-
+    public static final String KAFKA_TOPIC = "medicare.email.notification";
     // --- Entity Not Found Messages ---
     public static final String MSG_NOT_FOUND = "%s not found with ID: %s";
 
@@ -37,13 +37,14 @@ public final class Constants {
     public static final String APPOINTMENT_NOT_FOUND_IN_HOSPITAL = "Appointment not found with ID: %s in this Hospital. Please provide correct appointmentId or hospitalId";
     public static final String INVALID_REQUEST_APPOINTMENT_IS_CANCELLED = "Action denied: Cannot add prescription to an appointment that is already CANCELLED.";
     public static final String CONFLICTING_APPOINTMENT = "Action denied: This doctor is already scheduled for this time.";
-    public static final String INVALID_REQUEST_APPOINTMENT_IS_COMPLETED  = "Action Denied : Cannot Reschedule Appointment that is already COMPLETED.";
+    public static final String INVALID_REQUEST_APPOINTMENT_IS_COMPLETED = "Action Denied : Cannot Reschedule Appointment that is already COMPLETED.";
 
     // notification
     public static final String FAILED_TO_SEND_NOTIFICATION = "Failed to send email to: {}";
 
     // ENCODING
     public static final String ENCODING = "UTF-8";
+
     private Constants() {
         // Prevent instantiation
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

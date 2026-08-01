@@ -8,9 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Schema(hidden = true)
@@ -89,22 +87,7 @@ public class Patient extends BaseEntity {
 
     // ── Helper methods ──────────────────────────────────────────────────────
 
-    @Override
-    public String toString() {
-        return new StringBuilder().append("Patient{").append("firstName='").append(firstName).append('\'').append(", lastName='").append(lastName).append('\'').append(", dateOfBirth=").append(dateOfBirth).append(", gender=").append(gender).append(", phone='").append(phone).append('\'').append(", emergencyContact='").append(emergencyContact).append('\'').append(", bloodGroup=").append(bloodGroup).append(", hospitalId=").append(hospitalId).append('}').toString();
-    }
-
-    public void addAppointment(Appointment appointment) {
-        appointments.add(appointment);
-        appointment.setPatient(this);
-    }
-
-    public void addPrescription(Prescription prescription) {
-        prescriptions.add(prescription);
-        prescription.setPatient(this);
-    }
-
-    public static Patient toEntity(PatientRequestDTO patient,Users user){
+    public static Patient toEntity(PatientRequestDTO patient, Users user) {
         return Patient.builder()
                 .user(user)
                 .phone(patient.getPhone())
@@ -115,6 +98,21 @@ public class Patient extends BaseEntity {
                 .gender(Gender.valueOf(patient.getGender().toUpperCase()))
                 .bloodGroup(BloodGroup.valueOf(patient.getBloodGroup().toUpperCase()))
                 .build();
+    }
+
+    @Override
+    public String toString() {
+        return "Patient{" + "firstName='" + firstName + '\'' + ", lastName='" + lastName + '\'' + ", dateOfBirth=" + dateOfBirth + ", gender=" + gender + ", phone='" + phone + '\'' + ", emergencyContact='" + emergencyContact + '\'' + ", bloodGroup=" + bloodGroup + ", hospitalId=" + hospitalId + '}';
+    }
+
+    public void addAppointment(Appointment appointment) {
+        appointments.add(appointment);
+        appointment.setPatient(this);
+    }
+
+    public void addPrescription(Prescription prescription) {
+        prescriptions.add(prescription);
+        prescription.setPatient(this);
     }
 
 }

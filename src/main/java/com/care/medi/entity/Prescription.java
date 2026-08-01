@@ -47,12 +47,11 @@ public class Prescription extends BaseEntity {
     private String notes;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id",nullable = true, foreignKey = @ForeignKey(name = "fk_prescription_appointment"))
+    @JoinColumn(name = "appointment_id", nullable = true, foreignKey = @ForeignKey(name = "fk_prescription_appointment"))
     private Appointment appointment;
 
 
     // ── Bidirectional mapping ───────────────────────────────────────────────
-
 
 
     // ── Helper methods ───────────────────────────────────────────────────────

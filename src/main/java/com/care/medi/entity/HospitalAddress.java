@@ -1,7 +1,6 @@
 package com.care.medi.entity;
 
 import com.care.medi.dtos.request.HospitalAddressRequestDTO;
-import com.care.medi.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -67,7 +66,7 @@ public class HospitalAddress extends BaseEntity {
     private String landmark;
     // ── Link to Hospital ───────────────────────────────
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hospital_id",insertable = false,updatable = false, foreignKey = @ForeignKey(name = "fk_hosp_addr_hospital"))
+    @JoinColumn(name = "hospital_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_hosp_addr_hospital"))
     private Hospital hospital;
 
     public static HospitalAddress toEntity(Long hospitalId, HospitalAddressRequestDTO request) {

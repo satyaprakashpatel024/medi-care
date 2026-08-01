@@ -27,7 +27,7 @@ public class AuthService {
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
         } catch (Exception e) {
-            throw new InvalidCredentialsException("Invalid email or password",e);
+            throw new InvalidCredentialsException("Invalid email or password", e);
         }
         Users user = usersRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
