@@ -33,12 +33,6 @@ public class AuthController {
     @Operation(summary = "Login user")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequestDTO request) {
         AuthResponse response = authService.login(request);
-        return ResponseEntity.ok(
-                ApiResponse.<AuthResponse>builder()
-                        .success(true)
-                        .message("Login successful")
-                        .data(response)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 }

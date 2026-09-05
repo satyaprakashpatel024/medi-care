@@ -46,14 +46,7 @@ public class DepartmentController {
             @RequestParam(value = "sort", defaultValue = "id") String sortBy
     ) {
         Page<DepartmentResponseDTO> allDepartments = departmentService.getAllDepartments(page, size, sortBy);
-        return ResponseEntity.ok(
-                ApiResponse.<Page<DepartmentResponseDTO>>builder()
-                        .message("Departments fetched successfully")
-                        .data(allDepartments)
-                        .status(HttpStatus.OK)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Departments fetched successfully", allDepartments));
     }
 
     /**
@@ -73,14 +66,7 @@ public class DepartmentController {
                 .buildAndExpand(department.id())
                 .toUri();
         return ResponseEntity.created(location)
-                .body(
-                        ApiResponse.<DepartmentResponseDTO>builder()
-                                .message("Department created successfully")
-                                .data(department)
-                                .status(HttpStatus.CREATED)
-                                .success(true)
-                                .build()
-                );
+                .body(ApiResponse.success("Department created successfully", department, HttpStatus.CREATED));
     }
 
     /**
@@ -93,14 +79,7 @@ public class DepartmentController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> getDepartmentById(@PathVariable Long id) {
         DepartmentResponseDTO departmentResponse = departmentService.getDepartmentById(id);
-        return ResponseEntity.ok(
-                ApiResponse.<DepartmentResponseDTO>builder()
-                        .success(true)
-                        .message("Department found successfully")
-                        .data(departmentResponse)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Department found successfully", departmentResponse));
     }
 
     /**
@@ -118,12 +97,7 @@ public class DepartmentController {
     ) {
         DepartmentResponseDTO response = departmentService.updateDepartment(id, request);
         return ResponseEntity.accepted().body(
-                ApiResponse.<DepartmentResponseDTO>builder()
-                        .success(true)
-                        .message("Department updated successfully")
-                        .data(response)
-                        .status(HttpStatus.ACCEPTED)
-                        .build()
+                ApiResponse.success("Department updated successfully", response, HttpStatus.ACCEPTED)
         );
     }
 }

@@ -31,13 +31,8 @@ public class HealthController {
     public ResponseEntity<ApiResponse<String>> health() {
         String dateStr = OffsetDateTime.now(Constants.ZONE_ID).format(Constants.HUMAN_DATETIME_FORMAT);
         String code = passwordEncoder.encode("Password@123");
-        return ResponseEntity.ok(
-                ApiResponse.<String>builder()
-                        .message("Server is Healthy and running.")
-                        .status(HttpStatus.OK)
-                        .data("Server is Healthy and running. Current Date: " + dateStr + " | Sample Password Hash: " + code)
-                        .success(true)
-                        .build()
-        );
+        String message = "Server is Healthy and running.";
+        String data = "Server is Healthy and running. Current Date: " + dateStr + " | Sample Password Hash: " + code;
+        return ResponseEntity.ok(ApiResponse.success(message, data));
     }
 }

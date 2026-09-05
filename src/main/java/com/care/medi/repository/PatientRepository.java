@@ -43,4 +43,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @Query(value = "SELECT p.hospital_id FROM patients p WHERE p.user_id = :userId", nativeQuery = true)
     Optional<Long> findHospitalIdByUser(@Param("userId") Long userId);
+
+    long countByHospitalId(Long hospitalId);
 }

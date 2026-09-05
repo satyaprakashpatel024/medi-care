@@ -33,13 +33,6 @@ public class InsuranceController {
     public ResponseEntity<ApiResponse<InsuranceResponseDTO>> getInsurancesByPolicyNumber(
             @PathVariable("pNumber") String policyNumber) {
         InsuranceResponseDTO insuranceByPolicyNumber = insuranceService.getInsuranceByPolicyNumber(policyNumber);
-        return ResponseEntity.ok(
-                ApiResponse.<InsuranceResponseDTO>builder()
-                        .status(HttpStatus.OK)
-                        .message("Insurance retrieved successfully for this policy number.")
-                        .data(insuranceByPolicyNumber)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Insurance retrieved successfully for this policy number.", insuranceByPolicyNumber));
     }
 }

@@ -34,12 +34,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                ApiResponse.<String>builder()
-                        .status(HttpStatus.FORBIDDEN)
-                        .message("Access Denied: You do not have permission to access this resource.")
-                        .success(false)
-                        .errors("FORBIDDEN")
-                        .build()
+                ApiResponse.error("Access Denied: You do not have permission to access this resource.", "FORBIDDEN", HttpStatus.FORBIDDEN)
         );
     }
 
@@ -47,12 +42,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleAuthenticationException(Exception ex) {
         log.warn("Authentication failed: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                ApiResponse.<String>builder()
-                        .status(HttpStatus.UNAUTHORIZED)
-                        .message(ex.getMessage())
-                        .success(false)
-                        .errors("UNAUTHORIZED")
-                        .build()
+                ApiResponse.error(ex.getMessage(), "UNAUTHORIZED", HttpStatus.UNAUTHORIZED)
         );
     }
 
@@ -70,12 +60,7 @@ public class GlobalExceptionHandler {
         log.warn("Validation failed: {}", fieldErrors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.BAD_REQUEST)
-                        .message("Request validation failed")
-                        .success(false)
-                        .errors(fieldErrors)
-                        .build()
+                ApiResponse.error("Request validation failed", fieldErrors, HttpStatus.BAD_REQUEST)
         );
     }
 
@@ -91,12 +76,7 @@ public class GlobalExceptionHandler {
         log.warn("Constraint violation: {}", errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.BAD_REQUEST)
-                        .message("Constraint violation")
-                        .success(false)
-                        .errors(errors)
-                        .build()
+                ApiResponse.error("Constraint violation", errors, HttpStatus.BAD_REQUEST)
         );
     }
 
@@ -109,12 +89,7 @@ public class GlobalExceptionHandler {
         log.warn("Type mismatch: {}", message);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.BAD_REQUEST)
-                        .message(message)
-                        .success(false)
-                        .errors("INVALID_PARAMETER_TYPE")
-                        .build()
+                ApiResponse.error(message, "INVALID_PARAMETER_TYPE", HttpStatus.BAD_REQUEST)
         );
     }
 
@@ -122,12 +97,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleMalformedJson(HttpMessageNotReadableException ex) {
         log.warn("Malformed HTTP request body: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.BAD_REQUEST)
-                        .message("Malformed JSON body or invalid payload structure")
-                        .success(false)
-                        .errors("MALFORMED_REQUEST_BODY")
-                        .build()
+                ApiResponse.error("Malformed JSON body or invalid payload structure", "MALFORMED_REQUEST_BODY", HttpStatus.BAD_REQUEST)
         );
     }
 
@@ -138,12 +108,7 @@ public class GlobalExceptionHandler {
         log.warn("Missing parameter: {}", message);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.BAD_REQUEST)
-                        .message(message)
-                        .success(false)
-                        .errors("MISSING_QUERY_PARAMETER")
-                        .build()
+                ApiResponse.error(message, "MISSING_QUERY_PARAMETER", HttpStatus.BAD_REQUEST)
         );
     }
 
@@ -151,12 +116,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         String message = String.format("HTTP method '%s' is not supported for this endpoint", ex.getMethod());
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.METHOD_NOT_ALLOWED)
-                        .message(message)
-                        .success(false)
-                        .errors("METHOD_NOT_ALLOWED")
-                        .build()
+                ApiResponse.error(message, "METHOD_NOT_ALLOWED", HttpStatus.METHOD_NOT_ALLOWED)
         );
     }
 
@@ -168,12 +128,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleNotFound(Exception ex) {
         log.warn("Resource not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.NOT_FOUND)
-                        .message(ex.getMessage())
-                        .success(false)
-                        .errors("RESOURCE_NOT_FOUND")
-                        .build()
+                ApiResponse.error(ex.getMessage(), "RESOURCE_NOT_FOUND", HttpStatus.NOT_FOUND)
         );
     }
 
@@ -181,12 +136,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleDuplicateResource(DuplicateResourceException ex) {
         log.warn("Duplicate resource conflict: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.CONFLICT)
-                        .message(ex.getMessage())
-                        .success(false)
-                        .errors("DUPLICATE_RESOURCE")
-                        .build()
+                ApiResponse.error(ex.getMessage(), "DUPLICATE_RESOURCE", HttpStatus.CONFLICT)
         );
     }
 
@@ -194,12 +144,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(RuntimeException ex) {
         log.warn("Business or argument validation failed: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.BAD_REQUEST)
-                        .message(ex.getMessage())
-                        .success(false)
-                        .errors("BAD_REQUEST")
-                        .build()
+                ApiResponse.error(ex.getMessage(), "BAD_REQUEST", HttpStatus.BAD_REQUEST)
         );
     }
 
@@ -207,12 +152,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleCustomValidationException(ResourceValidationException ex) {
         log.warn("Resource validation failed: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.BAD_REQUEST)
-                        .message(ex.getMessage())
-                        .success(false)
-                        .errors(ex.getErrors())
-                        .build()
+                ApiResponse.error(ex.getMessage(), ex.getErrors(), HttpStatus.BAD_REQUEST)
         );
     }
 
@@ -229,12 +169,7 @@ public class GlobalExceptionHandler {
         log.error("Unhandled internal server error occurred at URL: {}", request.getRequestURI(), ex);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                ApiResponse.<Void>builder()
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .message("An unexpected error occurred. Please try again later.")
-                        .success(false)
-                        .errors("INTERNAL_SERVER_ERROR")
-                        .build()
+                ApiResponse.error("An unexpected error occurred. Please try again later.", "INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR)
         );
     }
 }

@@ -46,14 +46,7 @@ public class PrescriptionController {
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "sort", defaultValue = "id") String sortBy) {
         Page<PrescriptionResponseDTO> prescriptionByPatientId = prescriptionService.getPrescriptionByPatientId(hospitalId, patientId, page, size, sortBy);
-        return ResponseEntity.ok(
-                ApiResponse.<Page<PrescriptionResponseDTO>>builder()
-                        .data(prescriptionByPatientId)
-                        .message("Prescriptions fetched successfully")
-                        .status(HttpStatus.OK)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Prescriptions fetched successfully", prescriptionByPatientId));
     }
 
     /**
@@ -72,14 +65,7 @@ public class PrescriptionController {
     ) {
         Page<PrescriptionResponseDTO> byId = prescriptionService.getPrescriptionByAppointmentId(hospitalId, appointmentId, 0, 5, "id");
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<PrescriptionResponseDTO>>builder()
-                        .data(byId)
-                        .message("Prescriptions fetched successfully")
-                        .status(HttpStatus.OK)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Prescriptions fetched successfully", byId));
     }
 
     /**
@@ -104,13 +90,6 @@ public class PrescriptionController {
                 .toUri();
         return ResponseEntity
                 .created(location)
-                .body(
-                        ApiResponse.<PrescriptionResponseDTO>builder()
-                                .data(prescription)
-                                .message("Prescription created successfully")
-                                .status(HttpStatus.CREATED)
-                                .success(true)
-                                .build()
-                );
+                .body(ApiResponse.success("Prescription created successfully", prescription, HttpStatus.CREATED));
     }
 }

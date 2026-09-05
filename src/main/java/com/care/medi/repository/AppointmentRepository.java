@@ -120,4 +120,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query("SELECT a FROM Appointment a WHERE a.id = :id AND a.status IN :statuses")
     Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);
+
+    long countByAppointmentDate(LocalDate date);
+
+    long countByHospitalId(Long hospitalId);
+
+    long countByHospitalIdAndAppointmentDate(Long hospitalId, LocalDate date);
+
+    long countByHospitalIdAndStatus(Long hospitalId, AppointmentStatus status);
 }

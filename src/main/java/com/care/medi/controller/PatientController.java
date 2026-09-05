@@ -51,12 +51,7 @@ public class PatientController {
     ) {
         String msg = String.format("Successfully retrieved patients details for Hospital ID : %d.", hospitalId);
         return ResponseEntity.ok(
-                ApiResponse.<Page<PatientListResponseDTO>>builder()
-                        .data(patientService.getAllPatientsByHospital(hospitalId, page, size, sortBy))
-                        .message(msg)
-                        .status(HttpStatus.OK)
-                        .success(true)
-                        .build()
+                ApiResponse.success(msg, patientService.getAllPatientsByHospital(hospitalId, page, size, sortBy))
         );
     }
 
@@ -76,13 +71,7 @@ public class PatientController {
     ) {
         PatientResponseDTO patientById = patientService.getPatientByIdAndHospitalId(hospitalId, patientId);
         String msg = String.format("Successfully retrieved patient details for id : %d.", patientId);
-        return ResponseEntity.ok(
-                ApiResponse.<PatientResponseDTO>builder()
-                        .data(patientById)
-                        .success(true)
-                        .message(msg)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, patientById));
     }
 
     /**
@@ -107,14 +96,7 @@ public class PatientController {
                 .toUri();
         return ResponseEntity
                 .created(location)
-                .body(
-                        ApiResponse
-                                .<PatientResponseDTO>builder()
-                                .data(patient)
-                                .success(true)
-                                .message("Patient created successfully.")
-                                .build()
-                );
+                .body(ApiResponse.success("Patient created successfully.", patient, HttpStatus.CREATED));
     }
 
     /**
@@ -136,12 +118,7 @@ public class PatientController {
         PatientResponseDTO patientResponseDTO = patientService.updatePatientInHospital(id, hospitalId, request);
         String msg = String.format("Successfully updated patient details for id : %d.", id);
         return ResponseEntity.accepted().body(
-                ApiResponse.<PatientResponseDTO>builder()
-                        .status(HttpStatus.ACCEPTED)
-                        .data(patientResponseDTO)
-                        .success(true)
-                        .message(msg)
-                        .build()
+                ApiResponse.success(msg, patientResponseDTO, HttpStatus.ACCEPTED)
         );
     }
 
@@ -163,12 +140,7 @@ public class PatientController {
         InsuranceResponseDTO insurance = patientService.assignInsurance(patientId, hospitalId, request);
         String msg = String.format("Successfully assigned insurance to patient for id : %d.", patientId);
         return ResponseEntity.accepted().body(
-                ApiResponse.<InsuranceResponseDTO>builder()
-                        .status(HttpStatus.ACCEPTED)
-                        .message(msg)
-                        .success(true)
-                        .data(insurance)
-                        .build()
+                ApiResponse.success(msg, insurance, HttpStatus.ACCEPTED)
         );
     }
 
@@ -188,13 +160,6 @@ public class PatientController {
     ) {
         List<InsuranceResponseDTO> insuranceByPatientId = patientService.getInsuranceByPatientId(patientId, hospitalId);
         String msg = String.format("Successfully retrieved insurances for PatientId : %d.", patientId);
-        return ResponseEntity.ok(
-                ApiResponse.<List<InsuranceResponseDTO>>builder()
-                        .data(insuranceByPatientId)
-                        .success(true)
-                        .message(msg)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, insuranceByPatientId));
     }
 }

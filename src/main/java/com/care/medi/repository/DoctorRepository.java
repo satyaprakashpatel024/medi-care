@@ -40,4 +40,8 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     @Query(value = "SELECT d.hospital_id FROM doctors d WHERE d.user_id = :userId", nativeQuery = true)
     Optional<Long> findHospitalIdByUserId(@Param("userId") Long userId);
+
+    long countByIsActiveTrue();
+
+    long countByHospitalIdAndIsActiveTrue(Long hospitalId);
 }

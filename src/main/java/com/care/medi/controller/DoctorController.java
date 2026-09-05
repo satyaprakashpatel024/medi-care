@@ -55,14 +55,7 @@ public class DoctorController {
     ) {
         Page<DoctorListResponseDTO> allDoctors = doctorService.getAllActiveDoctors(page, size, sortBy);
         String msg = "All Doctors fetched successfully ";
-        return ResponseEntity.ok(
-                ApiResponse.<Page<DoctorListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(msg)
-                        .data(allDoctors)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, allDoctors));
     }
 
     /**
@@ -80,14 +73,7 @@ public class DoctorController {
             @PathVariable("id") Long id) {
         DoctorResponseDTO doctorById = doctorService.getDoctorByIdAndHospital(id, hospitalId);
         String msg = String.format("Doctors Details fetched successfully for Doctor Id : %d and HospitalId : %d", id, hospitalId);
-        return ResponseEntity.ok(
-                ApiResponse.<DoctorResponseDTO>builder()
-                        .status(HttpStatus.OK)
-                        .message(msg)
-                        .data(doctorById)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, doctorById));
     }
 
     /**
@@ -109,12 +95,10 @@ public class DoctorController {
             @RequestParam(defaultValue = "id") String sortBy
     ) {
         return ResponseEntity.ok(
-                ApiResponse.<Page<DoctorListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(String.format("Doctors fetched successfully by HospitalId : %s", hospitalId))
-                        .data(doctorService.getAllActiveDoctorsByHospital(hospitalId, page, size, sortBy))
-                        .success(true)
-                        .build()
+                ApiResponse.success(
+                        String.format("Doctors fetched successfully by HospitalId : %s", hospitalId),
+                        doctorService.getAllActiveDoctorsByHospital(hospitalId, page, size, sortBy)
+                )
         );
     }
 
@@ -141,12 +125,7 @@ public class DoctorController {
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(ApiResponse.<DoctorResponseDTO>builder()
-                        .status(HttpStatus.CREATED)
-                        .message("Doctor created successfully...")
-                        .data(doctor)
-                        .success(true)
-                        .build());
+                .body(ApiResponse.success("Doctor created successfully...", doctor, HttpStatus.CREATED));
     }
 
     /**
@@ -165,12 +144,8 @@ public class DoctorController {
             @PathVariable("id") Long id, @RequestBody @Valid DoctorUpdateRequestDTO request) {
         DoctorResponseDTO doctorResponseDTO = doctorService.updateDoctorByIdAndHospital(id, hospitalId, request);
         return ResponseEntity.accepted().body(
-                ApiResponse.<DoctorResponseDTO>builder()
-                        .status(HttpStatus.ACCEPTED)
-                        .message("Doctor updated successfully...")
-                        .data(doctorResponseDTO)
-                        .success(true)
-                        .build());
+                ApiResponse.success("Doctor updated successfully...", doctorResponseDTO, HttpStatus.ACCEPTED)
+        );
     }
 
     /**
@@ -189,12 +164,7 @@ public class DoctorController {
         doctorService.deleteDoctorByIdAndHospital(id, hospitalId);
         return ResponseEntity
                 .accepted()
-                .body(ApiResponse
-                        .<String>builder()
-                        .status(HttpStatus.ACCEPTED)
-                        .message("Doctor deleted successfully...")
-                        .success(true)
-                        .build());
+                .body(ApiResponse.success("Doctor deleted successfully...", null, HttpStatus.ACCEPTED));
     }
 
     /**
@@ -225,14 +195,7 @@ public class DoctorController {
                 doctorId, filterDate.format(Constants.HUMAN_DATE_FORMAT));
 
         Page<AppointmentListResponseDTO> appointments = doctorService.getAppointmentsByDoctorAndHospitalAndDate(doctorId, hospitalId, filterDate, page, size, sortBy);
-        return ResponseEntity.ok(
-                ApiResponse.<Page<AppointmentListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(msg)
-                        .data(appointments)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, appointments));
     }
 
     /**
@@ -255,12 +218,10 @@ public class DoctorController {
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sortBy) {
         return ResponseEntity.ok(
-                ApiResponse.<Page<DoctorListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(String.format("Doctors fetched successfully by DepartmentId : %d ", departmentId))
-                        .data(doctorService.getActiveDoctorsByDepartmentAndHospital(departmentId, hospitalId, page, size, sortBy))
-                        .success(true)
-                        .build()
+                ApiResponse.success(
+                        String.format("Doctors fetched successfully by DepartmentId : %d ", departmentId),
+                        doctorService.getActiveDoctorsByDepartmentAndHospital(departmentId, hospitalId, page, size, sortBy)
+                )
         );
     }
 
@@ -286,12 +247,10 @@ public class DoctorController {
     ) {
         String msg = String.format("Doctors fetched successfully by Speciality : %s", speciality);
         return ResponseEntity.ok(
-                ApiResponse.<Page<DoctorListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(msg)
-                        .data(doctorService.getActiveDoctorsBySpecialityAndHospital(speciality, hospitalId, page, size, sortBy))
-                        .success(true)
-                        .build()
+                ApiResponse.success(
+                        msg,
+                        doctorService.getActiveDoctorsBySpecialityAndHospital(speciality, hospitalId, page, size, sortBy)
+                )
         );
     }
 }

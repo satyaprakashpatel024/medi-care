@@ -56,14 +56,7 @@ public class AppointmentController {
             @PathVariable("id") Long id) {
         AppointmentResponseDTO appointmentById = appointmentService.getAppointmentByIdAndHospital(id, hospitalId);
         String msg = String.format("Successfully retrieved appointments for Appointment ID : %d.", id);
-        return ResponseEntity.ok(
-                ApiResponse.<AppointmentResponseDTO>builder()
-                        .status(HttpStatus.OK)
-                        .message(msg)
-                        .data(appointmentById)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, appointmentById));
     }
 
     /**
@@ -91,14 +84,7 @@ public class AppointmentController {
         Page<AppointmentSummaryResponseDTO> allAppointments = appointmentService.getAllAppointmentsByHospitalAndDate(hospitalId, page, size, sortBy, filterDate);
         String msg = String.format("Successfully retrieved %s appointments for Hospital ID %d on %s.",
                 allAppointments.getTotalElements(), hospitalId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
-        return ResponseEntity.ok(
-                ApiResponse.<Page<AppointmentSummaryResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(msg)
-                        .data(allAppointments)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, allAppointments));
     }
 
     /**
@@ -133,14 +119,7 @@ public class AppointmentController {
                 status.name().toLowerCase(),
                 filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<AppointmentListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(msg)
-                        .data(appointmentPage)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, appointmentPage));
     }
 
     /**
@@ -164,14 +143,7 @@ public class AppointmentController {
                 .buildAndExpand(appointment.appointmentId())
                 .toUri();
         return ResponseEntity.created(location)
-                .body(
-                        ApiResponse.<AppointmentResponseDTO>builder()
-                                .status(HttpStatus.CREATED)
-                                .message("Appointment created successfully")
-                                .data(appointment)
-                                .success(true)
-                                .build()
-                );
+                .body(ApiResponse.success("Appointment created successfully", appointment, HttpStatus.CREATED));
     }
 
     /**
@@ -193,12 +165,7 @@ public class AppointmentController {
         AppointmentResponseDTO response = appointmentService.rescheduleAppointment(id, request, hospitalId);
         String msg = String.format("Successfully rescheduled appointment for Appointment ID : %d.", id);
         return ResponseEntity.accepted().body(
-                ApiResponse.<AppointmentResponseDTO>builder()
-                        .status(HttpStatus.ACCEPTED)
-                        .message(msg)
-                        .data(response)
-                        .success(true)
-                        .build()
+                ApiResponse.success(msg, response, HttpStatus.ACCEPTED)
         );
     }
 
@@ -220,12 +187,7 @@ public class AppointmentController {
     ) {
         String msg = String.format("Successfully updated appointment for Appointment ID : %d.", id);
         return ResponseEntity.accepted().body(
-                ApiResponse.<AppointmentResponseDTO>builder()
-                        .status(HttpStatus.ACCEPTED)
-                        .message(msg)
-                        .success(true)
-                        .data(appointmentService.updateAppointment(id, hospitalId, request))
-                        .build()
+                ApiResponse.success(msg, appointmentService.updateAppointment(id, hospitalId, request), HttpStatus.ACCEPTED)
         );
     }
 
@@ -245,12 +207,7 @@ public class AppointmentController {
 
         appointmentService.cancelAppointment(id, hospitalId);
         return ResponseEntity.accepted().body(
-                ApiResponse.<AppointmentResponseDTO>builder()
-                        .status(HttpStatus.ACCEPTED)
-                        .message("Appointment cancelled successfully")
-                        .success(true)
-                        .data(appointmentService.getAppointmentByIdAndHospital(id, hospitalId))
-                        .build()
+                ApiResponse.success("Appointment cancelled successfully", appointmentService.getAppointmentByIdAndHospital(id, hospitalId), HttpStatus.ACCEPTED)
         );
     }
 
@@ -275,14 +232,7 @@ public class AppointmentController {
             @RequestParam(defaultValue = "id") String sortBy) {
         Page<AppointmentResponseDTO> appointmentsByPatient = appointmentService.getAppointmentsByHospitalAndPatient(hospitalId, patientId, page, size, sortBy);
         String msg = String.format("Successfully retrieved appointments for Patient ID : %d.", patientId);
-        return ResponseEntity.ok(
-                ApiResponse.<Page<AppointmentResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(msg)
-                        .data(appointmentsByPatient)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, appointmentsByPatient));
     }
 
     /**
@@ -300,11 +250,7 @@ public class AppointmentController {
             @PathVariable("id") Long id) {
         appointmentService.deleteAppointment(id, hospitalId);
         return ResponseEntity.accepted().body(
-                ApiResponse.<AppointmentResponseDTO>builder()
-                        .status(HttpStatus.ACCEPTED)
-                        .message("Appointment deleted successfully")
-                        .success(true)
-                        .build()
+                ApiResponse.success("Appointment deleted successfully", null, HttpStatus.ACCEPTED)
         );
     }
 }

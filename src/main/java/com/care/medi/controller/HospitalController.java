@@ -46,14 +46,7 @@ public class HospitalController {
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sortBy) {
         String msg = "Successfully retrieved All Hospital list.";
-        return ResponseEntity.ok(
-                ApiResponse.<Page<HospitalListResponseDTO>>builder()
-                        .status(HttpStatus.OK)
-                        .message(msg)
-                        .data(hospitalService.getAllHospitals(page, size, sortBy))
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(msg, hospitalService.getAllHospitals(page, size, sortBy)));
     }
 
     /**
@@ -66,14 +59,7 @@ public class HospitalController {
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> getHospitalById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(
-                ApiResponse.<HospitalResponseDTO>builder()
-                        .status(HttpStatus.OK)
-                        .message("Hospital fetched successfully")
-                        .data(hospitalService.getHospitalById(id))
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Hospital fetched successfully", hospitalService.getHospitalById(id)));
     }
 
     /**
@@ -91,14 +77,7 @@ public class HospitalController {
     @Validated
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> createHospital(@Valid @RequestBody HospitalRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(
-                        ApiResponse.<HospitalResponseDTO>builder()
-                                .status(HttpStatus.CREATED)
-                                .message("Hospital created successfully")
-                                .data(hospitalService.createHospital(request))
-                                .success(true)
-                                .build()
-                );
+                .body(ApiResponse.success("Hospital created successfully", hospitalService.createHospital(request), HttpStatus.CREATED));
     }
 
     /**
@@ -119,14 +98,7 @@ public class HospitalController {
             @PathVariable("id") Long id,
             @Valid @RequestBody HospitalUpdateRequestDTO request) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(
-                        ApiResponse.<HospitalResponseDTO>builder()
-                                .status(HttpStatus.ACCEPTED)
-                                .message("Hospital updated successfully")
-                                .data(hospitalService.updateHospital(id, request))
-                                .success(true)
-                                .build()
-                );
+                .body(ApiResponse.success("Hospital updated successfully", hospitalService.updateHospital(id, request), HttpStatus.ACCEPTED));
     }
 
 }

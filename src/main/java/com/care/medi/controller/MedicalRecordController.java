@@ -50,12 +50,7 @@ public class MedicalRecordController {
                 medicalRecordService.createRecord(hospitalId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Medical record created successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.CREATED)
-                        .build()
+                ApiResponse.success("Medical record created successfully", response, HttpStatus.CREATED)
         );
     }
 
@@ -76,14 +71,7 @@ public class MedicalRecordController {
         MedicalRecordResponseDTO response =
                 medicalRecordService.getRecordById(id, hospitalId);
 
-        return ResponseEntity.ok(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Medical record fetched successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Medical record fetched successfully", response));
     }
 
     /**
@@ -103,14 +91,7 @@ public class MedicalRecordController {
         MedicalRecordResponseDTO response =
                 medicalRecordService.getRecordByAppointmentId(appointmentId, hospitalId);
 
-        return ResponseEntity.ok(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Medical record fetched successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Medical record fetched successfully", response));
     }
 
     /**
@@ -137,14 +118,7 @@ public class MedicalRecordController {
         Page<MedicalRecordListResponseDTO> result =
                 medicalRecordService.getRecordsByPatient(patientId, hospitalId, pageable);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<MedicalRecordListResponseDTO>>builder()
-                        .message("Medical records fetched successfully")
-                        .success(true)
-                        .data(result)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Medical records fetched successfully", result));
     }
 
     /**
@@ -169,14 +143,7 @@ public class MedicalRecordController {
         Page<MedicalRecordListResponseDTO> result =
                 medicalRecordService.getActiveRecordsByPatient(patientId, hospitalId, pageable);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<MedicalRecordListResponseDTO>>builder()
-                        .message("Active medical records fetched successfully")
-                        .success(true)
-                        .data(result)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Active medical records fetched successfully", result));
     }
 
     /**
@@ -196,14 +163,7 @@ public class MedicalRecordController {
         MedicalRecordResponseDTO response =
                 medicalRecordService.getLatestRecordByPatient(patientId, hospitalId);
 
-        return ResponseEntity.ok(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Latest medical record fetched successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Latest medical record fetched successfully", response));
     }
 
     /**
@@ -230,14 +190,7 @@ public class MedicalRecordController {
         Page<MedicalRecordListResponseDTO> result =
                 medicalRecordService.getRecordsByDoctor(doctorId, hospitalId, pageable);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<MedicalRecordListResponseDTO>>builder()
-                        .message("Doctor's medical records fetched successfully")
-                        .success(true)
-                        .data(result)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Doctor's medical records fetched successfully", result));
     }
 
     /**
@@ -271,14 +224,7 @@ public class MedicalRecordController {
                 medicalRecordService.getRecordsByHospital(
                         hospitalId, status, from, to, pageable);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<MedicalRecordListResponseDTO>>builder()
-                        .message("Hospital medical records fetched successfully")
-                        .success(true)
-                        .data(result)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Hospital medical records fetched successfully", result));
     }
 
     /**
@@ -300,14 +246,7 @@ public class MedicalRecordController {
         MedicalRecordResponseDTO response =
                 medicalRecordService.updateRecord(id, hospitalId, request);
 
-        return ResponseEntity.ok(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Medical record updated successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Medical record updated successfully", response));
     }
 
     /**
@@ -326,13 +265,6 @@ public class MedicalRecordController {
 
         String message = medicalRecordService.deleteRecord(id, hospitalId);
 
-        return ResponseEntity.ok(
-                ApiResponse.<String>builder()
-                        .message(message)
-                        .success(true)
-                        .data(message)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(message, message));
     }
 }

@@ -35,8 +35,16 @@ public record ApiResponse<T>(
                 .build();
     }
 
-    public static ApiResponse<Void> error(String message, Object errors, HttpStatus status) {
-        return ApiResponse.<Void>builder()
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return success(message, data, HttpStatus.OK);
+    }
+
+    public static <T> ApiResponse<T> success(T data) {
+        return success("Success", data, HttpStatus.OK);
+    }
+
+    public static <T> ApiResponse<T> error(String message, Object errors, HttpStatus status) {
+        return ApiResponse.<T>builder()
                 .success(false)
                 .message(message)
                 .errors(errors)
@@ -44,5 +52,9 @@ public record ApiResponse<T>(
                 .status(status)
                 .timestamp(LocalDateTime.now())
                 .build();
+    }
+
+    public static <T> ApiResponse<T> error(String message, HttpStatus status) {
+        return error(message, null, status);
     }
 }
