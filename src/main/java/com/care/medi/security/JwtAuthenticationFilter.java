@@ -62,7 +62,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         request.setAttribute("X-Hospital-Id", hospitalId);
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
                     throw new AuthenticationException("Failed to extract hospitalId from JWT token", ex);
                 }
             }

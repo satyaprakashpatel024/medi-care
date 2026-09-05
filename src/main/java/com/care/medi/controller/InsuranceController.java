@@ -12,12 +12,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller for retrieving insurance policy details.
+ */
 @RestController
 @RequestMapping("/api/v1/insurances")
 @RequiredArgsConstructor
 public class InsuranceController {
+
     private final InsuranceService insuranceService;
 
+    /**
+     * Retrieves insurance details matching a specific policy number.
+     *
+     * @param policyNumber the unique policy number identifier
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse} wrapping the {@link InsuranceResponseDTO}
+     */
     @GetMapping("/{pNumber}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<InsuranceResponseDTO>> getInsurancesByPolicyNumber(
@@ -32,6 +42,4 @@ public class InsuranceController {
                         .build()
         );
     }
-
-
 }

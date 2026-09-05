@@ -21,6 +21,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * REST controller for managing patient profiles and insurance attachments.
+ */
 @RestController
 @RequestMapping("/api/v1/patients")
 @RequiredArgsConstructor
@@ -28,6 +31,15 @@ public class PatientController {
 
     private final PatientServiceImpl patientService;
 
+    /**
+     * Retrieves a paginated list of registered patients belonging to a hospital.
+     *
+     * @param hospitalId the hospital identifier extracted from request attributes
+     * @param page       the page index to retrieve
+     * @param size       the number of records per page
+     * @param sortBy     the field name by which to sort results
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link PatientListResponseDTO}
+     */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<Page<PatientListResponseDTO>>> getAllPatientsByHospital(
@@ -48,6 +60,13 @@ public class PatientController {
         );
     }
 
+    /**
+     * Retrieves patient profile information by patient ID and hospital ID.
+     *
+     * @param hospitalId the hospital identifier
+     * @param patientId  the unique identifier of the patient
+     * @return a {@link ResponseEntity} wrapping the {@link PatientResponseDTO}
+     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> getPatientByIdAndHospital(
@@ -66,6 +85,13 @@ public class PatientController {
         );
     }
 
+    /**
+     * Registers a new patient within the specified hospital.
+     *
+     * @param hospitalId the hospital identifier
+     * @param request    the patient creation payload
+     * @return a {@link ResponseEntity} with status 201 Created and the created {@link PatientResponseDTO}
+     */
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> savePatientInHospital(
@@ -91,6 +117,14 @@ public class PatientController {
                 );
     }
 
+    /**
+     * Updates an existing patient's details within a hospital.
+     *
+     * @param hospitalId the hospital identifier
+     * @param id         the unique identifier of the patient to update
+     * @param request    the updated patient details payload
+     * @return a {@link ResponseEntity} wrapping the modified {@link PatientResponseDTO}
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(
@@ -111,6 +145,14 @@ public class PatientController {
         );
     }
 
+    /**
+     * Attaches an insurance policy to a patient profile.
+     *
+     * @param hospitalId the hospital identifier
+     * @param patientId  the unique identifier of the patient
+     * @param request    the insurance information payload
+     * @return a {@link ResponseEntity} wrapping the created {@link InsuranceResponseDTO}
+     */
     @PostMapping("/{id}/insurance")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<InsuranceResponseDTO>> assignInsuranceToPatient(
@@ -130,6 +172,13 @@ public class PatientController {
         );
     }
 
+    /**
+     * Retrieves all insurance policies linked to a patient.
+     *
+     * @param hospitalId the hospital identifier
+     * @param patientId  the unique identifier of the patient
+     * @return a {@link ResponseEntity} wrapping a list of {@link InsuranceResponseDTO}
+     */
     @GetMapping("{id}/insurances")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurancesOfPatient(

@@ -16,13 +16,28 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+/**
+ * REST controller for managing hospital departments.
+ * <p>
+ * Provides operations to create, update, fetch by ID, and list hospital departments.
+ * </p>
+ */
 @RestController
 @RequestMapping("/api/v1/departments")
 @RequiredArgsConstructor
 @Validated
 public class DepartmentController {
+
     private final DepartmentService departmentService;
 
+    /**
+     * Retrieves a paginated list of all departments.
+     *
+     * @param page   the zero-based page index to retrieve
+     * @param size   the number of records per page
+     * @param sortBy the field name by which to sort results
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DepartmentResponseDTO}
+     */
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Page<DepartmentResponseDTO>>> getAllDepartments(
@@ -41,6 +56,12 @@ public class DepartmentController {
         );
     }
 
+    /**
+     * Creates a new department.
+     *
+     * @param departmentRequestDTO the payload containing department configuration details
+     * @return a {@link ResponseEntity} with status 201 Created and the created {@link DepartmentResponseDTO}
+     */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> createDepartment(
@@ -62,6 +83,12 @@ public class DepartmentController {
                 );
     }
 
+    /**
+     * Retrieves a department by its unique identifier.
+     *
+     * @param id the unique identifier of the department
+     * @return a {@link ResponseEntity} wrapping the {@link DepartmentResponseDTO}
+     */
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> getDepartmentById(@PathVariable Long id) {
@@ -76,6 +103,13 @@ public class DepartmentController {
         );
     }
 
+    /**
+     * Updates an existing department by its identifier.
+     *
+     * @param id      the unique identifier of the department to update
+     * @param request the payload containing updated department details
+     * @return a {@link ResponseEntity} wrapping the updated {@link DepartmentResponseDTO}
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> updateDepartment(

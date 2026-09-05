@@ -26,6 +26,13 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * REST controller for managing appointments.
+ * <p>
+ * Exposes endpoints for scheduling, querying, updating, rescheduling,
+ * cancelling, and deleting appointment records within a hospital.
+ * </p>
+ */
 @RestController
 @RequestMapping("/api/v1/appointments")
 @RequiredArgsConstructor
@@ -34,6 +41,13 @@ public class AppointmentController {
 
     private final AppointmentServiceImpl appointmentService;
 
+    /**
+     * Retrieves appointment details by appointment ID and hospital ID.
+     *
+     * @param hospitalId the unique identifier of the hospital extracted from the request attribute
+     * @param id         the unique identifier of the appointment
+     * @return a {@link ResponseEntity} wrapping an {@link ApiResponse} with the {@link AppointmentResponseDTO}
+     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(
@@ -52,6 +66,17 @@ public class AppointmentController {
         );
     }
 
+    /**
+     * Retrieves a paginated list of appointment summaries for a hospital on a specific date.
+     * Defaults to the current date if not specified.
+     *
+     * @param hospitalId the unique identifier of the hospital
+     * @param page       the page index to retrieve
+     * @param size       the number of records per page
+     * @param sortBy     the field name by which to sort results
+     * @param date       the optional filter date (ISO format)
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentSummaryResponseDTO}
+     */
     @GetMapping("/hospital")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<Page<AppointmentSummaryResponseDTO>>> getAllAppointmentsByHospitalAndDate(
@@ -76,6 +101,17 @@ public class AppointmentController {
         );
     }
 
+    /**
+     * Retrieves paginated appointments filtered by hospital ID, appointment status, and optional date.
+     *
+     * @param hospitalId the unique identifier of the hospital
+     * @param status     the status filter for the appointments
+     * @param page       the page index to retrieve
+     * @param size       the number of records per page
+     * @param sortBy     the field name by which to sort results
+     * @param date       the optional filter date (ISO format)
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentListResponseDTO}
+     */
     @GetMapping("/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAppointmentByHospitalAndStatusAndDate(
@@ -87,14 +123,11 @@ public class AppointmentController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        // 1. Handle Date Logic (Keep the logic but consider moving it to Service later)
         LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
 
-        // 2. Fetch Data
         Page<AppointmentListResponseDTO> appointmentPage = appointmentService
                 .getAppointmentsByHospitalAndStatusAndDate(hospitalId, status, page, size, sortBy, filterDate);
 
-        // 3. Build Dynamic Message
         String msg = String.format("Found %d %s appointments for %s.",
                 appointmentPage.getNumberOfElements(),
                 status.name().toLowerCase(),
@@ -110,6 +143,13 @@ public class AppointmentController {
         );
     }
 
+    /**
+     * Books a new appointment within a hospital.
+     *
+     * @param hospitalId the unique identifier of the hospital passed via the request header
+     * @param request    the appointment booking details
+     * @return a {@link ResponseEntity} containing a 201 Created status, a Location header, and the created {@link AppointmentResponseDTO}
+     */
     @PostMapping
     @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAnAppointment(
@@ -134,6 +174,14 @@ public class AppointmentController {
                 );
     }
 
+    /**
+     * Reschedules an existing appointment to a new date and time.
+     *
+     * @param hospitalId the unique identifier of the hospital
+     * @param id         the unique identifier of the appointment
+     * @param request    the rescheduling details
+     * @return a {@link ResponseEntity} containing the updated {@link AppointmentResponseDTO}
+     */
     @PatchMapping("/reschedule/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(
@@ -154,6 +202,14 @@ public class AppointmentController {
         );
     }
 
+    /**
+     * Updates an existing appointment's details.
+     *
+     * @param hospitalId the unique identifier of the hospital
+     * @param id         the unique identifier of the appointment
+     * @param request    the updated appointment information
+     * @return a {@link ResponseEntity} containing the modified {@link AppointmentResponseDTO}
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateAppointment(
@@ -173,6 +229,13 @@ public class AppointmentController {
         );
     }
 
+    /**
+     * Cancels an existing appointment.
+     *
+     * @param hospitalId the unique identifier of the hospital
+     * @param id         the unique identifier of the appointment to cancel
+     * @return a {@link ResponseEntity} containing the updated {@link AppointmentResponseDTO}
+     */
     @PutMapping("/{id}/cancel")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(
@@ -191,6 +254,16 @@ public class AppointmentController {
         );
     }
 
+    /**
+     * Retrieves paginated appointments for a specific patient within a hospital.
+     *
+     * @param hospitalId the unique identifier of the hospital
+     * @param patientId  the unique identifier of the patient
+     * @param page       the page index to retrieve
+     * @param size       the number of records per page
+     * @param sortBy     the field name by which to sort results
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentResponseDTO}
+     */
     @GetMapping("/patient/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllAppointmentsByHospitalAndPatientId(
@@ -212,6 +285,13 @@ public class AppointmentController {
         );
     }
 
+    /**
+     * Permanently deletes an appointment by its ID and hospital ID.
+     *
+     * @param hospitalId the unique identifier of the hospital
+     * @param id         the unique identifier of the appointment to delete
+     * @return a {@link ResponseEntity} indicating the outcome of the deletion
+     */
     @DeleteMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> deleteAppointment(

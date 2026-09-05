@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -35,4 +37,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     Page<Doctor> findByIsActiveTrue(Pageable pageable);
 
     boolean existsByIdAndHospitalId(Long id, Long hospitalId);
+
+    @Query(value = "SELECT d.hospital_id FROM doctors d WHERE d.user_id = :userId", nativeQuery = true)
+    Optional<Long> findHospitalIdByUserId(@Param("userId") Long userId);
 }

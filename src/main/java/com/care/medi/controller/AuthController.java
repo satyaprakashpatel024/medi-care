@@ -13,12 +13,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller for handling user authentication and token issuance.
+ */
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final AuthService authService;
 
+    /**
+     * Authenticates a user using their credentials and issues an authentication token.
+     *
+     * @param request the login credentials payload
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse} wrapping the {@link AuthResponse}
+     */
     @PostMapping("/login")
     @Operation(summary = "Login user")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequestDTO request) {

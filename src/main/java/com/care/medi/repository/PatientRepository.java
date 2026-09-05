@@ -40,4 +40,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     void deleteByIdAndHospitalId(Long patientId, Long hospitalId);
 
     boolean existsByIdAndHospitalId(Long id, Long hospitalId);
+
+    @Query(value = "SELECT p.hospital_id FROM patients p WHERE p.user_id = :userId", nativeQuery = true)
+    Optional<Long> findHospitalIdByUser(@Param("userId") Long userId);
 }
