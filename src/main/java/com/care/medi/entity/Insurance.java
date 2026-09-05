@@ -7,6 +7,9 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "insurances",
         uniqueConstraints = {
@@ -18,6 +21,8 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE insurances SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Insurance extends BaseEntity {
 
     @NotBlank(message = "Insurance provider name is required")

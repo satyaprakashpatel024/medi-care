@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Schema(hidden = true)
 @Entity
 @Table(name = "hospital_departments",
@@ -23,6 +26,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE hospital_departments SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class HospitalDepartment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

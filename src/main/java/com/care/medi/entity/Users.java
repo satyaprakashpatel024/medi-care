@@ -15,6 +15,9 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "users",
         indexes = {
@@ -30,6 +33,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Users extends BaseEntity implements UserDetails {
 
     @NotBlank(message = "Email is required")

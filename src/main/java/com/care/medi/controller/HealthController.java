@@ -12,23 +12,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
 
+/**
+ * Controller for application health monitoring and diagnostic checks.
+ */
 @RestController
 @RequestMapping("/api/v1/health")
 public class HealthController {
+
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
 
+    /**
+     * Evaluates server availability and returns the current timestamp and a sample password hash.
+     *
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse} with server diagnostic information
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<String>> health() {
         String dateStr = OffsetDateTime.now(Constants.ZONE_ID).format(Constants.HUMAN_DATETIME_FORMAT);
         String code = passwordEncoder.encode("Password@123");
-        return ResponseEntity.ok(
-                ApiResponse.<String>builder()
-                        .message("Server is Healthy and running.")
-                        .status(HttpStatus.OK)
-                        .data("Server is Healthy and running. Current Date: " + dateStr + " | Sample Password Hash: " + code)
-                        .success(true)
-                        .build()
-        );
+        String message = "Server is Healthy and running.";
+        String data = "Server is Healthy and running. Current Date: " + dateStr + " | Sample Password Hash: " + code;
+        return ResponseEntity.ok(ApiResponse.success(message, data));
     }
 }

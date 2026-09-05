@@ -8,6 +8,9 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "address", indexes = {
         @Index(name = "idx_address_user_id", columnList = "user_id")
@@ -18,6 +21,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE address SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Address extends BaseEntity {
 
     @NotNull(message = "User ID is required.")

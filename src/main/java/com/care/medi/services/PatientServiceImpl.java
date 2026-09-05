@@ -91,9 +91,12 @@ public class PatientServiceImpl implements PatientService {
         return PatientResponseDTO.fromEntity(updatedPatient);
     }
 
+    @Transactional
     @Override
     public void deletePatientFromHospital(Long patientId, Long hospitalId) {
-        patientRepository.deleteByIdAndHospitalId(patientId, hospitalId);
+        Patient patient = patientRepository.findByIdAndHospitalId(patientId, hospitalId)
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
+        patientRepository.delete(patient);
     }
 
     @Transactional

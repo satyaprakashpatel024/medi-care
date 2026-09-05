@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.LocalDate;
 
 @Schema(hidden = true)
@@ -23,6 +26,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE staffs SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Staff extends BaseEntity {
 
     @NotNull(message = "Users is required")

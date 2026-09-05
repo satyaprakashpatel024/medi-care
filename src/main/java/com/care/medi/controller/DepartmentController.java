@@ -16,31 +16,45 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+/**
+ * REST controller for managing hospital departments.
+ * <p>
+ * Provides operations to create, update, fetch by ID, and list hospital departments.
+ * </p>
+ */
 @RestController
 @RequestMapping("/api/v1/departments")
 @RequiredArgsConstructor
 @Validated
 public class DepartmentController {
+
     private final DepartmentService departmentService;
 
+    /**
+     * Retrieves a paginated list of all departments.
+     *
+     * @param page   the zero-based page index to retrieve
+     * @param size   the number of records per page
+     * @param sortBy the field name by which to sort results
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DepartmentResponseDTO}
+     */
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Page<DepartmentResponseDTO>>> getAllDepartments(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sort", defaultValue = "id") String sortBy
+            @RequestParam(defaultValue = "id") String sortBy
     ) {
         Page<DepartmentResponseDTO> allDepartments = departmentService.getAllDepartments(page, size, sortBy);
-        return ResponseEntity.ok(
-                ApiResponse.<Page<DepartmentResponseDTO>>builder()
-                        .message("Departments fetched successfully")
-                        .data(allDepartments)
-                        .status(HttpStatus.OK)
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Departments fetched successfully", allDepartments));
     }
 
+    /**
+     * Creates a new department.
+     *
+     * @param departmentRequestDTO the payload containing department configuration details
+     * @return a {@link ResponseEntity} with status 201 Created and the created {@link DepartmentResponseDTO}
+     */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> createDepartment(
@@ -52,30 +66,29 @@ public class DepartmentController {
                 .buildAndExpand(department.id())
                 .toUri();
         return ResponseEntity.created(location)
-                .body(
-                        ApiResponse.<DepartmentResponseDTO>builder()
-                                .message("Department created successfully")
-                                .data(department)
-                                .status(HttpStatus.CREATED)
-                                .success(true)
-                                .build()
-                );
+                .body(ApiResponse.success("Department created successfully", department, HttpStatus.CREATED));
     }
 
+    /**
+     * Retrieves a department by its unique identifier.
+     *
+     * @param id the unique identifier of the department
+     * @return a {@link ResponseEntity} wrapping the {@link DepartmentResponseDTO}
+     */
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> getDepartmentById(@PathVariable Long id) {
         DepartmentResponseDTO departmentResponse = departmentService.getDepartmentById(id);
-        return ResponseEntity.ok(
-                ApiResponse.<DepartmentResponseDTO>builder()
-                        .success(true)
-                        .message("Department found successfully")
-                        .data(departmentResponse)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Department found successfully", departmentResponse));
     }
 
+    /**
+     * Updates an existing department by its identifier.
+     *
+     * @param id      the unique identifier of the department to update
+     * @param request the payload containing updated department details
+     * @return a {@link ResponseEntity} wrapping the updated {@link DepartmentResponseDTO}
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> updateDepartment(
@@ -84,12 +97,7 @@ public class DepartmentController {
     ) {
         DepartmentResponseDTO response = departmentService.updateDepartment(id, request);
         return ResponseEntity.accepted().body(
-                ApiResponse.<DepartmentResponseDTO>builder()
-                        .success(true)
-                        .message("Department updated successfully")
-                        .data(response)
-                        .status(HttpStatus.ACCEPTED)
-                        .build()
+                ApiResponse.success("Department updated successfully", response, HttpStatus.ACCEPTED)
         );
     }
 }

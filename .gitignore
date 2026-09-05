@@ -39,3 +39,4 @@ build/
 /repomix-output.xml
 /src/main/resources/certificates/ca.pem
 /src/main/resources/certificates/svc.pem
+.DS_Store

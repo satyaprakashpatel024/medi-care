@@ -114,10 +114,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query(value = """
                     SELECT EXISTS ( SELECT 1 FROM appointments a WHERE a.hospital_id = :hospitalId
             AND a.doctor_id = :doctorId AND a.appointment_date = :date AND a.start_time < :endTime
-            AND a.end_time > :startTime )""",
+            AND a.end_time > :startTime AND a.is_deleted = false )""",
             nativeQuery = true)
     boolean existsConflictingAppointment(Long doctorId, Long hospitalId, LocalDate date, LocalTime startTime, LocalTime endTime);
 
     @Query("SELECT a FROM Appointment a WHERE a.id = :id AND a.status IN :statuses")
     Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);
+
+    long countByAppointmentDate(LocalDate date);
+
+    long countByHospitalId(Long hospitalId);
+
+    long countByHospitalIdAndAppointmentDate(Long hospitalId, LocalDate date);
+
+    long countByHospitalIdAndStatus(Long hospitalId, AppointmentStatus status);
 }

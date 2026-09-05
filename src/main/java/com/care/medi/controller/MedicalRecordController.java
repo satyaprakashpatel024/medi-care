@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+/**
+ * REST controller for creating, retrieving, updating, and deleting patient medical records.
+ */
 @RestController
 @RequestMapping("/api/v1/medical-records")
 @RequiredArgsConstructor
@@ -29,11 +32,13 @@ public class MedicalRecordController {
 
     private final MedicalRecordService medicalRecordService;
 
-    // -------------------------------------------------------------------------
-    // POST /api/v1/medical-records
-    // Create a medical record (optionally linked to an appointment)
-    // -------------------------------------------------------------------------
-
+    /**
+     * Creates a new medical record, optionally linked to an appointment.
+     *
+     * @param hospitalId the hospital identifier extracted from the request attribute
+     * @param request    the clinical record details payload
+     * @return a {@link ResponseEntity} containing the created {@link MedicalRecordResponseDTO} with HTTP status 201
+     */
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> createRecord(
@@ -45,20 +50,17 @@ public class MedicalRecordController {
                 medicalRecordService.createRecord(hospitalId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Medical record created successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.CREATED)
-                        .build()
+                ApiResponse.success("Medical record created successfully", response, HttpStatus.CREATED)
         );
     }
 
-    // -------------------------------------------------------------------------
-    // GET /api/v1/medical-records/{id}
-    // Fetch a single record by ID
-    // -------------------------------------------------------------------------
-
+    /**
+     * Retrieves a single medical record by its primary key identifier.
+     *
+     * @param hospitalId the hospital identifier
+     * @param id         the unique identifier of the medical record
+     * @return a {@link ResponseEntity} wrapping the {@link MedicalRecordResponseDTO}
+     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> getRecordById(
@@ -69,21 +71,16 @@ public class MedicalRecordController {
         MedicalRecordResponseDTO response =
                 medicalRecordService.getRecordById(id, hospitalId);
 
-        return ResponseEntity.ok(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Medical record fetched successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Medical record fetched successfully", response));
     }
 
-    // -------------------------------------------------------------------------
-    // GET /api/v1/medical-records/appointment/{appointmentId}
-    // Fetch the record linked to a specific appointment
-    // -------------------------------------------------------------------------
-
+    /**
+     * Retrieves the medical record associated with a specific appointment.
+     *
+     * @param hospitalId    the hospital identifier
+     * @param appointmentId the unique identifier of the appointment
+     * @return a {@link ResponseEntity} wrapping the {@link MedicalRecordResponseDTO}
+     */
     @GetMapping("/appointment/{appointmentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> getRecordByAppointment(
@@ -94,21 +91,19 @@ public class MedicalRecordController {
         MedicalRecordResponseDTO response =
                 medicalRecordService.getRecordByAppointmentId(appointmentId, hospitalId);
 
-        return ResponseEntity.ok(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Medical record fetched successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Medical record fetched successfully", response));
     }
 
-    // -------------------------------------------------------------------------
-    // GET /api/v1/medical-records/patient/{patientId}
-    // Full paginated history for a patient
-    // -------------------------------------------------------------------------
-
+    /**
+     * Retrieves the complete paginated medical record history for a patient, sorted descending by record date.
+     *
+     * @param hospitalId the hospital identifier
+     * @param patientId  the unique identifier of the patient
+     * @param page       the page index to retrieve
+     * @param size       the number of records per page
+     * @param sortBy     the field name by which to sort results
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link MedicalRecordListResponseDTO}
+     */
     @GetMapping("/patient/{patientId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getRecordsByPatient(
@@ -123,21 +118,18 @@ public class MedicalRecordController {
         Page<MedicalRecordListResponseDTO> result =
                 medicalRecordService.getRecordsByPatient(patientId, hospitalId, pageable);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<MedicalRecordListResponseDTO>>builder()
-                        .message("Medical records fetched successfully")
-                        .success(true)
-                        .data(result)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Medical records fetched successfully", result));
     }
 
-    // -------------------------------------------------------------------------
-    // GET /api/v1/medical-records/patient/{patientId}/active
-    // Active (non-archived) records for a patient
-    // -------------------------------------------------------------------------
-
+    /**
+     * Retrieves active (non-archived) paginated medical records for a given patient.
+     *
+     * @param hospitalId the hospital identifier
+     * @param patientId  the unique identifier of the patient
+     * @param page       the page index to retrieve
+     * @param size       the number of records per page
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link MedicalRecordListResponseDTO}
+     */
     @GetMapping("/patient/{patientId}/active")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getActiveRecordsByPatient(
@@ -151,21 +143,16 @@ public class MedicalRecordController {
         Page<MedicalRecordListResponseDTO> result =
                 medicalRecordService.getActiveRecordsByPatient(patientId, hospitalId, pageable);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<MedicalRecordListResponseDTO>>builder()
-                        .message("Active medical records fetched successfully")
-                        .success(true)
-                        .data(result)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Active medical records fetched successfully", result));
     }
 
-    // -------------------------------------------------------------------------
-    // GET /api/v1/medical-records/patient/{patientId}/latest
-    // Most recent active record for a patient
-    // -------------------------------------------------------------------------
-
+    /**
+     * Retrieves the most recent active medical record for a patient.
+     *
+     * @param hospitalId the hospital identifier
+     * @param patientId  the unique identifier of the patient
+     * @return a {@link ResponseEntity} wrapping the latest {@link MedicalRecordResponseDTO}
+     */
     @GetMapping("/patient/{patientId}/latest")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> getLatestRecordByPatient(
@@ -176,21 +163,19 @@ public class MedicalRecordController {
         MedicalRecordResponseDTO response =
                 medicalRecordService.getLatestRecordByPatient(patientId, hospitalId);
 
-        return ResponseEntity.ok(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Latest medical record fetched successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Latest medical record fetched successfully", response));
     }
 
-    // -------------------------------------------------------------------------
-    // GET /api/v1/medical-records/doctor/{doctorId}
-    // Records authored by a specific doctor
-    // -------------------------------------------------------------------------
-
+    /**
+     * Retrieves a paginated list of medical records authored by a specific doctor.
+     *
+     * @param hospitalId the hospital identifier
+     * @param doctorId   the unique identifier of the authoring doctor
+     * @param page       the page index to retrieve
+     * @param size       the number of records per page
+     * @param sortBy     the field name by which to sort results
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link MedicalRecordListResponseDTO}
+     */
     @GetMapping("/doctor/{doctorId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getRecordsByDoctor(
@@ -205,21 +190,21 @@ public class MedicalRecordController {
         Page<MedicalRecordListResponseDTO> result =
                 medicalRecordService.getRecordsByDoctor(doctorId, hospitalId, pageable);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<MedicalRecordListResponseDTO>>builder()
-                        .message("Doctor's medical records fetched successfully")
-                        .success(true)
-                        .data(result)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Doctor's medical records fetched successfully", result));
     }
 
-    // -------------------------------------------------------------------------
-    // GET /api/v1/medical-records/hospital
-    // Hospital-wide filtered list (status, date range)
-    // -------------------------------------------------------------------------
-
+    /**
+     * Retrieves a hospital-wide paginated list of medical records filtered by status and date boundaries.
+     *
+     * @param hospitalId the hospital identifier
+     * @param status     the optional status filter
+     * @param from       the start date filter (inclusive)
+     * @param to         the end date filter (inclusive)
+     * @param page       the page index to retrieve
+     * @param size       the number of records per page
+     * @param sortBy     the field name by which to sort results
+     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link MedicalRecordListResponseDTO}
+     */
     @GetMapping("/hospital")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Page<MedicalRecordListResponseDTO>>> getRecordsByHospital(
@@ -239,21 +224,17 @@ public class MedicalRecordController {
                 medicalRecordService.getRecordsByHospital(
                         hospitalId, status, from, to, pageable);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Page<MedicalRecordListResponseDTO>>builder()
-                        .message("Hospital medical records fetched successfully")
-                        .success(true)
-                        .data(result)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Hospital medical records fetched successfully", result));
     }
 
-    // -------------------------------------------------------------------------
-    // PUT /api/v1/medical-records/{id}
-    // Update clinical content or archive a record
-    // -------------------------------------------------------------------------
-
+    /**
+     * Updates clinical details or archives an existing medical record.
+     *
+     * @param hospitalId the hospital identifier
+     * @param id         the unique identifier of the medical record
+     * @param request    the update payload
+     * @return a {@link ResponseEntity} wrapping the updated {@link MedicalRecordResponseDTO}
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<MedicalRecordResponseDTO>> updateRecord(
@@ -265,21 +246,16 @@ public class MedicalRecordController {
         MedicalRecordResponseDTO response =
                 medicalRecordService.updateRecord(id, hospitalId, request);
 
-        return ResponseEntity.ok(
-                ApiResponse.<MedicalRecordResponseDTO>builder()
-                        .message("Medical record updated successfully")
-                        .success(true)
-                        .data(response)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success("Medical record updated successfully", response));
     }
 
-    // -------------------------------------------------------------------------
-    // DELETE /api/v1/medical-records/{id}
-    // Hard delete — only allowed when no appointment is linked
-    // -------------------------------------------------------------------------
-
+    /**
+     * Permanently deletes an unlinked medical record.
+     *
+     * @param hospitalId the hospital identifier
+     * @param id         the unique identifier of the medical record
+     * @return a {@link ResponseEntity} containing a confirmation status message
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<String>> deleteRecord(
@@ -289,13 +265,6 @@ public class MedicalRecordController {
 
         String message = medicalRecordService.deleteRecord(id, hospitalId);
 
-        return ResponseEntity.ok(
-                ApiResponse.<String>builder()
-                        .message(message)
-                        .success(true)
-                        .data(message)
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+        return ResponseEntity.ok(ApiResponse.success(message, message));
     }
 }

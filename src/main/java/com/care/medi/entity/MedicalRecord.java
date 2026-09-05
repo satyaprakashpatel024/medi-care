@@ -8,6 +8,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(
         name = "medical_records",
@@ -25,6 +28,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@SQLDelete(sql = "UPDATE medical_records SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class MedicalRecord extends BaseEntity {
 
     @Column(name = "patient_id")
