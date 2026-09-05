@@ -147,6 +147,7 @@ public class DoctorServiceImpl implements DoctorService {
         Doctor byId = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(doctorId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + doctorId));
         byId.setActive(false);
+        doctorRepository.delete(byId);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

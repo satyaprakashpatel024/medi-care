@@ -1,6 +1,6 @@
-package com.care.medi.dtos.response;
+package com.care.medi.dtos.request;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthResponse {
+public class RefreshTokenRequestDTO {
+    @NotBlank(message = "Refresh token is required")
     private String refreshToken;
-    private String role;
 }

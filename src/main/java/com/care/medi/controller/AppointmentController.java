@@ -154,7 +154,7 @@ public class AppointmentController {
      * @param request    the rescheduling details
      * @return a {@link ResponseEntity} containing the updated {@link AppointmentResponseDTO}
      */
-    @PatchMapping("/reschedule/{id}")
+    @PatchMapping("/{id}/reschedule")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(
             @RequestAttribute(value = "X-Hospital-Id")
@@ -198,7 +198,7 @@ public class AppointmentController {
      * @param id         the unique identifier of the appointment to cancel
      * @return a {@link ResponseEntity} containing the updated {@link AppointmentResponseDTO}
      */
-    @PutMapping("/{id}/cancel")
+    @PatchMapping("/{id}/cancel")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(
             @RequestAttribute(value = "X-Hospital-Id")
@@ -242,7 +242,7 @@ public class AppointmentController {
      * @param id         the unique identifier of the appointment to delete
      * @return a {@link ResponseEntity} indicating the outcome of the deletion
      */
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> deleteAppointment(
             @RequestAttribute(value = "X-Hospital-Id")

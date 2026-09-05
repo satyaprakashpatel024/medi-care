@@ -48,7 +48,7 @@ public class AdminAnalyticsServiceImpl implements AdminAnalyticsService {
 
         return HospitalStatsResponseDTO.builder()
                 .hospitalId(hospital.getId())
-                .hospitalName(hospital.getHospitalName())
+                .hospitalName(hospital.getName())
                 .activeDoctorsCount(doctorRepository.countByHospitalIdAndIsActiveTrue(hospitalId))
                 .totalPatientsCount(patientRepository.countByHospitalId(hospitalId))
                 .totalStaffCount(staffRepository.countByHospitalId(hospitalId))
@@ -65,7 +65,7 @@ public class AdminAnalyticsServiceImpl implements AdminAnalyticsService {
 
         long total = hospitalId != null ? appointmentRepository.countByHospitalId(hospitalId) : appointmentRepository.count();
         long scheduled = hospitalId != null ? appointmentRepository.countByHospitalIdAndStatus(hospitalId, AppointmentStatus.SCHEDULED) : 0;
-        long confirmed = hospitalId != null ? appointmentRepository.countByHospitalIdAndStatus(hospitalId, AppointmentStatus.CONFIRMED) : 0;
+        long confirmed = hospitalId != null ? appointmentRepository.countByHospitalIdAndStatus(hospitalId, AppointmentStatus.SCHEDULED) : 0;
         long completed = hospitalId != null ? appointmentRepository.countByHospitalIdAndStatus(hospitalId, AppointmentStatus.COMPLETED) : 0;
         long cancelled = hospitalId != null ? appointmentRepository.countByHospitalIdAndStatus(hospitalId, AppointmentStatus.CANCELLED) : 0;
 

@@ -9,6 +9,9 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Schema(hidden = true)
 @Entity
 @Getter
@@ -19,6 +22,8 @@ import lombok.*;
 @Table(name = "hospital_address", indexes = {
         @Index(name = "idx_hosp_addr_hospital", columnList = "hospital_id")
 })
+@SQLDelete(sql = "UPDATE hospital_address SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class HospitalAddress extends BaseEntity {
 
     @NotNull(message = "Hospital ID is required.")

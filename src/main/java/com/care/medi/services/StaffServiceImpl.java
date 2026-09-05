@@ -114,7 +114,7 @@ public class StaffServiceImpl implements StaffService {
                 .gender(staff.getGender() != null ? staff.getGender().name() : null)
                 .phone(staff.getPhone())
                 .hospitalId(staff.getHospital() != null ? staff.getHospital().getId() : null)
-                .hospitalName(staff.getHospital() != null ? staff.getHospital().getHospitalName() : null)
+                .hospitalName(staff.getHospital() != null ? staff.getHospital().getName() : null)
                 .emergencyContact(staff.getEmergencyContact())
                 .bloodType(staff.getBloodGroup() != null ? staff.getBloodGroup().name() : null)
                 .updatedAt(staff.getUpdatedAt())

@@ -230,6 +230,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
         appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointmentRepository.delete(appointment);
     }
 
     @Override

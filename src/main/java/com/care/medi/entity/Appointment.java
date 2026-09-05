@@ -15,6 +15,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Schema(hidden = true)
 @Getter
@@ -32,6 +35,8 @@ import java.util.List;
                 @UniqueConstraint(name = "uk_appt_doctor_date_time", columnNames = {"doctor_id", "appointment_date", "start_time", "end_time"})
         }
 )
+@SQLDelete(sql = "UPDATE appointments SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Appointment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

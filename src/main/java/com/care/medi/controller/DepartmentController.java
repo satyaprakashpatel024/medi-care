@@ -43,7 +43,7 @@ public class DepartmentController {
     public ResponseEntity<ApiResponse<Page<DepartmentResponseDTO>>> getAllDepartments(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sort", defaultValue = "id") String sortBy
+            @RequestParam(defaultValue = "id") String sortBy
     ) {
         Page<DepartmentResponseDTO> allDepartments = departmentService.getAllDepartments(page, size, sortBy);
         return ResponseEntity.ok(ApiResponse.success("Departments fetched successfully", allDepartments));

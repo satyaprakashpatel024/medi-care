@@ -28,10 +28,10 @@ public class InsuranceController {
      * @param policyNumber the unique policy number identifier
      * @return a {@link ResponseEntity} containing an {@link ApiResponse} wrapping the {@link InsuranceResponseDTO}
      */
-    @GetMapping("/{pNumber}")
+    @GetMapping("/{policyNumber}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<InsuranceResponseDTO>> getInsurancesByPolicyNumber(
-            @PathVariable("pNumber") String policyNumber) {
+            @PathVariable("policyNumber") String policyNumber) {
         InsuranceResponseDTO insuranceByPolicyNumber = insuranceService.getInsuranceByPolicyNumber(policyNumber);
         return ResponseEntity.ok(ApiResponse.success("Insurance retrieved successfully for this policy number.", insuranceByPolicyNumber));
     }

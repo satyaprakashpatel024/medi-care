@@ -26,4 +26,12 @@ public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @lombok.Builder.Default
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
+    private boolean isDeleted = false;
+
+    public void markDeleted() {
+        this.isDeleted = true;
+    }
 }

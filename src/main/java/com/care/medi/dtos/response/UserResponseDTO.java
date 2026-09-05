@@ -24,7 +24,7 @@ public record UserResponseDTO(
                 .role(user.getRole())
                 .isActive(user.getIsActive())
                 .lastLogin(user.getLastLogin())
-                .createdAt(user.getCreatedAt())
+                .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toOffsetDateTime() : null)
                 .build();
     }
 }

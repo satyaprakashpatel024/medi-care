@@ -38,7 +38,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 
-    @Query(value = "SELECT d.hospital_id FROM doctors d WHERE d.user_id = :userId", nativeQuery = true)
+    @Query(value = "SELECT d.hospital_id FROM doctors d WHERE d.user_id = :userId AND d.is_deleted = false", nativeQuery = true)
     Optional<Long> findHospitalIdByUserId(@Param("userId") Long userId);
 
     long countByIsActiveTrue();

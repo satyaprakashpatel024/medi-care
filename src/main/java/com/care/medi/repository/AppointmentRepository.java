@@ -114,7 +114,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query(value = """
                     SELECT EXISTS ( SELECT 1 FROM appointments a WHERE a.hospital_id = :hospitalId
             AND a.doctor_id = :doctorId AND a.appointment_date = :date AND a.start_time < :endTime
-            AND a.end_time > :startTime )""",
+            AND a.end_time > :startTime AND a.is_deleted = false )""",
             nativeQuery = true)
     boolean existsConflictingAppointment(Long doctorId, Long hospitalId, LocalDate date, LocalTime startTime, LocalTime endTime);
 

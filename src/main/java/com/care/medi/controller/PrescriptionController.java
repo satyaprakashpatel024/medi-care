@@ -42,7 +42,7 @@ public class PrescriptionController {
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @PathVariable("patientId") Long patientId,
-            @RequestParam(value = "page") int page,
+            @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "sort", defaultValue = "id") String sortBy) {
         Page<PrescriptionResponseDTO> prescriptionByPatientId = prescriptionService.getPrescriptionByPatientId(hospitalId, patientId, page, size, sortBy);
@@ -56,7 +56,7 @@ public class PrescriptionController {
      * @param appointmentId the unique identifier of the appointment
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link PrescriptionResponseDTO}
      */
-    @GetMapping({"/appt/{appointmentId}"})
+    @GetMapping("/appointment/{appointmentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<PrescriptionResponseDTO>>> getPrescriptionByAppointmentId(
             @RequestAttribute(value = "X-Hospital-Id")
@@ -86,7 +86,7 @@ public class PrescriptionController {
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(hospitalId)
+                .buildAndExpand(prescription.id())
                 .toUri();
         return ResponseEntity
                 .created(location)

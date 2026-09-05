@@ -7,6 +7,9 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,6 +27,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE patients SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Patient extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -208,7 +208,7 @@ public class DoctorController {
      * @param sortBy       the field name by which to sort results
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DoctorListResponseDTO}
      */
-    @GetMapping("/dept/{departmentId}")
+    @GetMapping("/department/{departmentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorsByDepartmentAndHospital(
             @RequestAttribute(value = "X-Hospital-Id")

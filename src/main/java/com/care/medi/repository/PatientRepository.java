@@ -41,7 +41,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 
-    @Query(value = "SELECT p.hospital_id FROM patients p WHERE p.user_id = :userId", nativeQuery = true)
+    @Query(value = "SELECT p.hospital_id FROM patients p WHERE p.user_id = :userId AND p.is_deleted = false", nativeQuery = true)
     Optional<Long> findHospitalIdByUser(@Param("userId") Long userId);
 
     long countByHospitalId(Long hospitalId);

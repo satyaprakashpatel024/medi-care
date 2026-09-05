@@ -10,6 +10,9 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,8 @@ import java.util.List;
                 @UniqueConstraint(name = "uk_doctors_user_id", columnNames = "user_id")
         }
 )
+@SQLDelete(sql = "UPDATE doctors SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Doctor extends BaseEntity {
 
     @NotNull(message = "Users is required")

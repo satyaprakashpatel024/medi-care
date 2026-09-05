@@ -17,6 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
+import com.care.medi.dtos.request.RefreshTokenRequestDTO;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,8 +35,11 @@ public class AuthService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
 
-    public AuthResponse login(LoginRequestDTO request) {
+    public record AuthTokens(String accessToken, String refreshToken, String role) {}
+
+    public AuthTokens login(LoginRequestDTO request) {
         Authentication authenticate;
         try {
             authenticate = authenticationManager.authenticate(
@@ -63,13 +69,40 @@ public class AuthService {
 
         resolveHospitalId(user).ifPresent(hospitalId -> extraClaims.put("hospitalId", hospitalId));
 
-        String token = jwtService.generateToken(extraClaims, user);
+        String accessToken = jwtService.generateToken(extraClaims, user);
+        String refreshToken = jwtService.generateRefreshToken(extraClaims, user);
 
-        return AuthResponse.builder()
-                .token(token)
-                .email(user.getEmail())
-                .role(user.getRole().name())
-                .build();
+        return new AuthTokens(accessToken, refreshToken, user.getRole().name());
+    }
+
+    public AuthTokens refresh(RefreshTokenRequestDTO request) {
+        String refreshToken = request.getRefreshToken();
+        String userEmail;
+        try {
+            userEmail = jwtService.extractUsername(refreshToken);
+        } catch (Exception e) {
+            throw new InvalidCredentialsException("Invalid or expired refresh token");
+        }
+
+        if (userEmail == null) {
+            throw new InvalidCredentialsException("Invalid refresh token payload");
+        }
+
+        Users user = (Users) userDetailsService.loadUserByUsername(userEmail);
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new InvalidCredentialsException("Refresh token is expired or invalid");
+        }
+
+        Map<String, Object> extraClaims = new HashMap<>();
+        if (user.getId() != null) {
+            extraClaims.put("userId", user.getId());
+        }
+        resolveHospitalId(user).ifPresent(hospitalId -> extraClaims.put("hospitalId", hospitalId));
+
+        String newAccessToken = jwtService.generateToken(extraClaims, user);
+        String newRefreshToken = jwtService.generateRefreshToken(extraClaims, user);
+
+        return new AuthTokens(newAccessToken, newRefreshToken, user.getRole().name());
     }
 
     private Optional<Long> resolveHospitalId(Users user) {

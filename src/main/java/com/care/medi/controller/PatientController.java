@@ -130,7 +130,7 @@ public class PatientController {
      * @param request    the insurance information payload
      * @return a {@link ResponseEntity} wrapping the created {@link InsuranceResponseDTO}
      */
-    @PostMapping("/{id}/insurance")
+    @PostMapping("/{id}/insurances")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<InsuranceResponseDTO>> assignInsuranceToPatient(
             @RequestAttribute(value = "X-Hospital-Id")
@@ -151,7 +151,7 @@ public class PatientController {
      * @param patientId  the unique identifier of the patient
      * @return a {@link ResponseEntity} wrapping a list of {@link InsuranceResponseDTO}
      */
-    @GetMapping("{id}/insurances")
+    @GetMapping("/{id}/insurances")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurancesOfPatient(
             @RequestAttribute(value = "X-Hospital-Id")
