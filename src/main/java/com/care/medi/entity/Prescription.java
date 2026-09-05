@@ -13,6 +13,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.ZonedDateTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Schema(hidden = true)
 @Entity
 @Table(name = "prescription", indexes = {
@@ -24,6 +27,8 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@SQLDelete(sql = "UPDATE prescription SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Prescription extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,12 +52,11 @@ public class Prescription extends BaseEntity {
     private String notes;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id",nullable = true, foreignKey = @ForeignKey(name = "fk_prescription_appointment"))
+    @JoinColumn(name = "appointment_id", nullable = true, foreignKey = @ForeignKey(name = "fk_prescription_appointment"))
     private Appointment appointment;
 
 
     // ── Bidirectional mapping ───────────────────────────────────────────────
-
 
 
     // ── Helper methods ───────────────────────────────────────────────────────

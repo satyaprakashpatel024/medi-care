@@ -91,21 +91,24 @@ public class PatientServiceImpl implements PatientService {
         return PatientResponseDTO.fromEntity(updatedPatient);
     }
 
+    @Transactional
     @Override
     public void deletePatientFromHospital(Long patientId, Long hospitalId) {
-        patientRepository.deleteByIdAndHospitalId(patientId, hospitalId);
+        Patient patient = patientRepository.findByIdAndHospitalId(patientId, hospitalId)
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
+        patientRepository.delete(patient);
     }
 
     @Transactional
     @Override
     public InsuranceResponseDTO assignInsurance(Long patientId, Long hospitalId, InsuranceRequestDTO request) {
-        Patient byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId).orElseThrow(()-> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
+        Patient byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId).orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
 
         if (insuranceRepository.existsByPolicyNumber(request.getPolicyNumber())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_POLICY);
         }
 
-        Insurance insurance = Insurance.toEntity(request,byId);
+        Insurance insurance = Insurance.toEntity(request, byId);
         insurance = insuranceRepository.save(insurance);
         return InsuranceResponseDTO.fromEntity(insurance);
     }

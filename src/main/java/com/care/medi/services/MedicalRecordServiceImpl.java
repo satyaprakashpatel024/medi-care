@@ -46,7 +46,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
                 request.getPatientId(), request.getDoctorId(), hospitalId);
 
         Patient patient = findPatientInHospital(request.getPatientId(), hospitalId);
-        Doctor doctor  = findDoctorInHospital(request.getDoctorId(), hospitalId);
+        Doctor doctor = findDoctorInHospital(request.getDoctorId(), hospitalId);
 
         MedicalRecord.MedicalRecordBuilder builder = MedicalRecord.builder()
                 .patient(patient)
@@ -246,7 +246,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     private Patient findPatientInHospital(Long patientId, Long hospitalId) {
         return patientRepository.findByIdAndHospitalId(patientId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Patient not found with ID %s in hospital ID %s}".formatted(patientId,hospitalId)));
+                        "Patient not found with ID %s in hospital ID %s}".formatted(patientId, hospitalId)));
     }
 
     private void verifyPatientInHospital(Long patientId, Long hospitalId) {

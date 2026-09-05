@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medi_care_v1
+    ports:
+      - "8080:8080"

@@ -10,6 +10,9 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Schema(hidden = true)
 @Entity
 @Getter
@@ -22,6 +25,8 @@ import java.util.List;
                 @UniqueConstraint(name = "uk_departments_name", columnNames = "name")
         }
 )
+@SQLDelete(sql = "UPDATE departments SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Department extends BaseEntity {
 
     @NotBlank(message = "Department name is required")

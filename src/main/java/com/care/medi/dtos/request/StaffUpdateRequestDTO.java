@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class StaffUpdateRequestDTO {
+public class StaffUpdateRequestDTO {
     @Size(max = 100)
     private String firstName;
     @Size(max = 100)

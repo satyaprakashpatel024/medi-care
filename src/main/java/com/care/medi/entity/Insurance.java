@@ -7,6 +7,9 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "insurances",
         uniqueConstraints = {
@@ -18,6 +21,8 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE insurances SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Insurance extends BaseEntity {
 
     @NotBlank(message = "Insurance provider name is required")
@@ -69,12 +74,7 @@ public class Insurance extends BaseEntity {
     @JoinColumn(name = "patient_id", foreignKey = @ForeignKey(name = "fk_insurance_patient"))
     private Patient patient;
 
-    // Helper method to check if the policy is currently valid
-    public boolean isExpired() {
-        return expiryDate != null && expiryDate.isBefore(LocalDate.now());
-    }
-
-    public static Insurance toEntity(InsuranceRequestDTO request,Patient patient) {
+    public static Insurance toEntity(InsuranceRequestDTO request, Patient patient) {
         return Insurance.builder()
                 .providerName(request.getProviderName())
                 .policyNumber(request.getPolicyNumber())
@@ -88,5 +88,10 @@ public class Insurance extends BaseEntity {
                 .expiryDate(request.getExpiryDate())
                 .startDate(request.getStartDate())
                 .build();
+    }
+
+    // Helper method to check if the policy is currently valid
+    public boolean isExpired() {
+        return expiryDate != null && expiryDate.isBefore(LocalDate.now());
     }
 }

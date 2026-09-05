@@ -14,19 +14,19 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
 
     @Query(
             """
-        SELECT new com.care.medi.dtos.response.PrescriptionResponseDTO(
-                p.id,
-                concat(p.patient.firstName, ' ', p.patient.lastName),
-                d.id,
-                concat(d.firstName, ' ', d.lastName),
-                p.medications,
-                p.dosageInstructions,
-                p.notes
-                )
-                FROM Prescription p
-                JOIN p.doctor d
-                WHERE p.patient.id = :patientId
-        """
+                    SELECT new com.care.medi.dtos.response.PrescriptionResponseDTO(
+                            p.id,
+                            concat(p.patient.firstName, ' ', p.patient.lastName),
+                            d.id,
+                            concat(d.firstName, ' ', d.lastName),
+                            p.medications,
+                            p.dosageInstructions,
+                            p.notes
+                            )
+                            FROM Prescription p
+                            JOIN p.doctor d
+                            WHERE p.patient.id = :patientId
+                    """
     )
     Page<PrescriptionResponseDTO> findByPatientId(Long patientId, Pageable pageable);
 

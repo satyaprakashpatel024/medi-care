@@ -1,12 +1,10 @@
 package com.care.medi.dtos.response;
 
 import com.care.medi.entity.Hospital;
-import com.care.medi.entity.HospitalDepartment;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder

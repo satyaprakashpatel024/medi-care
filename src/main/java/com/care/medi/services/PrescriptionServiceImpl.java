@@ -1,7 +1,6 @@
 package com.care.medi.services;
 
 import com.care.medi.dtos.request.PrescriptionRequestDTO;
-import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.dtos.response.PrescriptionResponseDTO;
 import com.care.medi.entity.Appointment;
 import com.care.medi.entity.AppointmentStatus;
@@ -31,26 +30,26 @@ public class PrescriptionServiceImpl {
     private final AppointmentRepository appointmentRepository;
 
     @Transactional(readOnly = true)
-    public Page<PrescriptionResponseDTO> getPrescriptionByPatientId(Long hospitalId,Long patientId, int page, int size, String sortBy) {
-        if(!patientService.existsByIdAndHospitalId(patientId,hospitalId)){
+    public Page<PrescriptionResponseDTO> getPrescriptionByPatientId(Long hospitalId, Long patientId, int page, int size, String sortBy) {
+        if (!patientService.existsByIdAndHospitalId(patientId, hospitalId)) {
             throw new ResourceNotFoundException(String.format(Constants.PATIENT_NOT_FOUND_IN_HOSPITAL, patientId));
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return prescriptionRepository.findByPatientId(patientId,pageable);
+        return prescriptionRepository.findByPatientId(patientId, pageable);
     }
 
     public Page<PrescriptionResponseDTO> getPrescriptionByAppointmentId(Long hospitalId, Long appointmentId, int page, int size, String sortBy) {
-        if(!appointmentService.existsByIdAndHospitalId(appointmentId,hospitalId)){
+        if (!appointmentService.existsByIdAndHospitalId(appointmentId, hospitalId)) {
             throw new ResourceNotFoundException(String.format(Constants.APPOINTMENT_NOT_FOUND_IN_HOSPITAL, appointmentId));
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Prescription> byAppointmentId = prescriptionRepository.findByAppointmentId(appointmentId,pageable);
+        Page<Prescription> byAppointmentId = prescriptionRepository.findByAppointmentId(appointmentId, pageable);
         return byAppointmentId.map(PrescriptionResponseDTO::toResponse);
     }
 
     @Transactional
-    public PrescriptionResponseDTO assignPrescriptionToAppointment(Long hospitalId,PrescriptionRequestDTO request) {
-        if(!appointmentService.isAppointmentContextValid(request.getAppointmentId(),hospitalId,request.getDoctorId(),request.getPatientId())){
+    public PrescriptionResponseDTO assignPrescriptionToAppointment(Long hospitalId, PrescriptionRequestDTO request) {
+        if (!appointmentService.isAppointmentContextValid(request.getAppointmentId(), hospitalId, request.getDoctorId(), request.getPatientId())) {
             throw new InvalidRequestException("You do not have permission to prescribe for this appointment.");
         }
         List<AppointmentStatus> allowedStatuses = List.of(AppointmentStatus.SCHEDULED, AppointmentStatus.NO_SHOW);

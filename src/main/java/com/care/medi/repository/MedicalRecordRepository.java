@@ -126,8 +126,8 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Lo
     Page<MedicalRecord> findAllByHospitalIdFiltered(
             @Param("hospitalId") Long hospitalId,
             @Param("status") RecordStatus status,
-            @Param("from")       LocalDate from,
-            @Param("to")         LocalDate to,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to,
             Pageable pageable);
 
     // -------------------------------------------------------------------------

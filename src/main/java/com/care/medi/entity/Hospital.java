@@ -13,6 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Schema(hidden = true)
 @Entity
 @Table(name = "hospitals")
@@ -21,6 +24,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE hospitals SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Hospital extends BaseEntity {
 
     @NotBlank(message = "Hospital name is required")

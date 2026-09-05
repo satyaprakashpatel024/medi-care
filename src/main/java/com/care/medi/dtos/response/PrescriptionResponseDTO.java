@@ -4,8 +4,6 @@ import com.care.medi.entity.Prescription;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
-import java.time.ZonedDateTime;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record PrescriptionResponseDTO(
@@ -17,12 +15,12 @@ public record PrescriptionResponseDTO(
         String dosageInstructions,
         String notes
 ) {
-    public  static PrescriptionResponseDTO fromEntity(Prescription prescription) {
+    public static PrescriptionResponseDTO fromEntity(Prescription prescription) {
         return PrescriptionResponseDTO.builder()
                 .id(prescription.getId())
                 .notes(prescription.getNotes())
                 .doctorId(prescription.getDoctor().getId())
-                .doctorName(STR."\{prescription.getDoctor().getFirstName()} \{prescription.getDoctor().getLastName()}")
+                .doctorName(String.format("%s %s", prescription.getDoctor().getFirstName(), prescription.getDoctor().getLastName()))
                 .medications(prescription.getMedications())
                 .dosageInstructions(prescription.getDosageInstructions())
                 .build();

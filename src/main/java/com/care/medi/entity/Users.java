@@ -15,6 +15,9 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "users",
         indexes = {
@@ -30,6 +33,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Users extends BaseEntity implements UserDetails {
 
     @NotBlank(message = "Email is required")
@@ -40,7 +45,7 @@ public class Users extends BaseEntity implements UserDetails {
 
     @NotBlank(message = "Password is required")
     @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
+    private String password;
 
     @NotNull(message = "Role is required")
     @Enumerated(EnumType.STRING)
@@ -55,6 +60,15 @@ public class Users extends BaseEntity implements UserDetails {
 
     @Column(name = "last_login", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime lastLogin;
+
+    public static Users toEntity(String email, String password, Role role) {
+        return Users.builder()
+                .email(email)
+                .password(password)
+                .role(role)
+                .isActive(true)
+                .build();
+    }
 
     /**
      * Logic-based constraints:
@@ -77,7 +91,7 @@ public class Users extends BaseEntity implements UserDetails {
 
     @Override
     public String getPassword() {
-        return passwordHash;
+        return password;
     }
 
     @Override
@@ -98,14 +112,5 @@ public class Users extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public static Users toEntity(String email, String password, Role role) {
-        return Users.builder()
-                .email(email)
-                .passwordHash(password)
-                .role(role)
-                .isActive(true)
-                .build();
     }
 }

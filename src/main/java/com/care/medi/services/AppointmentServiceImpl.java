@@ -5,12 +5,12 @@ import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
 import com.care.medi.dtos.response.PatientResponseDTO;
-import com.care.medi.emails.EmailService;
 import com.care.medi.entity.*;
 import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.exception.ResourceValidationException;
 import com.care.medi.repository.*;
+import com.care.medi.services.kafka.EmailNotificationProducer;
 import com.care.medi.utils.Constants;
 import com.care.medi.utils.Helpers;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PatientServiceImpl patientService;
     private final HospitalRepository hospitalRepository;
     private final PrescriptionRepository prescriptionRepository;
-    private final EmailService emailService;
+    private final EmailNotificationProducer emailNotificationProducer;
     private final Logger logger = Logger.getLogger(AppointmentServiceImpl.class.getName());
 
 
@@ -61,7 +61,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public boolean existsByIdAndDoctorIdAndHospitalId(Long appointmentId, Long doctorId, Long hospitalId) {
-        return appointmentRepository.existsByIdAndDoctorIdAndHospitalId(appointmentId,doctorId, hospitalId);
+        return appointmentRepository.existsByIdAndDoctorIdAndHospitalId(appointmentId, doctorId, hospitalId);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         System.out.println("appointmentTime = [" + request.getAppointmentTime() + "]");
         LocalTime time = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
         // 3. validate appointment slot
-        if (date !=null && time != null) {
+        if (date != null && time != null) {
             boolean b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(10));
             if (b) {
                 errorMap.put("conflictingAppointment", Constants.CONFLICTING_APPOINTMENT);
@@ -109,14 +109,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = Appointment.toEntity(patientEntity, doctor, department, hospitalId, date, time);
         Appointment save = appointmentRepository.save(appointment);
         // 9. Sent confirmation Email
-        String recipientEmail= Helpers.getRecipientEmail(patientEntity);
-        emailService.sendAppointmentConfirmation(
-                recipientEmail,
-                String.format("%s %s", patientEntity.getFirstName(), patientEntity.getLastName()),
-                String.format("%s %s", doctor.getFirstName(), doctor.getLastName()),
-                save.getAppointmentDate().toString(),
-                save.getStartTime().format(Constants.HUMAN_TIME_FORMAT),
-                save.getId()
+        String recipientEmail = Helpers.getRecipientEmail(patientEntity);
+        emailNotificationProducer.sendEmailNotification(
+                new com.care.medi.dtos.EmailNotificationEvent(
+                        recipientEmail,
+                        String.format("%s %s", patientEntity.getFirstName(), patientEntity.getLastName()),
+                        String.format("%s %s", doctor.getFirstName(), doctor.getLastName()),
+                        save.getAppointmentDate().toString(),
+                        save.getStartTime().format(Constants.HUMAN_TIME_FORMAT),
+                        save.getId()
+                )
         );
         return AppointmentResponseDTO.fromEntity(save);
     }
@@ -146,13 +148,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         // Construct names cleanly using String.format()
         String patientFullName = String.format("%s %s", patient.getFirstName(), patient.getLastName());
         String doctorFullName = String.format("%s %s", appointment.getDoctor().getFirstName(), appointment.getDoctor().getLastName());
-        emailService.sendAppointmentReschedule(
-                recipientEmail,
-                patientFullName,
-                doctorFullName,
-                appointment.getAppointmentDate().toString(),
-                appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT),
-                appointment.getId()
+        emailNotificationProducer.sendEmailNotification(
+                new com.care.medi.dtos.EmailNotificationEvent(
+                        recipientEmail,
+                        patientFullName,
+                        doctorFullName,
+                        appointment.getAppointmentDate().toString(),
+                        appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT),
+                        appointment.getId()
+                )
         );
         return AppointmentResponseDTO.fromEntity(appointment);
     }
@@ -163,7 +167,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
 
-        if(appointment.getStatus() == AppointmentStatus.COMPLETED){
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new InvalidRequestException(Constants.INVALID_REQUEST_APPOINTMENT_IS_COMPLETED);
         }
         // 1. Handle Prescription (Update existing or Create new)
@@ -182,7 +186,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponseDTO updateAppointmentStatus(Long id,AppointmentStatus status) {
+    public AppointmentResponseDTO updateAppointmentStatus(Long id, AppointmentStatus status) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
         appointment.setStatus(status);
@@ -191,7 +195,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public void cancelAppointment(Long id, Long hospitalId) {
-        Appointment appointment = appointmentRepository.findByIdAndHospitalId(id,hospitalId)
+        Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
 
         switch (appointment.getStatus()) {
@@ -208,13 +212,15 @@ public class AppointmentServiceImpl implements AppointmentService {
             default ->
                     throw new InvalidRequestException(Constants.INVALID_APPOINTMENT_STATUS + appointment.getStatus().name());
         }
-        emailService.sendAppointmentCancellation(
-                Helpers.getRecipientEmail(appointment.getPatient()),
-                String.format("%s %s", appointment.getPatient().getFirstName(), appointment.getPatient().getLastName()),
-                String.format("%s %s", appointment.getDoctor().getFirstName(), appointment.getDoctor().getLastName()),
-                appointment.getAppointmentDate().toString(),
-                appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT),
-                appointment.getId()
+        emailNotificationProducer.sendEmailNotification(
+                new com.care.medi.dtos.EmailNotificationEvent(
+                        Helpers.getRecipientEmail(appointment.getPatient()),
+                        String.format("%s %s", appointment.getPatient().getFirstName(), appointment.getPatient().getLastName()),
+                        String.format("%s %s", appointment.getDoctor().getFirstName(), appointment.getDoctor().getLastName()),
+                        appointment.getAppointmentDate().toString(),
+                        appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT),
+                        appointment.getId()
+                )
         );
     }
 
@@ -224,6 +230,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
         appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointmentRepository.delete(appointment);
     }
 
     @Override
@@ -259,7 +266,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDate endOfDay = Helpers.getEndOfTheDay(date);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return appointmentRepository
-                .findByDoctorIdAndHospitalIdAndAppointmentDateBetween(doctorId, hospitalId,startOfDay, endOfDay, pageable)
+                .findByDoctorIdAndHospitalIdAndAppointmentDateBetween(doctorId, hospitalId, startOfDay, endOfDay, pageable)
                 .map(AppointmentListResponseDTO::fromEntity);
     }
 
@@ -278,10 +285,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         try {
             if (patientReq.getId() != null) {
                 return patientRepository.findByIdAndHospitalId(patientReq.getId(), hospitalId)
-                        .orElseThrow(() -> new ResourceNotFoundException(String.format("Patient not found with ID: %s",patientReq.getId())));
+                        .orElseThrow(() -> new ResourceNotFoundException(String.format("Patient not found with ID: %s", patientReq.getId())));
             } else {
                 PatientResponseDTO newPatient = patientService.createPatientInHospital(hospitalId, patientReq);
-                return patientRepository.findById(newPatient.id()).orElseThrow(() -> new ResourceNotFoundException(String.format("Patient not found with ID: %s",newPatient.id())));
+                return patientRepository.findById(newPatient.id()).orElseThrow(() -> new ResourceNotFoundException(String.format("Patient not found with ID: %s", newPatient.id())));
             }
         } catch (Exception e) {
             errorMap.put("patient", e.getMessage());
@@ -307,29 +314,29 @@ public class AppointmentServiceImpl implements AppointmentService {
                 });
     }
 
-    private void validateHospital(Long hospitalId,Map<String, String> errorMap) {
-         if(!hospitalRepository.existsById(hospitalId)){
-             errorMap.put("hospitalId", Constants.HOSPITAL_NOT_FOUND + hospitalId);
-         }
+    private void validateHospital(Long hospitalId, Map<String, String> errorMap) {
+        if (!hospitalRepository.existsById(hospitalId)) {
+            errorMap.put("hospitalId", Constants.HOSPITAL_NOT_FOUND + hospitalId);
+        }
     }
 
     public boolean checkForConflictingAppointment(Long doctorId, Long hospitalId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         return appointmentRepository.existsConflictingAppointment(doctorId, hospitalId, date, startTime, endTime);
     }
 
-    private Appointment validateAppointmentForReschedule(Long id,Long hospitalId,AppointmentRescheduleDTO request,Map<String,String> errorMap) {
+    private Appointment validateAppointmentForReschedule(Long id, Long hospitalId, AppointmentRescheduleDTO request, Map<String, String> errorMap) {
         try {
             Appointment appointment = appointmentRepository.findByIdAndHospitalId(id, hospitalId)
-                    .orElseThrow(()->new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND+id));
+                    .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
             LocalDate rawDate = null;
             LocalTime rawTime = null;
             if (request.getAppointmentDate() != null) {
                 rawDate = Helpers.parseAppointmentDate(request.getAppointmentDate(), errorMap);
             }
-            if(request.getAppointmentTime() != null) {
+            if (request.getAppointmentTime() != null) {
                 rawTime = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
             }
-            if(rawDate == null || rawTime == null){
+            if (rawDate == null || rawTime == null) {
                 errorMap.put("appointmentDateTime", "Both appointmentDate and appointmentTime are required for rescheduling.");
                 return null;
             }
@@ -350,8 +357,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
             }
             return appointment;
-        }
-        catch (ResourceNotFoundException ex) {
+        } catch (ResourceNotFoundException ex) {
             errorMap.put("appointment", ex.getMessage());
             return null;
         }

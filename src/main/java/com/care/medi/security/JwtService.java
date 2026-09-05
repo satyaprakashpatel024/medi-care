@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -24,6 +23,13 @@ public class JwtService {
 
     @Value("${jwt.expiration}")
     private long jwtExpiration;
+
+    @Value("${jwt.refresh-expiration:604800000}")
+    private long refreshExpiration;
+
+    public long getJwtExpiration() {
+        return jwtExpiration;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -78,6 +84,14 @@ public class JwtService {
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
+    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+    }
+
+    public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        return buildToken(extraClaims, userDetails, refreshExpiration);
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {

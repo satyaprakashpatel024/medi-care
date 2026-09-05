@@ -2,7 +2,10 @@ package com.care.medi.dtos.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
@@ -10,7 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 public class PrescriptionRequestDTO {
     @NotNull(message = "Patient ID is required.")
-    private  Long patientId;
+    private Long patientId;
     @NotNull(message = "Appointment ID is required.")
     private Long appointmentId;
     @NotNull(message = "Doctor ID is required.")

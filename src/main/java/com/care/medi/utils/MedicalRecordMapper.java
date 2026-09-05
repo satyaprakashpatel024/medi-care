@@ -16,8 +16,8 @@ public class MedicalRecordMapper {
      */
     public MedicalRecordResponseDTO toResponseDTO(MedicalRecord record) {
         var patient = record.getPatient();
-        var doctor  = record.getDoctor();
-        var appt    = record.getAppointment();
+        var doctor = record.getDoctor();
+        var appt = record.getAppointment();
 
         return MedicalRecordResponseDTO.builder()
                 .id(record.getId())
@@ -67,8 +67,8 @@ public class MedicalRecordMapper {
      */
     public MedicalRecordListResponseDTO toListResponseDTO(MedicalRecord record) {
         var patient = record.getPatient();
-        var doctor  = record.getDoctor();
-        var appt    = record.getAppointment();
+        var doctor = record.getDoctor();
+        var appt = record.getAppointment();
 
         String diagnosisPreview = record.getDiagnosis() != null &&
                 record.getDiagnosis().length() > DIAGNOSIS_PREVIEW_LENGTH
