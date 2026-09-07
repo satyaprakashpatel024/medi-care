@@ -648,6 +648,148 @@ public class EmailService {
                 .replace("{{doctorName}}", doctorName != null ? doctorName : "")
                 .replace("{{currentYear}}", String.valueOf(java.time.Year.now().getValue()));
     }
+
+    @Async
+    public void sendOtpEmail(String toEmail, String otp) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, Constants.ENCODING);
+
+            helper.setTo(toEmail);
+            helper.setSubject("🔐 Password Reset OTP - Hospital Management System");
+            helper.setText(buildOtpEmailTemplate(otp), true);
+
+            mailSender.send(mimeMessage);
+            log.info("Successfully sent OTP email to: {}", toEmail);
+        } catch (Exception e) {
+            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
+        }
+    }
+
+    private String buildOtpEmailTemplate(String otp) {
+        return """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <title>Password Reset OTP</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                            background-color: #f0f4f8;
+                            margin: 0;
+                            padding: 0;
+                            line-height: 1.6;
+                        }
+                        .wrapper {
+                            width: 100%%;
+                            background-color: #f0f4f8;
+                            padding: 40px 0;
+                        }
+                        .container {
+                            max-width: 580px;
+                            margin: 0 auto;
+                            background: #ffffff;
+                            border-radius: 16px;
+                            overflow: hidden;
+                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+                            border: 1px solid #e2e8f0;
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #1e3a8a 0%%, #3b82f6 100%%);
+                            color: #ffffff;
+                            padding: 35px 30px;
+                            text-align: center;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            font-size: 24px;
+                            font-weight: 700;
+                            letter-spacing: 0.5px;
+                        }
+                        .content {
+                            padding: 40px 35px;
+                            color: #1e293b;
+                        }
+                        .greeting {
+                            font-size: 18px;
+                            font-weight: 600;
+                            margin-bottom: 12px;
+                        }
+                        .text {
+                            font-size: 15px;
+                            color: #475569;
+                            margin-bottom: 25px;
+                        }
+                        .otp-card {
+                            background: #f8fafc;
+                            border: 2px dashed #cbd5e1;
+                            border-radius: 12px;
+                            padding: 25px;
+                            text-align: center;
+                            margin: 25px 0;
+                        }
+                        .otp-code {
+                            font-family: 'Courier New', Courier, monospace;
+                            font-size: 36px;
+                            font-weight: 800;
+                            letter-spacing: 8px;
+                            color: #2563eb;
+                            margin: 10px 0;
+                        }
+                        .otp-expiry {
+                            font-size: 13px;
+                            color: #64748b;
+                        }
+                        .warning-box {
+                            background-color: #fef2f2;
+                            border-left: 4px solid #ef4444;
+                            padding: 14px 18px;
+                            border-radius: 6px;
+                            font-size: 13px;
+                            color: #991b1b;
+                            margin-top: 25px;
+                        }
+                        .footer {
+                            background: #f8fafc;
+                            text-align: center;
+                            padding: 20px;
+                            font-size: 13px;
+                            color: #94a3b8;
+                            border-top: 1px solid #f1f5f9;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="wrapper">
+                        <div class="container">
+                            <div class="header">
+                                <h1>🏥 Medi-Care Verification</h1>
+                            </div>
+                            <div class="content">
+                                <div class="greeting">Password Reset Request</div>
+                                <div class="text">
+                                    We received a request to reset the password for your Medi-Care account. Use the OTP code below to verify your account identity:
+                                </div>
+                                <div class="otp-card">
+                                    <div class="otp-code">%s</div>
+                                    <div class="otp-expiry">⏳ This code will expire in <strong>5 minutes</strong>.</div>
+                                </div>
+                                <div class="warning-box">
+                                    <strong>🔒 Security Notice:</strong> If you did not request a password reset, please ignore this email or contact support immediately. Never share your OTP with anyone.
+                                </div>
+                            </div>
+                            <div class="footer">
+                                &copy; %d Hospital Management System – All Rights Reserved
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(otp, Year.now().getValue());
+    }
 }
+
 
 

@@ -22,13 +22,17 @@ public class EmailNotificationConsumer {
     public void consume(EmailNotificationEvent event) {
 
         log.info("Received Email Event : {}", event);
-        emailService.sendAppointmentConfirmation(
-                event.getToEmail(),
-                event.getPatientName(),
-                event.getDoctorName(),
-                event.getDate(),
-                event.getTime(),
-                event.getAppointmentId()
-        );
+        if ("FORGOT_PASSWORD_OTP".equalsIgnoreCase(event.getEventType()) || event.getOtp() != null) {
+            emailService.sendOtpEmail(event.getToEmail(), event.getOtp());
+        } else {
+            emailService.sendAppointmentConfirmation(
+                    event.getToEmail(),
+                    event.getPatientName(),
+                    event.getDoctorName(),
+                    event.getDate(),
+                    event.getTime(),
+                    event.getAppointmentId()
+            );
+        }
     }
 }

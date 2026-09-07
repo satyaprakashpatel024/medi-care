@@ -14,13 +14,29 @@ public class EmailNotificationProducer {
     private final KafkaTemplate<String, EmailNotificationEvent> kafkaTemplate;
 
     public void sendEmailNotification(EmailNotificationEvent event) {
-
+        String key = event.getAppointmentId() != null ? event.getAppointmentId().toString() : event.getToEmail();
         kafkaTemplate.send(
                 TOPIC,
-                event.getAppointmentId().toString(),
+                key,
                 event
         );
 
         System.out.println("Event Published : " + event);
+    }
+
+    public void sendOtpNotification(String toEmail, String otp) {
+        EmailNotificationEvent event = EmailNotificationEvent.builder()
+                .toEmail(toEmail)
+                .otp(otp)
+                .eventType("FORGOT_PASSWORD_OTP")
+                .build();
+
+        kafkaTemplate.send(
+                TOPIC,
+                toEmail,
+                event
+        );
+
+        System.out.println("OTP Event Published : " + event);
     }
 }
