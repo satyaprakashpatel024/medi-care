@@ -153,8 +153,9 @@ class PatientServiceImplTest {
     @Test
     @DisplayName("Should delete patient successfully")
     void testDeletePatientFromHospital_Success() {
+        when(patientRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testPatient));
         patientService.deletePatientFromHospital(1L, 1L);
-        verify(patientRepository).deleteByIdAndHospitalId(1L, 1L);
+        verify(patientRepository).delete(testPatient);
     }
 
     @Test

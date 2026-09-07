@@ -254,6 +254,7 @@ class DoctorServiceImplTest {
         updateDTO.setSpeciality("UpdatedSpeciality");
 
         when(doctorRepository.findById(1L)).thenReturn(Optional.of(testDoctor));
+        when(hospitalRepository.findById(1L)).thenReturn(Optional.of(testHospital));
         when(doctorRepository.save(any(Doctor.class))).thenReturn(testDoctor);
 
         DoctorResponseDTO result = doctorService.updateDoctorByIdAndHospital(1L, 1L, updateDTO);

@@ -1,25 +1,29 @@
 package com.care.medi.services;
 
-import com.care.medi.dtos.request.LoginRequestDTO;
-import com.care.medi.dtos.response.AuthResponse;
+import com.care.medi.dtos.request.*;
+import com.care.medi.entity.OtpTable;
 import com.care.medi.entity.Role;
 import com.care.medi.entity.Users;
 import com.care.medi.exception.InvalidCredentialsException;
-import com.care.medi.repository.DoctorRepository;
-import com.care.medi.repository.PatientRepository;
-import com.care.medi.repository.StaffRepository;
+import com.care.medi.exception.InvalidRequestException;
+import com.care.medi.exception.UserNotFoundException;
+import com.care.medi.repository.*;
 import com.care.medi.security.JwtService;
+import com.care.medi.services.kafka.EmailNotificationProducer;
+import com.care.medi.utils.Helpers;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.stereotype.Service;
-
-import com.care.medi.dtos.request.RefreshTokenRequestDTO;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +38,10 @@ public class AuthService {
     private final StaffRepository staffRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
+    private final UsersRepository usersRepository;
+    private final OtpTableRepository otpTableRepository;
+    private final EmailNotificationProducer emailNotificationProducer;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
 
@@ -116,5 +124,75 @@ public class AuthService {
             case Role.STAFF, Role.RECEPTIONIST -> staffRepository.findHospitalIdByUserId(user.getId());
             default -> Optional.empty(); // Global admins or platform owners without a specific hospital assignment
         };
+    }
+
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequestDTO request) {
+        String email = request.getEmail();
+        Users user = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("No account found with email: " + email));
+
+        otpTableRepository.deleteByEmail(email);
+
+        String otp = String.format("%06d", new SecureRandom().nextInt(1000000));
+
+        OtpTable otpEntry = OtpTable.builder()
+                .email(email)
+                .otp(otp)
+                .build();
+        otpTableRepository.save(otpEntry);
+
+        emailNotificationProducer.sendOtpNotification(Helpers.getRecipientEmail(email), otp);
+        log.info("Sent forgot password OTP via Kafka to: {}", email);
+    }
+
+    @Transactional(readOnly = true)
+    public void verifyOtp(VerifyOtpRequestDTO request) {
+        OtpTable otpTable = otpTableRepository.findByEmailAndOtp(request.getEmail(), request.getOtp())
+                .orElseThrow(() -> new InvalidRequestException("Invalid or expired OTP"));
+
+        if (otpTable.getExpiredAt() == null || otpTable.getExpiredAt().isBefore(ZonedDateTime.now())) {
+            throw new InvalidRequestException("OTP has expired. Please request a new one.");
+        }
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequestDTO request) {
+        OtpTable otpTable = otpTableRepository.findByEmailAndOtp(request.getEmail(), request.getOtp())
+                .orElseThrow(() -> new InvalidRequestException("Invalid or expired OTP"));
+
+        if (otpTable.getExpiredAt() == null || otpTable.getExpiredAt().isBefore(ZonedDateTime.now())) {
+            throw new InvalidRequestException("OTP has expired. Please request a new one.");
+        }
+
+        Users user = usersRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("No account found with email: " + request.getEmail()));
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        usersRepository.save(user);
+
+        otpTableRepository.deleteByEmail(request.getEmail());
+        emailNotificationProducer.sendPasswordChangedNotification(Helpers.getRecipientEmail(request.getEmail()));
+        log.info("Password successfully reset for user: {}", request.getEmail());
+    }
+
+    @Transactional
+    public void updatePassword(String email, UpdatePasswordRequestDTO request) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new InvalidRequestException("New password and confirm password do not match");
+        }
+
+        Users user = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("No account found with email: " + email));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        usersRepository.save(user);
+
+        emailNotificationProducer.sendPasswordChangedNotification(Helpers.getRecipientEmail(email));
+        log.info("Password successfully updated for user: {}", email);
     }
 }

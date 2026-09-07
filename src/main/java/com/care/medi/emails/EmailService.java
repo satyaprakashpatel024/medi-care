@@ -33,7 +33,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, Constants.ENCODING);
 
             helper.setTo(toEmail);
-            helper.setSubject("✅ Appointment Confirmed - Hospital Management System");
+            helper.setSubject("✅ Appointment Confirmed - Medi-care");
             helper.setText(buildAppointmentConfirmationEmail(patientName, doctorName, date, time, appointmentId), true);
 
             mailSender.send(mimeMessage);
@@ -58,7 +58,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, Constants.ENCODING);
 
             helper.setTo(toEmail);
-            helper.setSubject("❌ Appointment Cancelled - Hospital Management System");
+            helper.setSubject("❌ Appointment Cancelled - Medi-care");
             helper.setText(buildAppointmentCancellationEmail(patientName, doctorName, date, time, appointmentId), true);
 
             mailSender.send(mimeMessage);
@@ -83,7 +83,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, Constants.ENCODING);
 
             helper.setTo(toEmail);
-            helper.setSubject("⏰ Appointment Reminder - Hospital Management System");
+            helper.setSubject("⏰ Appointment Reminder - Medi-care");
             helper.setText(buildAppointmentReminderEmail(patientName, doctorName, date, time, appointmentId), true);
 
             mailSender.send(mimeMessage);
@@ -108,7 +108,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, Constants.ENCODING);
 
             helper.setTo(toEmail);
-            helper.setSubject("🔄 Appointment Rescheduled - Hospital Management System");
+            helper.setSubject("🔄 Appointment Rescheduled - Medi-care");
             helper.setText(buildAppointmentRescheduleEmail(patientName, doctorName, date, time, appointmentId), true);
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment reschedule email to: {}", toEmail);
@@ -236,7 +236,7 @@ public class EmailService {
                             <p>Thank you for choosing our hospital. We look forward to serving you.</p>
                         </div>
                         <div class="footer">
-                            © %d Hospital Management System – All Rights Reserved
+                            © %d Medi-care – All Rights Reserved
                         </div>
                     </div>
                 </body>
@@ -351,7 +351,7 @@ public class EmailService {
                             <p>Thank you for choosing our hospital.</p>
                         </div>
                         <div class="footer">
-                            © %d Hospital Management System – All Rights Reserved
+                            © %d Medi-care – All Rights Reserved
                         </div>
                     </div>
                 </body>
@@ -475,7 +475,7 @@ public class EmailService {
                             <p>We look forward to seeing you!</p>
                         </div>
                         <div class="footer">
-                            © %d Hospital Management System – All Rights Reserved
+                            © %d Medi-care – All Rights Reserved
                         </div>
                     </div>
                 </body>
@@ -632,7 +632,7 @@ public class EmailService {
                                 <p>Thank you for choosing our hospital.</p>
                             </div>
                             <div class="footer">
-                                &copy; {{currentYear}} Hospital Management System – All Rights Reserved
+                                &copy; {{currentYear}} Medi-care – All Rights Reserved
                             </div>
                         </div>
                     </div>
@@ -648,6 +648,311 @@ public class EmailService {
                 .replace("{{doctorName}}", doctorName != null ? doctorName : "")
                 .replace("{{currentYear}}", String.valueOf(java.time.Year.now().getValue()));
     }
+
+    @Async
+    public void sendOtpEmail(String toEmail, String otp) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, Constants.ENCODING);
+
+            helper.setTo(toEmail);
+            helper.setSubject("🔐 Password Reset OTP - Medi-care");
+            helper.setText(buildOtpEmailTemplate(otp), true);
+
+            mailSender.send(mimeMessage);
+            log.info("Successfully sent OTP email to: {}", toEmail);
+        } catch (Exception e) {
+            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
+        }
+    }
+
+    private String buildOtpEmailTemplate(String otp) {
+        return """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <title>Password Reset OTP</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                            background-color: #f0f4f8;
+                            margin: 0;
+                            padding: 0;
+                            line-height: 1.6;
+                        }
+                        .wrapper {
+                            width: 100%%;
+                            background-color: #f0f4f8;
+                            padding: 40px 0;
+                        }
+                        .container {
+                            max-width: 580px;
+                            margin: 0 auto;
+                            background: #ffffff;
+                            border-radius: 16px;
+                            overflow: hidden;
+                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+                            border: 1px solid #e2e8f0;
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #1e3a8a 0%%, #3b82f6 100%%);
+                            color: #ffffff;
+                            padding: 35px 30px;
+                            text-align: center;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            font-size: 24px;
+                            font-weight: 700;
+                            letter-spacing: 0.5px;
+                        }
+                        .content {
+                            padding: 40px 35px;
+                            color: #1e293b;
+                        }
+                        .greeting {
+                            font-size: 18px;
+                            font-weight: 600;
+                            margin-bottom: 12px;
+                        }
+                        .text {
+                            font-size: 15px;
+                            color: #475569;
+                            margin-bottom: 25px;
+                        }
+                        .otp-card {
+                            background: #f8fafc;
+                            border: 2px dashed #cbd5e1;
+                            border-radius: 12px;
+                            padding: 25px;
+                            text-align: center;
+                            margin: 25px 0;
+                        }
+                        .otp-code {
+                            font-family: 'Courier New', Courier, monospace;
+                            font-size: 36px;
+                            font-weight: 800;
+                            letter-spacing: 8px;
+                            color: #2563eb;
+                            margin: 10px 0;
+                        }
+                        .otp-expiry {
+                            font-size: 13px;
+                            color: #64748b;
+                        }
+                        .warning-box {
+                            background-color: #fef2f2;
+                            border-left: 4px solid #ef4444;
+                            padding: 14px 18px;
+                            border-radius: 6px;
+                            font-size: 13px;
+                            color: #991b1b;
+                            margin-top: 25px;
+                        }
+                        .footer {
+                            background: #f8fafc;
+                            text-align: center;
+                            padding: 20px;
+                            font-size: 13px;
+                            color: #94a3b8;
+                            border-top: 1px solid #f1f5f9;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="wrapper">
+                        <div class="container">
+                            <div class="header">
+                                <h1>🏥 Medi-Care Verification</h1>
+                            </div>
+                            <div class="content">
+                                <div class="greeting">Password Reset Request</div>
+                                <div class="text">
+                                    We received a request to reset the password for your Medi-Care account. Use the OTP code below to verify your account identity:
+                                </div>
+                                <div class="otp-card">
+                                    <div class="otp-code">%s</div>
+                                    <div class="otp-expiry">⏳ This code will expire in <strong>5 minutes</strong>.</div>
+                                </div>
+                                <div class="warning-box">
+                                    <strong>🔒 Security Notice:</strong> If you did not request a password reset, please ignore this email or contact support immediately. Never share your OTP with anyone.
+                                </div>
+                            </div>
+                            <div class="footer">
+                                &copy; %d Medi-care – All Rights Reserved
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(otp, Year.now().getValue());
+    }
+
+    @Async
+    public void sendPasswordChangedEmail(String toEmail) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, Constants.ENCODING);
+
+            helper.setTo(toEmail);
+            helper.setSubject("🔑 Password Changed Successfully - Medi-Care");
+            helper.setText(buildPasswordChangedEmailTemplate(toEmail), true);
+
+            mailSender.send(mimeMessage);
+            log.info("Successfully sent password changed notification email to: {}", toEmail);
+        } catch (Exception e) {
+            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
+        }
+    }
+
+    private String buildPasswordChangedEmailTemplate(String toEmail) {
+        return """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <title>Password Changed Notification</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                            background-color: #f0f4f8;
+                            margin: 0;
+                            padding: 0;
+                            line-height: 1.6;
+                        }
+                        .wrapper {
+                            width: 100%%;
+                            background-color: #f0f4f8;
+                            padding: 40px 0;
+                        }
+                        .container {
+                            max-width: 580px;
+                            margin: 0 auto;
+                            background: #ffffff;
+                            border-radius: 16px;
+                            overflow: hidden;
+                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+                            border: 1px solid #e2e8f0;
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #059669 0%%, #10b981 100%%);
+                            color: #ffffff;
+                            padding: 35px 30px;
+                            text-align: center;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            font-size: 24px;
+                            font-weight: 700;
+                            letter-spacing: 0.5px;
+                        }
+                        .content {
+                            padding: 40px 35px;
+                            color: #1e293b;
+                        }
+                        .status-badge {
+                            display: inline-block;
+                            background-color: #d1fae5;
+                            color: #065f46;
+                            font-weight: 700;
+                            font-size: 14px;
+                            padding: 6px 16px;
+                            border-radius: 20px;
+                            margin-bottom: 20px;
+                        }
+                        .greeting {
+                            font-size: 18px;
+                            font-weight: 600;
+                            margin-bottom: 12px;
+                        }
+                        .text {
+                            font-size: 15px;
+                            color: #475569;
+                            margin-bottom: 25px;
+                        }
+                        .info-card {
+                            background: #f8fafc;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 12px;
+                            padding: 20px;
+                            margin: 20px 0;
+                        }
+                        .info-row {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 8px 0;
+                            border-bottom: 1px solid #f1f5f9;
+                            font-size: 14px;
+                        }
+                        .info-row:last-child {
+                            border-bottom: none;
+                        }
+                        .info-label {
+                            color: #64748b;
+                            font-weight: 600;
+                        }
+                        .info-value {
+                            color: #0f172a;
+                            font-weight: 600;
+                        }
+                        .alert-box {
+                            background-color: #fffbe6;
+                            border-left: 4px solid #d97706;
+                            padding: 14px 18px;
+                            border-radius: 6px;
+                            font-size: 13px;
+                            color: #92400e;
+                            margin-top: 25px;
+                        }
+                        .footer {
+                            background: #f8fafc;
+                            text-align: center;
+                            padding: 20px;
+                            font-size: 13px;
+                            color: #94a3b8;
+                            border-top: 1px solid #f1f5f9;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="wrapper">
+                        <div class="container">
+                            <div class="header">
+                                <h1>🏥 Medi-Care Security Notice</h1>
+                            </div>
+                            <div class="content">
+                                <span class="status-badge">✅ Password Changed</span>
+                                <div class="greeting">Hello,</div>
+                                <div class="text">
+                                    This email is to confirm that the password for your Medi-Care account has been successfully changed or updated.
+                                </div>
+                                <div class="info-card">
+                                    <div class="info-row">
+                                        <span class="info-label">Account Email:</span>
+                                        <span class="info-value">%s</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Status:</span>
+                                        <span class="info-value">Password Updated</span>
+                                    </div>
+                                </div>
+                                <div class="alert-box">
+                                    <strong>🚨 Did not make this change?</strong> If you did not update your password, please reset your password immediately using Forgot Password or contact support to secure your account.
+                                </div>
+                            </div>
+                            <div class="footer">
+                                &copy; %d Medi-care – All Rights Reserved
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(toEmail, Year.now().getValue());
+    }
 }
+
 
 

@@ -9,10 +9,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import com.care.medi.dtos.request.RefreshTokenRequestDTO;
+import com.care.medi.dtos.request.ForgotPasswordRequestDTO;
+import com.care.medi.dtos.request.VerifyOtpRequestDTO;
+import com.care.medi.dtos.request.ResetPasswordRequestDTO;
+import com.care.medi.dtos.request.UpdatePasswordRequestDTO;
 import com.care.medi.security.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -99,5 +105,49 @@ public class AuthController {
         servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
+    }
+
+    /**
+     * Initiates password reset by sending an OTP to the user's registered email via Kafka.
+     */
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Request password reset OTP via email")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("OTP sent to your email successfully", null));
+    }
+
+    /**
+     * Verifies account email OTP.
+     */
+    @PostMapping("/verify-otp")
+    @Operation(summary = "Verify account email OTP")
+    public ResponseEntity<ApiResponse<Void>> verifyOtp(@Valid @RequestBody VerifyOtpRequestDTO request) {
+        authService.verifyOtp(request);
+        return ResponseEntity.ok(ApiResponse.success("OTP verified successfully", null));
+    }
+
+    /**
+     * Resets the user's password using the verified OTP.
+     */
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password using OTP")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("Password reset successfully", null));
+    }
+
+    /**
+     * Updates the password for an authenticated user.
+     */
+    @PostMapping("/update-password")
+    @Operation(summary = "Update password for logged in user")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> updatePassword(
+            @Valid @RequestBody UpdatePasswordRequestDTO request,
+            Authentication authentication
+    ) {
+        authService.updatePassword(authentication.getName(), request);
+        return ResponseEntity.ok(ApiResponse.success("Password updated successfully", null));
     }
 }
