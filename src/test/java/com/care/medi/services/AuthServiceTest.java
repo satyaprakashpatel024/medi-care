@@ -13,10 +13,10 @@ import com.care.medi.exception.UserNotFoundException;
 import com.care.medi.repository.OtpTableRepository;
 import com.care.medi.repository.UsersRepository;
 import com.care.medi.services.kafka.EmailNotificationProducer;
+import com.care.medi.utils.Helpers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -69,7 +69,7 @@ class AuthServiceTest {
 
         verify(otpTableRepository).deleteByEmail("test@example.com");
         verify(otpTableRepository).save(any(OtpTable.class));
-        verify(emailNotificationProducer).sendOtpNotification(eq("test@example.com"), anyString());
+        verify(emailNotificationProducer).sendOtpNotification(eq(Helpers.getRecipientEmail("test@example.com")), anyString());
     }
 
     @Test
@@ -129,6 +129,7 @@ class AuthServiceTest {
         assertEquals("encoded_new_password", testUser.getPassword());
         verify(usersRepository).save(testUser);
         verify(otpTableRepository).deleteByEmail("test@example.com");
+        verify(emailNotificationProducer).sendPasswordChangedNotification(eq(Helpers.getRecipientEmail("test@example.com")));
     }
 
     @Test
@@ -143,6 +144,7 @@ class AuthServiceTest {
 
         assertEquals("encoded_new_pass", testUser.getPassword());
         verify(usersRepository).save(testUser);
+        verify(emailNotificationProducer).sendPasswordChangedNotification(eq(Helpers.getRecipientEmail("test@example.com")));
     }
 
     @Test

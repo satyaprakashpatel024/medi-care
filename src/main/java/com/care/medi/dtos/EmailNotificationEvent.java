@@ -21,6 +21,15 @@ public class EmailNotificationEvent implements Serializable {
     private String otp;
     private String eventType;
 
+    public EmailNotificationEvent(String toEmail, String patientName, String doctorName, String date, String time, Long appointmentId) {
+        this.toEmail = toEmail;
+        this.patientName = patientName;
+        this.doctorName = doctorName;
+        this.date = date;
+        this.time = time;
+        this.appointmentId = appointmentId;
+    }
+
     @Override
     public String toString() {
         return "EmailNotificationEvent{toEmail='%s', eventType='%s', patientName='%s', doctorName='%s', date='%s', time='%s', appointmentId=%s, otp='%s'}"

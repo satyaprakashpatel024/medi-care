@@ -54,13 +54,20 @@ public class Helpers {
         }
     }
 
-    public static String getRecipientEmail(Patient patientEntity) {
+    public static String getRecipientEmail(String email) {
         if (Helpers.isDevEnvironment) {
             // Dev/Test environment: Route everything to the developer group
             return devEmail;
         } else {
-            // Production environment: Send to the actual user who booked it
-            return patientEntity.getUser().getEmail();
+            // Production environment: Send to the actual user email
+            return email;
         }
+    }
+
+    public static String getRecipientEmail(Patient patientEntity) {
+        if (patientEntity == null || patientEntity.getUser() == null) {
+            return Helpers.isDevEnvironment ? devEmail : null;
+        }
+        return getRecipientEmail(patientEntity.getUser().getEmail());
     }
 }

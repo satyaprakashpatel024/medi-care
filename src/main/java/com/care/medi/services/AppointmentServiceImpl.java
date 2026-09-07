@@ -1,5 +1,6 @@
 package com.care.medi.services;
 
+import com.care.medi.dtos.EmailNotificationEvent;
 import com.care.medi.dtos.request.*;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
@@ -111,7 +112,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 9. Sent confirmation Email
         String recipientEmail = Helpers.getRecipientEmail(patientEntity);
         emailNotificationProducer.sendEmailNotification(
-                new com.care.medi.dtos.EmailNotificationEvent(
+                new EmailNotificationEvent(
                         recipientEmail,
                         String.format("%s %s", patientEntity.getFirstName(), patientEntity.getLastName()),
                         String.format("%s %s", doctor.getFirstName(), doctor.getLastName()),

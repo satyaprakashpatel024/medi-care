@@ -39,4 +39,19 @@ public class EmailNotificationProducer {
 
         System.out.println("OTP Event Published : " + event);
     }
+
+    public void sendPasswordChangedNotification(String toEmail) {
+        EmailNotificationEvent event = EmailNotificationEvent.builder()
+                .toEmail(toEmail)
+                .eventType("PASSWORD_CHANGED")
+                .build();
+
+        kafkaTemplate.send(
+                TOPIC,
+                toEmail,
+                event
+        );
+
+        System.out.println("Password Changed Event Published : " + event);
+    }
 }

@@ -1,35 +1,25 @@
 package com.care.medi.services;
 
-import com.care.medi.dtos.request.LoginRequestDTO;
-import com.care.medi.dtos.response.AuthResponse;
+import com.care.medi.dtos.request.*;
+import com.care.medi.entity.OtpTable;
 import com.care.medi.entity.Role;
 import com.care.medi.entity.Users;
 import com.care.medi.exception.InvalidCredentialsException;
-import com.care.medi.repository.DoctorRepository;
-import com.care.medi.repository.PatientRepository;
-import com.care.medi.repository.StaffRepository;
+import com.care.medi.exception.InvalidRequestException;
+import com.care.medi.exception.UserNotFoundException;
+import com.care.medi.repository.*;
 import com.care.medi.security.JwtService;
+import com.care.medi.services.kafka.EmailNotificationProducer;
+import com.care.medi.utils.Helpers;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.stereotype.Service;
-
-import com.care.medi.dtos.request.RefreshTokenRequestDTO;
-import com.care.medi.dtos.request.ForgotPasswordRequestDTO;
-import com.care.medi.dtos.request.VerifyOtpRequestDTO;
-import com.care.medi.dtos.request.ResetPasswordRequestDTO;
-import com.care.medi.dtos.request.UpdatePasswordRequestDTO;
-import com.care.medi.entity.OtpTable;
-import com.care.medi.exception.InvalidRequestException;
-import com.care.medi.exception.UserNotFoundException;
-import com.care.medi.repository.OtpTableRepository;
-import com.care.medi.repository.UsersRepository;
-import com.care.medi.services.kafka.EmailNotificationProducer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
@@ -152,7 +142,7 @@ public class AuthService {
                 .build();
         otpTableRepository.save(otpEntry);
 
-        emailNotificationProducer.sendOtpNotification(email, otp);
+        emailNotificationProducer.sendOtpNotification(Helpers.getRecipientEmail(email), otp);
         log.info("Sent forgot password OTP via Kafka to: {}", email);
     }
 
@@ -182,6 +172,7 @@ public class AuthService {
         usersRepository.save(user);
 
         otpTableRepository.deleteByEmail(request.getEmail());
+        emailNotificationProducer.sendPasswordChangedNotification(Helpers.getRecipientEmail(request.getEmail()));
         log.info("Password successfully reset for user: {}", request.getEmail());
     }
 
@@ -200,6 +191,8 @@ public class AuthService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         usersRepository.save(user);
+
+        emailNotificationProducer.sendPasswordChangedNotification(Helpers.getRecipientEmail(email));
         log.info("Password successfully updated for user: {}", email);
     }
 }
