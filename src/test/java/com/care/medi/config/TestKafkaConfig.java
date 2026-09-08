@@ -2,14 +2,13 @@ package com.care.medi.config;
 
 import com.care.medi.dtos.EmailNotificationEvent;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
-@TestConfiguration
+@Configuration
 @Profile("test")
 public class TestKafkaConfig {
 
