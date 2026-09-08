@@ -23,7 +23,8 @@ public record DoctorListResponseDTO(
         String departmentName,
         String emergencyContact,
         ZonedDateTime createdAt,
-        ZonedDateTime updatedAt) {
+        ZonedDateTime updatedAt) implements java.io.Serializable {
+
     public static DoctorListResponseDTO toDoctorListResponse(Doctor d) {
         return DoctorListResponseDTO.builder()
                 .id(d.getId())

@@ -19,7 +19,8 @@ public record AppointmentListResponseDTO(
         String appointmentDate,
         AppointmentStatus status,
         String appointmentTime
-) {
+) implements java.io.Serializable {
+
 
     // Constructor called by JPQL — receives raw ZonedDateTime, formats it
     public AppointmentListResponseDTO(

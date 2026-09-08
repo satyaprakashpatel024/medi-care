@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdatePasswordRequestDTO {
+public class UpdatePasswordRequestDTO implements java.io.Serializable {
+
 
     @NotBlank(message = "Current password is required")
     private String currentPassword;

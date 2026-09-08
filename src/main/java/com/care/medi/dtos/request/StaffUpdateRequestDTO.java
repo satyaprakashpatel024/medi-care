@@ -15,7 +15,8 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StaffUpdateRequestDTO {
+public class StaffUpdateRequestDTO implements java.io.Serializable {
+
     @Size(max = 100)
     private String firstName;
     @Size(max = 100)

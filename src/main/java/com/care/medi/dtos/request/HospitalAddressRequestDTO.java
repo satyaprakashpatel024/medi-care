@@ -10,7 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HospitalAddressRequestDTO {
+public class HospitalAddressRequestDTO implements java.io.Serializable {
+
 
     @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
             message = "Invalid phone number, Please provide valid Indian Phone number.")

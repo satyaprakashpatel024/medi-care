@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PrescriptionRequestDTO {
+public class PrescriptionRequestDTO implements java.io.Serializable {
+
     @NotNull(message = "Patient ID is required.")
     private Long patientId;
     @NotNull(message = "Appointment ID is required.")

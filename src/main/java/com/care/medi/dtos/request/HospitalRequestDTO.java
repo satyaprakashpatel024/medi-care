@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HospitalRequestDTO {
+public class HospitalRequestDTO implements java.io.Serializable {
+
     @NotBlank
     @Size(max = 255)
     private String name;

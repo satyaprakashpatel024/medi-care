@@ -14,7 +14,8 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DoctorUpdateRequestDTO {
+public class DoctorUpdateRequestDTO implements java.io.Serializable {
+
     @Size(min = 5, max = 100, message = "First name must be between 5 and 100 characters.")
     private String firstName;
     @Size(min = 5, max = 100, message = "Last name must be between 5 and 100 characters.")

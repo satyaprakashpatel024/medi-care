@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserStatusUpdateRequestDTO {
+public class UserStatusUpdateRequestDTO implements java.io.Serializable {
+
     @NotNull(message = "isActive flag is required")
     private Boolean isActive;
 }

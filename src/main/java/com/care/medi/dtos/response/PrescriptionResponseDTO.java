@@ -14,7 +14,8 @@ public record PrescriptionResponseDTO(
         String medications,
         String dosageInstructions,
         String notes
-) {
+) implements java.io.Serializable {
+
     public static PrescriptionResponseDTO fromEntity(Prescription prescription) {
         return PrescriptionResponseDTO.builder()
                 .id(prescription.getId())

@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppointmentUpdateRequestDTO {
+public class AppointmentUpdateRequestDTO implements java.io.Serializable {
+
     @NotNull(message = "Prescription is required.")
     PrescriptionRequestDTO prescription;
     @Pattern(regexp = "^(SCHEDULED|COMPLETED|CANCELLED|NO_SHOW)$")

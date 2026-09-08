@@ -20,7 +20,8 @@ public record PatientListResponseDTO(
         String emergencyContact,
         String bloodGroup,
         ZonedDateTime createdAt
-) {
+) implements java.io.Serializable {
+
     public static PatientListResponseDTO fromEntity(Patient patient) {
         return PatientListResponseDTO
                 .builder()

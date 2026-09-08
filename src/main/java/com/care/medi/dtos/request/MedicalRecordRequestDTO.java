@@ -11,7 +11,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MedicalRecordRequestDTO {
+public class MedicalRecordRequestDTO implements java.io.Serializable {
+
 
     @NotNull(message = "Patient ID is required")
     @Min(value = 1, message = "Patient ID must be a positive number")

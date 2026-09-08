@@ -1,5 +1,8 @@
 package com.care.medi.services;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+
 import com.care.medi.dtos.request.StaffRequestDTO;
 import com.care.medi.dtos.request.StaffUpdateRequestDTO;
 import com.care.medi.dtos.response.StaffResponseDTO;
@@ -29,6 +32,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"staff", "staffList"}, allEntries = true)
     public StaffResponseDTO createStaff(Long hospitalId, StaffRequestDTO request) {
         if (usersRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException("User already exists with email: " + request.getEmail());
@@ -56,12 +60,14 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    @Cacheable(value = "staffList")
     public Page<StaffResponseDTO> getAllStaff(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return staffRepository.findAll(pageable).map(this::mapToResponse);
     }
 
     @Override
+    @Cacheable(value = "staffList")
     public Page<StaffResponseDTO> getStaffByHospital(Long hospitalId, int page, int size, String sortBy) {
         if (!hospitalRepository.existsById(hospitalId)) {
             throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId);
@@ -71,6 +77,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    @Cacheable(value = "staff", key = "#id")
     public StaffResponseDTO getStaffById(Long id) {
         Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Staff not found with ID: " + id));
@@ -79,6 +86,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"staff", "staffList"}, allEntries = true)
     public StaffResponseDTO updateStaff(Long id, StaffUpdateRequestDTO request) {
         Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Staff not found with ID: " + id));
@@ -96,6 +104,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"staff", "staffList"}, allEntries = true)
     public void deleteStaff(Long id) {
         Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Staff not found with ID: " + id));

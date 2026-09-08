@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HospitalUpdateRequestDTO {
+public class HospitalUpdateRequestDTO implements java.io.Serializable {
+
     @Size(max = 255)
     private String name;
     @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",

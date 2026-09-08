@@ -12,5 +12,6 @@ public record SystemKpiResponseDTO(
         long totalStaff,
         long totalAppointmentsToday,
         long totalDepartments
-) {
+) implements java.io.Serializable {
+
 }

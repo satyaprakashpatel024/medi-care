@@ -1,5 +1,8 @@
 package com.care.medi.services;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+
 import com.care.medi.dtos.request.DepartmentRequestDTO;
 import com.care.medi.dtos.response.DepartmentResponseDTO;
 import com.care.medi.entity.Department;
@@ -24,6 +27,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 //    private final
 
     @Override
+    @Cacheable(value = "departmentsList")
     public Page<DepartmentResponseDTO> getAllDepartments(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Department> all = departmentRepository.findAll(pageable);
@@ -32,6 +36,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"departments", "departmentsList"}, allEntries = true)
     public DepartmentResponseDTO createDepartment(DepartmentRequestDTO departmentRequestDTO) {
         if (departmentRepository.existsByName(departmentRequestDTO.getName())) {
             throw new DuplicateResourceException("Department already exists with this name.");
@@ -45,6 +50,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    @Cacheable(value = "departments", key = "#id")
     public DepartmentResponseDTO getDepartmentById(Long id) {
         Optional<Department> byId = departmentRepository.findById(id);
         if (byId.isPresent()) {
@@ -54,6 +60,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    @CacheEvict(value = {"departments", "departmentsList"}, allEntries = true)
     public DepartmentResponseDTO updateDepartment(Long id, DepartmentRequestDTO request) {
         Department byId = departmentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Department with id: " + id + " not found."));
         if (request.getName() != null) {

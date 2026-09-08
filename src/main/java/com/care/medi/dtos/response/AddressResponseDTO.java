@@ -21,6 +21,7 @@ public record AddressResponseDTO(
         String addressType,
         Boolean isDefault,
         ZonedDateTime updatedAt
-) {
+) implements java.io.Serializable {
+
 }
 

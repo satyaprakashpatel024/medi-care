@@ -6,7 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.TimeZone;
 
+import org.springframework.cache.annotation.EnableCaching;
+
 @SpringBootApplication
+@EnableCaching
 public class MediCareApplication {
 
     public static void main(String[] args) {

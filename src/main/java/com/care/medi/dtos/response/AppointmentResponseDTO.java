@@ -23,7 +23,8 @@ public record AppointmentResponseDTO(
         String status,
         String treatment,
         String notes,
-        String updatedAt) {
+        String updatedAt) implements java.io.Serializable {
+
 
 
     public static AppointmentResponseDTO fromEntity(Appointment appointment) {

@@ -22,7 +22,8 @@ public record PatientResponseDTO(
         String bloodGroup,
         ZonedDateTime updatedAt,
         Set<AppointmentResponseDTO> appointments
-) {
+) implements java.io.Serializable {
+
     // ── Helper methods ──────────────────────────────────────────────
     public static PatientResponseDTO fromEntity(Patient patient) {
         return PatientResponseDTO

@@ -15,7 +15,8 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MedicalRecordListResponseDTO {
+public class MedicalRecordListResponseDTO implements java.io.Serializable {
+
 
     private Long id;
     private Long patientId;

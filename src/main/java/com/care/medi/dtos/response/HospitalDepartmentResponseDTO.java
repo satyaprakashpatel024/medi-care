@@ -14,7 +14,7 @@ public record HospitalDepartmentResponseDTO(
         Boolean active,
         String headDoctorName,
         String departmentName
-) {
+) implements java.io.Serializable {
 
     public static HospitalDepartmentResponseDTO fromEntity(HospitalDepartment hd) {
         return HospitalDepartmentResponseDTO.builder()

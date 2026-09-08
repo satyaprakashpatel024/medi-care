@@ -10,7 +10,8 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InsuranceRequestDTO {
+public class InsuranceRequestDTO implements java.io.Serializable {
+
     @NotBlank(message = "Provider name cannot be empty")
     private String providerName;
 

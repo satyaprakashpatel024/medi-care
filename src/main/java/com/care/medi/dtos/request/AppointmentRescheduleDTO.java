@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AppointmentRescheduleDTO {
+public class AppointmentRescheduleDTO implements java.io.Serializable {
+
     @NotNull(message = "Appointment date is required.")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private String appointmentDate;

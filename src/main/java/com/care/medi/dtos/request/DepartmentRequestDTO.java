@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepartmentRequestDTO {
+public class DepartmentRequestDTO implements java.io.Serializable {
+
     @NotNull(message = "Description is required.")
     String description;
     @NotBlank(message = "Department Name is required.")

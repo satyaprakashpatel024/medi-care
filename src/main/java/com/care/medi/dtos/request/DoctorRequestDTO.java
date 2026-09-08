@@ -12,7 +12,8 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DoctorRequestDTO {
+public class DoctorRequestDTO implements java.io.Serializable {
+
     @NotNull(message = "Email is required.")
     @Email(message = "Invalid email format.")
     private String email;

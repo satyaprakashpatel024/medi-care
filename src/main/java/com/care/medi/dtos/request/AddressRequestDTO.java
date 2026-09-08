@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddressRequestDTO {
+public class AddressRequestDTO implements java.io.Serializable {
+
     @Pattern(
             regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
             message = "Invalid Indian phone number"

@@ -10,7 +10,8 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MedicalRecordResponseDTO {
+public class MedicalRecordResponseDTO implements java.io.Serializable {
+
 
     private Long id;
 

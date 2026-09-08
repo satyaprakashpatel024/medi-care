@@ -8,7 +8,8 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 @Data
-public class HospitalDepartmentRequestDTO {
+public class HospitalDepartmentRequestDTO implements java.io.Serializable {
+
     @NotNull(message = "Head Doctor ID is required.")
     Long headDoctorId;
 

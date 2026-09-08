@@ -83,7 +83,7 @@ public class AppointmentController {
         LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
         Page<AppointmentSummaryResponseDTO> allAppointments = appointmentService.getAllAppointmentsByHospitalAndDate(hospitalId, page, size, sortBy, filterDate);
         String msg = String.format("Successfully retrieved %s appointments for Hospital ID %d on %s.",
-                allAppointments.getTotalElements(), hospitalId, filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+                allAppointments.getTotalElements(), hospitalId, filterDate.format(Constants.SHORT_DATE_FORMAT));
         return ResponseEntity.ok(ApiResponse.success(msg, allAppointments));
     }
 
@@ -117,7 +117,7 @@ public class AppointmentController {
         String msg = String.format("Found %d %s appointments for %s.",
                 appointmentPage.getNumberOfElements(),
                 status.name().toLowerCase(),
-                filterDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+                filterDate.format(Constants.SHORT_DATE_FORMAT));
 
         return ResponseEntity.ok(ApiResponse.success(msg, appointmentPage));
     }

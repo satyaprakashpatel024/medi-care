@@ -13,5 +13,6 @@ public record HospitalStatsResponseDTO(
         long totalStaffCount,
         long appointmentsTodayCount,
         long completedAppointmentsCount
-) {
+) implements java.io.Serializable {
+
 }

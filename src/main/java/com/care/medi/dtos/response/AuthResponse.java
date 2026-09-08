@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthResponse {
+public class AuthResponse implements java.io.Serializable {
+
     private String refreshToken;
     private String role;
+    private Long expiresIn;
 }

@@ -1,5 +1,8 @@
 package com.care.medi.services;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+
 import com.care.medi.dtos.request.InsuranceRequestDTO;
 import com.care.medi.dtos.request.PatientRequestDTO;
 import com.care.medi.dtos.request.PatientUpdateRequestDTO;
@@ -34,6 +37,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional(readOnly = true)
     @Override
+    @Cacheable(value = "patients", key = "#patientId")
     public PatientResponseDTO getPatientByIdAndHospitalId(long hospitalId, Long patientId) {
         Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
         if (byId.isEmpty()) {
@@ -44,6 +48,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"patients", "patientsList"}, allEntries = true)
     public PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient) {
         if (usersRepository.existsByEmail(patient.getEmail())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_EMAIL + patient.getEmail());
@@ -56,6 +61,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"patients", "patientsList"}, allEntries = true)
     public PatientResponseDTO updatePatientInHospital(Long patientId, Long hospitalId, PatientUpdateRequestDTO patientDTO) {
         // 1. Fetch the existing entity
         Patient existingPatient = patientRepository.findByIdAndHospitalId(patientId, hospitalId)
@@ -93,6 +99,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"patients", "patientsList"}, allEntries = true)
     public void deletePatientFromHospital(Long patientId, Long hospitalId) {
         Patient patient = patientRepository.findByIdAndHospitalId(patientId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
@@ -127,6 +134,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    @Cacheable(value = "patientsList")
     public Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy) {
         if (!hospitalService.existsById(hospitalId)) {
             throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId);

@@ -58,6 +58,7 @@ public class AuthController {
         AuthResponse authResponse = AuthResponse.builder()
                 .refreshToken(tokens.refreshToken())
                 .role(tokens.role())
+                .expiresIn(jwtService.getJwtExpiration())
                 .build();
 
         return ResponseEntity.ok(ApiResponse.success("Login successful", authResponse));
@@ -85,6 +86,7 @@ public class AuthController {
         AuthResponse authResponse = AuthResponse.builder()
                 .refreshToken(tokens.refreshToken())
                 .role(tokens.role())
+                .expiresIn(jwtService.getJwtExpiration())
                 .build();
 
         return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", authResponse));

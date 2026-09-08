@@ -6,7 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class LoginRequestDTO {
+public class LoginRequestDTO implements java.io.Serializable {
+
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;

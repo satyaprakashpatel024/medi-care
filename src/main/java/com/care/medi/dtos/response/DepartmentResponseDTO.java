@@ -10,7 +10,8 @@ public record DepartmentResponseDTO(
         Long id,
         String name,
         String description
-) {
+) implements java.io.Serializable {
+
     public static DepartmentResponseDTO fromEntity(Department department) {
         return DepartmentResponseDTO.builder()
                 .id(department.getId())

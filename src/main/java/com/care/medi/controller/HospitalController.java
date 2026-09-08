@@ -40,7 +40,6 @@ public class HospitalController {
      * a {@link Page} of {@link HospitalListResponseDTO}
      */
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Page<HospitalListResponseDTO>>> getAllHospitals(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -57,7 +56,6 @@ public class HospitalController {
      *         the {@link HospitalResponseDTO}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> getHospitalById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(ApiResponse.success("Hospital fetched successfully", hospitalService.getHospitalById(id)));
     }

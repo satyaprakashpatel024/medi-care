@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefreshTokenRequestDTO {
+public class RefreshTokenRequestDTO implements java.io.Serializable {
+
     @NotBlank(message = "Refresh token is required")
     private String refreshToken;
 }

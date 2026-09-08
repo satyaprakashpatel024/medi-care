@@ -21,5 +21,6 @@ public record StaffResponseDTO(
         String emergencyContact,
         String bloodType,
         ZonedDateTime updatedAt
-) {
+) implements java.io.Serializable {
+
 }

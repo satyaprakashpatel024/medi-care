@@ -16,7 +16,8 @@ public record UserResponseDTO(
         Boolean isActive,
         OffsetDateTime lastLogin,
         OffsetDateTime createdAt
-) {
+) implements java.io.Serializable {
+
     public static UserResponseDTO fromEntity(Users user) {
         return UserResponseDTO.builder()
                 .id(user.getId())

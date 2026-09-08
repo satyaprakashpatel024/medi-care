@@ -22,7 +22,8 @@ public record InsuranceResponseDTO(
         String status,
         String providerContactEmail,
         String providerPhoneNumber
-) {
+) implements java.io.Serializable {
+
     public static InsuranceResponseDTO fromEntity(Insurance insurance) {
         return InsuranceResponseDTO.builder()
                 .id(insurance.getId())

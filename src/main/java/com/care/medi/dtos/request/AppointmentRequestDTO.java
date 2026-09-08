@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppointmentRequestDTO {
+public class AppointmentRequestDTO implements java.io.Serializable {
+
     @NotNull(message = "Patient is required.")
     private PatientRequestDTO patient;
     @NotNull(message = "Doctor is required")

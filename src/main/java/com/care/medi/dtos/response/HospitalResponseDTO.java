@@ -14,7 +14,7 @@ public record HospitalResponseDTO(
         String phone,
         Set<HospitalAddressResponseDTO> address,
         Set<HospitalDepartmentResponseDTO> departments
-) {
+) implements java.io.Serializable {
     public static HospitalResponseDTO fromEntity(Hospital entity) {
         return HospitalResponseDTO.builder()
                 .id(entity.getId())

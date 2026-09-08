@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VerifyOtpRequestDTO {
+public class VerifyOtpRequestDTO implements java.io.Serializable {
+
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")

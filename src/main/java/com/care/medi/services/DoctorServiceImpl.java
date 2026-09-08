@@ -1,5 +1,8 @@
 package com.care.medi.services;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+
 import com.care.medi.dtos.request.DoctorRequestDTO;
 import com.care.medi.dtos.request.DoctorUpdateRequestDTO;
 import com.care.medi.dtos.response.AddressResponseDTO;
@@ -41,6 +44,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"doctors", "doctorsList"}, allEntries = true)
     public DoctorResponseDTO createDoctorInHospital(Long hospitalId, DoctorRequestDTO request) {
 
         if (usersRepository.existsByEmail(request.getEmail())) {
@@ -65,6 +69,7 @@ public class DoctorServiceImpl implements DoctorService {
     // ── Read ──────────────────────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = "doctorsList")
     public Page<DoctorListResponseDTO> getAllActiveDoctorsByHospital(Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Doctor> byHospitalId = doctorRepository.findByHospitalIdAndIsActiveTrue(hospitalId, pageable);
@@ -72,6 +77,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Cacheable(value = "doctorsList")
     public Page<DoctorListResponseDTO> getActiveDoctorsByDepartmentAndHospital(Long departmentId, Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Doctor> byDepartmentId = doctorRepository.findByHospitalIdAndDepartmentIdAndIsActiveTrue(hospitalId, departmentId, pageable);
@@ -79,6 +85,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Cacheable(value = "doctorsList")
     public Page<DoctorListResponseDTO> getActiveDoctorsBySpecialityAndHospital(String speciality, Long hospitalId, int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Doctor> bySpeciality = doctorRepository.findByHospitalIdAndSpecialityContainingIgnoreCaseAndIsActiveTrue(hospitalId, speciality, pageable);
@@ -86,6 +93,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Cacheable(value = "doctors", key = "#id")
     public DoctorResponseDTO getDoctorByIdAndHospital(Long id, Long hospitalId) {
         Doctor doctor = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(id, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
@@ -94,6 +102,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Cacheable(value = "doctorsList")
     public Page<DoctorListResponseDTO> getAllActiveDoctors(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Doctor> doctors = doctorRepository.findByIsActiveTrue(pageable);
@@ -112,6 +121,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"doctors", "doctorsList"}, allEntries = true)
     public DoctorResponseDTO updateDoctorByIdAndHospital(Long id, Long hospitalId, DoctorUpdateRequestDTO request) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(Constants.DOCTOR_NOT_FOUND, id, hospitalId)));
@@ -143,6 +153,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"doctors", "doctorsList"}, allEntries = true)
     public void deleteDoctorByIdAndHospital(Long doctorId, Long hospitalId) {
         Doctor byId = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(doctorId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + doctorId));

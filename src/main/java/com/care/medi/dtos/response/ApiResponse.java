@@ -18,7 +18,8 @@ public record ApiResponse<T>(
         HttpStatus status,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime timestamp
-) {
+) implements java.io.Serializable {
+
 
     // -------------------------------------------------------------------------
     // Static Factory Methods for Clean Instantiation

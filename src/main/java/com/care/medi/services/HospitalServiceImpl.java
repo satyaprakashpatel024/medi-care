@@ -1,5 +1,8 @@
 package com.care.medi.services;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+
 import com.care.medi.dtos.request.HospitalAddressRequestDTO;
 import com.care.medi.dtos.request.HospitalRequestDTO;
 import com.care.medi.dtos.request.HospitalUpdateRequestDTO;
@@ -41,6 +44,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"hospitals", "hospitalsList"}, allEntries = true)
     public HospitalResponseDTO createHospital(HospitalRequestDTO request) {
         Hospital hospital = Hospital.builder()
                 .name(request.getName())
@@ -57,12 +61,14 @@ public class HospitalServiceImpl implements HospitalService {
     // ── Read ──────────────────────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = "hospitals", key = "#id")
     public HospitalResponseDTO getHospitalById(Long id) {
         Hospital hospital = hospitalRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + id));
         return HospitalResponseDTO.fromEntity(hospital);
     }
 
+    @Cacheable(value = "hospitalsList")
     public Page<HospitalListResponseDTO> getAllHospitals(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Hospital> hospitals = hospitalRepository.findAll(pageable);
@@ -73,6 +79,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"hospitals", "hospitalsList"}, allEntries = true)
     public HospitalResponseDTO updateHospital(Long id, HospitalUpdateRequestDTO request) {
         Hospital hospital = hospitalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + id));
@@ -86,6 +93,7 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Transactional
+    @CacheEvict(value = {"hospitals", "hospitalsList"}, allEntries = true)
     public HospitalResponseDTO assignAddressToHospital(Long id, HospitalAddressRequestDTO addressRequest) {
         Hospital hospital = hospitalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + id));
@@ -98,6 +106,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"hospitals", "hospitalsList"}, allEntries = true)
     public void assignDepartment(Long hospitalId, Long departmentId) throws BusinessException {
         Hospital hospital = hospitalRepository.findById(hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId));
@@ -113,6 +122,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"hospitals", "hospitalsList"}, allEntries = true)
     public void removeDepartment(Long hospitalId, Long departmentId) throws BusinessException {
         HospitalDepartment hd = hospitalDepartmentRepository
                 .findByHospitalIdAndDepartmentId(hospitalId, departmentId)
@@ -124,6 +134,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Transactional
     @Override
+    @CacheEvict(value = {"hospitals", "hospitalsList"}, allEntries = true)
     public void deleteHospital(Long id) {
         if (!hospitalRepository.existsById(id)) {
             throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + id);

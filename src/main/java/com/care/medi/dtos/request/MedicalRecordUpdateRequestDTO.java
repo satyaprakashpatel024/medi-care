@@ -12,7 +12,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MedicalRecordUpdateRequestDTO {
+public class MedicalRecordUpdateRequestDTO implements java.io.Serializable {
+
 
     @Size(min = 5, max = 1000, message = "Diagnosis must be between 5 and 1000 characters")
     private String diagnosis;

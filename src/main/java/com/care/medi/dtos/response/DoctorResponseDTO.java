@@ -27,7 +27,8 @@ public record DoctorResponseDTO(
         ZonedDateTime createdAt,
         ZonedDateTime updatedAt,
         List<AddressResponseDTO> addresses
-) {
+) implements java.io.Serializable {
+
 
     public static DoctorResponseDTO toResponse(Doctor d, List<AddressResponseDTO> addresses) {
         return DoctorResponseDTO.builder()

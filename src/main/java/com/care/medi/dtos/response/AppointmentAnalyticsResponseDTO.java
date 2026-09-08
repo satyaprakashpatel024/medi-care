@@ -12,5 +12,6 @@ public record AppointmentAnalyticsResponseDTO(
         long confirmedCount,
         long completedCount,
         long cancelledCount
-) {
+) implements java.io.Serializable {
+
 }

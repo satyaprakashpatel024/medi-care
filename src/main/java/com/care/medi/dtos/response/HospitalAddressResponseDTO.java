@@ -21,7 +21,7 @@ public record HospitalAddressResponseDTO(
         String country,
         String landmark,
         ZonedDateTime updatedAt
-) {
+) implements java.io.Serializable {
     public static HospitalAddressResponseDTO fromEntity(HospitalAddress address) {
         return HospitalAddressResponseDTO.builder()
                 .id(address.getId())
