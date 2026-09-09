@@ -14,6 +14,7 @@ public class HospitalDepartmentRequestDTO implements java.io.Serializable {
     Long headDoctorId;
 
     @NotNull(message = "Active is required.")
+    @Builder.Default
     Boolean active = true;
 
     @NotNull(message = "Department ID is required.")

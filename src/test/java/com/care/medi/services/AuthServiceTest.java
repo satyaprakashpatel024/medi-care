@@ -1,17 +1,14 @@
 package com.care.medi.services;
 
-import com.care.medi.dtos.request.ForgotPasswordRequestDTO;
-import com.care.medi.dtos.request.ResetPasswordRequestDTO;
-import com.care.medi.dtos.request.UpdatePasswordRequestDTO;
-import com.care.medi.dtos.request.VerifyOtpRequestDTO;
+import com.care.medi.dtos.request.*;
 import com.care.medi.entity.OtpTable;
 import com.care.medi.entity.Role;
 import com.care.medi.entity.Users;
 import com.care.medi.exception.InvalidCredentialsException;
 import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.UserNotFoundException;
-import com.care.medi.repository.OtpTableRepository;
-import com.care.medi.repository.UsersRepository;
+import com.care.medi.repository.*;
+import com.care.medi.security.JwtService;
 import com.care.medi.services.kafka.EmailNotificationProducer;
 import com.care.medi.utils.Helpers;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +17,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.ZonedDateTime;
@@ -45,6 +47,24 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private AuthenticationManager authenticationManager;
+
+    @Mock
+    private JwtService jwtService;
+
+    @Mock
+    private UserDetailsService userDetailsService;
+
+    @Mock
+    private DoctorRepository doctorRepository;
+
+    @Mock
+    private PatientRepository patientRepository;
+
+    @Mock
+    private StaffRepository staffRepository;
+
     @InjectMocks
     private AuthService authService;
 
@@ -58,6 +78,65 @@ class AuthServiceTest {
                 .role(Role.PATIENT)
                 .isActive(true)
                 .build();
+    }
+
+    @Test
+    void testLogin_Success() {
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setEmail("test@example.com");
+        request.setPassword("password");
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(testUser);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
+        testUser.setId(1L);
+        when(patientRepository.findHospitalIdByUser(1L)).thenReturn(Optional.of(100L));
+
+        when(jwtService.generateToken(anyMap(), eq(testUser))).thenReturn("access_token");
+        when(jwtService.generateRefreshToken(anyMap(), eq(testUser))).thenReturn("refresh_token");
+
+        AuthService.AuthTokens tokens = authService.login(request);
+
+        assertEquals("access_token", tokens.accessToken());
+        assertEquals("refresh_token", tokens.refreshToken());
+        assertEquals("PATIENT", tokens.role());
+    }
+
+    @Test
+    void testLogin_BadCredentials() {
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setEmail("test@example.com");
+        request.setPassword("wrong_password");
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new BadCredentialsException("Bad credentials"));
+
+        assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
+    }
+
+    @Test
+    void testRefresh_Success() {
+        RefreshTokenRequestDTO request = new RefreshTokenRequestDTO("refresh_token");
+        when(jwtService.extractUsername("refresh_token")).thenReturn("test@example.com");
+        when(userDetailsService.loadUserByUsername("test@example.com")).thenReturn(testUser);
+        when(jwtService.isTokenValid("refresh_token", testUser)).thenReturn(true);
+        testUser.setId(1L);
+        when(patientRepository.findHospitalIdByUser(1L)).thenReturn(Optional.of(100L));
+
+        when(jwtService.generateToken(anyMap(), eq(testUser))).thenReturn("new_access_token");
+        when(jwtService.generateRefreshToken(anyMap(), eq(testUser))).thenReturn("new_refresh_token");
+
+        AuthService.AuthTokens tokens = authService.refresh(request);
+
+        assertEquals("new_access_token", tokens.accessToken());
+        assertEquals("new_refresh_token", tokens.refreshToken());
+        assertEquals("PATIENT", tokens.role());
+    }
+
+    @Test
+    void testRefresh_InvalidToken() {
+        RefreshTokenRequestDTO request = new RefreshTokenRequestDTO("invalid_token");
+        when(jwtService.extractUsername("invalid_token")).thenThrow(new RuntimeException("Invalid token"));
+
+        assertThrows(InvalidCredentialsException.class, () -> authService.refresh(request));
     }
 
     @Test

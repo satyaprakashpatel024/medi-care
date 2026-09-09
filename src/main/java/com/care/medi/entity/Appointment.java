@@ -8,15 +8,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Schema(hidden = true)
@@ -73,6 +72,7 @@ public class Appointment extends BaseEntity {
     @NotNull(message = "Status is required")
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private AppointmentStatus status = AppointmentStatus.SCHEDULED;
 
     @Size(max = 500)

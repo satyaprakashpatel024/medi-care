@@ -4,11 +4,10 @@ import com.care.medi.dtos.request.InsuranceRequestDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-
-import java.time.LocalDate;
-
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "insurances",

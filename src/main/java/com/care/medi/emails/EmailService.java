@@ -1,7 +1,6 @@
 package com.care.medi.emails;
 
 import com.care.medi.utils.Constants;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +37,7 @@ public class EmailService {
 
             mailSender.send(mimeMessage);
             log.info("Appointment confirmation email sent to: {}", toEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
 //            e.printStackTrace();
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
         }
@@ -63,7 +62,7 @@ public class EmailService {
 
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment cancellation email sent to: {}", toEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
 //            e.printStackTrace();
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
         }
@@ -88,7 +87,7 @@ public class EmailService {
 
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment reminder email sent to: {}", toEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
 //            e.printStackTrace();
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
         }

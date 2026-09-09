@@ -5,8 +5,10 @@ import com.care.medi.dtos.request.PatientRequestDTO;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
+import com.care.medi.dtos.response.PatientResponseDTO;
 import com.care.medi.entity.*;
 import com.care.medi.exception.ResourceNotFoundException;
+import com.care.medi.exception.ResourceValidationException;
 import com.care.medi.repository.*;
 import com.care.medi.services.kafka.EmailNotificationProducer;
 import org.junit.jupiter.api.BeforeEach;
@@ -115,7 +117,7 @@ class AppointmentServiceImplTest {
         appointmentRequestDTO.setDoctorId(1L);
         appointmentRequestDTO.setDepartmentId(1L);
         appointmentRequestDTO.setAppointmentDate("2024-12-25");
-        appointmentRequestDTO.setAppointmentTime("10:00");
+        appointmentRequestDTO.setAppointmentTime("10:00 AM");
 
         PatientRequestDTO patientReq = new PatientRequestDTO();
         patientReq.setEmail("newpatient@test.com");
@@ -229,18 +231,110 @@ class AppointmentServiceImplTest {
         verify(appointmentRepository).findByIdAndHospitalId(1L, 1L);
     }
 
-//     @Test
-//     @DisplayName("Should update appointment status successfully")
-//     void testUpdateAppointmentStatus_Success() {
-//         when(appointmentRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
-//         when(appointmentRepository.save(any(Appointment.class))).thenReturn(testAppointment);
+    @Test
+    @DisplayName("Should create appointment successfully")
+    void testCreateAppointment_Success() {
+        when(hospitalRepository.existsById(1L)).thenReturn(true);
+        when(doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(1L, 1L))
+                .thenReturn(Optional.of(testDoctor));
+        when(departmentRepository.findById(1L)).thenReturn(Optional.of(testDepartment));
 
-//         AppointmentResponseDTO result = appointmentService.updateAppointmentStatus(1L, AppointmentStatus.COMPLETED);
+        PatientResponseDTO mockPatientRes = PatientResponseDTO.builder().id(1L).build();
+        when(patientService.createPatientInHospital(eq(1L), any(PatientRequestDTO.class))).thenReturn(mockPatientRes);
+        when(patientRepository.findById(1L)).thenReturn(Optional.of(testPatient));
+        when(appointmentRepository.existsConflictingAppointment(any(Long.class), any(Long.class), any(), any(), any())).thenReturn(false);
+        when(appointmentRepository.save(any(Appointment.class))).thenReturn(testAppointment);
 
-//         assertNotNull(result);
-//         verify(appointmentRepository).findById(1L);
-//         verify(appointmentRepository).save(any(Appointment.class));
-//     }
+        AppointmentResponseDTO result = appointmentService.createAppointment(1L, appointmentRequestDTO);
+
+        assertNotNull(result);
+        verify(appointmentRepository).save(any(Appointment.class));
+        verify(emailNotificationProducer).sendEmailNotification(any());
+    }
+
+    @Test
+    @DisplayName("Should throw ResourceValidationException when creating appointment with missing hospital")
+    void testCreateAppointment_HospitalNotFound() {
+        when(hospitalRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(ResourceValidationException.class, () -> appointmentService.createAppointment(1L, appointmentRequestDTO));
+    }
+
+    @Test
+    @DisplayName("Should update appointment successfully")
+    void testUpdateAppointment_Success() {
+        com.care.medi.dtos.request.AppointmentUpdateRequestDTO updateReq = new com.care.medi.dtos.request.AppointmentUpdateRequestDTO();
+        updateReq.setStatus("COMPLETED");
+        updateReq.setTreatment("Treatment");
+        updateReq.setNotes("Notes");
+        com.care.medi.dtos.request.PrescriptionRequestDTO pDto = new com.care.medi.dtos.request.PrescriptionRequestDTO();
+        pDto.setMedications("Med1");
+        updateReq.setPrescription(pDto);
+
+        testAppointment.setPrescription(new java.util.ArrayList<>());
+        when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
+        when(prescriptionRepository.save(any(Prescription.class))).thenReturn(new Prescription());
+        when(appointmentRepository.saveAndFlush(any(Appointment.class))).thenReturn(testAppointment);
+
+        AppointmentResponseDTO result = appointmentService.updateAppointment(1L, 1L, updateReq);
+
+        assertNotNull(result);
+        verify(appointmentRepository).saveAndFlush(testAppointment);
+    }
+
+    @Test
+    @DisplayName("Should throw when updating completed appointment")
+    void testUpdateAppointment_AlreadyCompleted() {
+        testAppointment.setStatus(AppointmentStatus.COMPLETED);
+        com.care.medi.dtos.request.AppointmentUpdateRequestDTO updateReq = new com.care.medi.dtos.request.AppointmentUpdateRequestDTO();
+        when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
+
+        assertThrows(com.care.medi.exception.InvalidRequestException.class, () -> appointmentService.updateAppointment(1L, 1L, updateReq));
+    }
+
+    @Test
+    @DisplayName("Should reschedule appointment successfully")
+    void testRescheduleAppointment_Success() {
+        com.care.medi.dtos.request.AppointmentRescheduleDTO rescheduleReq = new com.care.medi.dtos.request.AppointmentRescheduleDTO();
+        rescheduleReq.setAppointmentDate("2025-01-01");
+        rescheduleReq.setAppointmentTime("10:00 AM");
+
+        when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
+        when(appointmentRepository.existsConflictingAppointment(any(Long.class), any(Long.class), any(), any(), any())).thenReturn(false);
+        when(appointmentRepository.saveAndFlush(any(Appointment.class))).thenReturn(testAppointment);
+
+        AppointmentResponseDTO result = appointmentService.rescheduleAppointment(1L, rescheduleReq, 1L);
+
+        assertNotNull(result);
+        verify(appointmentRepository).saveAndFlush(any(Appointment.class));
+        verify(emailNotificationProducer).sendEmailNotification(any());
+    }
+
+    @Test
+    @DisplayName("Should throw when rescheduling with conflicting appointment")
+    void testRescheduleAppointment_Conflict() {
+        com.care.medi.dtos.request.AppointmentRescheduleDTO rescheduleReq = new com.care.medi.dtos.request.AppointmentRescheduleDTO();
+        rescheduleReq.setAppointmentDate("2025-01-01");
+        rescheduleReq.setAppointmentTime("10:00 AM");
+
+        when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
+        when(appointmentRepository.existsConflictingAppointment(any(Long.class), any(Long.class), any(), any(), any())).thenReturn(true);
+
+        assertThrows(com.care.medi.exception.ResourceValidationException.class, () -> appointmentService.rescheduleAppointment(1L, rescheduleReq, 1L));
+    }
+
+    @Test
+    @DisplayName("Should update appointment status")
+    void testUpdateAppointmentStatus_Success() {
+        when(appointmentRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
+        when(appointmentRepository.saveAndFlush(any(Appointment.class))).thenReturn(testAppointment);
+
+        AppointmentResponseDTO result = appointmentService.updateAppointmentStatus(1L, AppointmentStatus.COMPLETED);
+
+        assertNotNull(result);
+        assertEquals(AppointmentStatus.COMPLETED.name(), result.status());
+        verify(appointmentRepository).saveAndFlush(any(Appointment.class));
+    }
 
 
     @Test

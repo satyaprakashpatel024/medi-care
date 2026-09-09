@@ -1,8 +1,5 @@
 package com.care.medi.services;
 
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.CacheEvict;
-
 import com.care.medi.dtos.request.StaffRequestDTO;
 import com.care.medi.dtos.request.StaffUpdateRequestDTO;
 import com.care.medi.dtos.response.StaffResponseDTO;
@@ -14,6 +11,8 @@ import com.care.medi.repository.StaffRepository;
 import com.care.medi.repository.UsersRepository;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -20,9 +20,12 @@ public abstract class BaseEntity {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     public ZonedDateTime createdAt;
+
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @lombok.Builder.Default
     public ZonedDateTime updatedAt = ZonedDateTime.now();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,22 +1,17 @@
 package com.care.medi.controller;
 
-import com.care.medi.dtos.request.LoginRequestDTO;
+import com.care.medi.dtos.request.*;
 import com.care.medi.dtos.response.ApiResponse;
 import com.care.medi.dtos.response.AuthResponse;
+import com.care.medi.security.JwtService;
 import com.care.medi.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import com.care.medi.dtos.request.RefreshTokenRequestDTO;
-import com.care.medi.dtos.request.ForgotPasswordRequestDTO;
-import com.care.medi.dtos.request.VerifyOtpRequestDTO;
-import com.care.medi.dtos.request.ResetPasswordRequestDTO;
-import com.care.medi.dtos.request.UpdatePasswordRequestDTO;
-import com.care.medi.security.JwtService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;

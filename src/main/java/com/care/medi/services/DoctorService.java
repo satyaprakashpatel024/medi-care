@@ -5,14 +5,12 @@ import com.care.medi.dtos.request.DoctorUpdateRequestDTO;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.DoctorListResponseDTO;
 import com.care.medi.dtos.response.DoctorResponseDTO;
-import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
 public interface DoctorService {
-    @SneakyThrows
     @Transactional
     DoctorResponseDTO createDoctorInHospital(Long hospitalId, DoctorRequestDTO request);
 
