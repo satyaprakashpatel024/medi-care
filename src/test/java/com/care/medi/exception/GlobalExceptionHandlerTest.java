@@ -73,11 +73,18 @@ class GlobalExceptionHandlerTest {
     @Test
     @DisplayName("Should handle ConstraintViolationException")
     void handleConstraintViolation() {
-        Set<ConstraintViolation<?>> violations = new HashSet<>();
+        ConstraintViolation<?> violation = mock(ConstraintViolation.class);
+        jakarta.validation.Path propertyPath = mock(jakarta.validation.Path.class);
+        when(propertyPath.toString()).thenReturn("field");
+        when(violation.getPropertyPath()).thenReturn(propertyPath);
+        when(violation.getMessage()).thenReturn("must not be null");
+
+        Set<ConstraintViolation<?>> violations = Collections.singleton(violation);
         ConstraintViolationException ex = new ConstraintViolationException("Violation", violations);
 
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleConstraintViolation(ex);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(Collections.singletonMap("field", "must not be null"), response.getBody().errors());
     }
 
     @Test

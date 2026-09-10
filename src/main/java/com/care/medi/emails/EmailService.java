@@ -38,8 +38,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
             log.info("Appointment confirmation email sent to: {}", toEmail);
         } catch (Exception e) {
-//            e.printStackTrace();
-            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
+            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
 
@@ -63,8 +62,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment cancellation email sent to: {}", toEmail);
         } catch (Exception e) {
-//            e.printStackTrace();
-            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
+            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
 
@@ -88,8 +86,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment reminder email sent to: {}", toEmail);
         } catch (Exception e) {
-//            e.printStackTrace();
-            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
+            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
 
@@ -112,8 +109,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment reschedule email to: {}", toEmail);
         } catch (Exception e) {
-//            e.printStackTrace();
-            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
+            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
 
@@ -661,7 +657,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
             log.info("Successfully sent OTP email to: {}", toEmail);
         } catch (Exception e) {
-            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
+            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
 
@@ -802,7 +798,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
             log.info("Successfully sent password changed notification email to: {}", toEmail);
         } catch (Exception e) {
-            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e);
+            log.error(Constants.FAILED_TO_SEND_NOTIFICATION, toEmail, e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
 

@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
                         (existing, replacement) -> existing
                 ));
 
-        log.warn("Constraint violation: {}", errors);
+        log.warn("Constraint violation: {}", errors.isEmpty() ? ex.getMessage() : errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ApiResponse.error("Constraint violation", errors, HttpStatus.BAD_REQUEST)
@@ -166,7 +166,7 @@ public class GlobalExceptionHandler {
             throw ex; // Safe rethrow without cast
         }
 
-        log.error("Unhandled internal server error occurred at URL: {}", request.getRequestURI(), ex);
+        log.error("Unhandled internal server error occurred at URL {}: {}", request.getRequestURI(), ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ApiResponse.error("An unexpected error occurred. Please try again later.", "INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR)

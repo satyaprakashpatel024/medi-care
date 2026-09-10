@@ -18,20 +18,15 @@ import java.time.OffsetDateTime;
 @RequestMapping("/api/v1/health")
 public class HealthController {
 
-    @Autowired
-    BCryptPasswordEncoder passwordEncoder;
-
     /**
-     * Evaluates server availability and returns the current timestamp and a sample password hash.
-     *
+     * Evaluates server availability and returns the current timestamp.
      * @return a {@link ResponseEntity} containing an {@link ApiResponse} with server diagnostic information
      */
     @GetMapping
     public ResponseEntity<ApiResponse<String>> health() {
         String dateStr = OffsetDateTime.now(Constants.ZONE_ID).format(Constants.HUMAN_DATETIME_FORMAT);
-        String code = passwordEncoder.encode("Password@123");
         String message = "Server is Healthy and running.";
-        String data = "Server is Healthy and running. Current Date: " + dateStr + " | Sample Password Hash: " + code;
+        String data = "Server is Healthy and running. Current Date: " + dateStr;
         return ResponseEntity.ok(ApiResponse.success(message, data));
     }
 }

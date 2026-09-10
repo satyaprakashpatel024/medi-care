@@ -42,7 +42,7 @@ public final class Constants {
     public static final String INVALID_REQUEST_APPOINTMENT_IS_COMPLETED = "Action Denied : Cannot Reschedule Appointment that is already COMPLETED.";
 
     // notification
-    public static final String FAILED_TO_SEND_NOTIFICATION = "Failed to send email to: {}";
+    public static final String FAILED_TO_SEND_NOTIFICATION = "Failed to send email to: {}: {}";
 
     // ENCODING
     public static final String ENCODING = "UTF-8";
