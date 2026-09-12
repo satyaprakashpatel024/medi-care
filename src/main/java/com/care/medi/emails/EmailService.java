@@ -2,9 +2,11 @@ package com.care.medi.emails;
 
 import com.care.medi.utils.Constants;
 import com.care.medi.utils.Helpers;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -38,7 +40,7 @@ public class EmailService {
 
             mailSender.send(mimeMessage);
             log.info("Appointment confirmation email sent to: {}", Helpers.maskEmail(toEmail));
-        } catch (Exception e) {
+        } catch (MessagingException | MailException e) {
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, Helpers.maskEmail(toEmail), e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
@@ -62,7 +64,7 @@ public class EmailService {
 
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment cancellation email sent to: {}", Helpers.maskEmail(toEmail));
-        } catch (Exception e) {
+        } catch (MessagingException | MailException e) {
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, Helpers.maskEmail(toEmail), e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
@@ -86,7 +88,7 @@ public class EmailService {
 
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment reminder email sent to: {}", Helpers.maskEmail(toEmail));
-        } catch (Exception e) {
+        } catch (MessagingException | MailException e) {
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, Helpers.maskEmail(toEmail), e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
@@ -109,7 +111,7 @@ public class EmailService {
             helper.setText(buildAppointmentRescheduleEmail(patientName, doctorName, date, time, appointmentId), true);
             mailSender.send(mimeMessage);
             log.info("Successfully sent the appointment reschedule email to: {}", Helpers.maskEmail(toEmail));
-        } catch (Exception e) {
+        } catch (MessagingException | MailException e) {
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, Helpers.maskEmail(toEmail), e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
@@ -657,7 +659,7 @@ public class EmailService {
 
             mailSender.send(mimeMessage);
             log.info("Successfully sent OTP email to: {}", Helpers.maskEmail(toEmail));
-        } catch (Exception e) {
+        } catch (MessagingException | MailException e) {
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, Helpers.maskEmail(toEmail), e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
@@ -798,7 +800,7 @@ public class EmailService {
 
             mailSender.send(mimeMessage);
             log.info("Successfully sent password changed notification email to: {}", Helpers.maskEmail(toEmail));
-        } catch (Exception e) {
+        } catch (MessagingException | MailException e) {
             log.error(Constants.FAILED_TO_SEND_NOTIFICATION, Helpers.maskEmail(toEmail), e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }

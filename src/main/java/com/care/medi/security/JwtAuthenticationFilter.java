@@ -1,6 +1,7 @@
 package com.care.medi.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,11 +14,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
 
 @Slf4j
@@ -59,6 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             String refreshToken = request.getHeader("Refresh-Token");
             if (refreshToken != null && !refreshToken.isBlank()) {
+                boolean autoRefreshed = false;
                 try {
                     String refreshUserEmail = jwtService.extractUsername(refreshToken);
                     if (refreshUserEmail != null) {
@@ -94,7 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 String headerHosp = request.getHeader("X-Hospital-Id");
                                 if (headerHosp != null && !headerHosp.isBlank()) {
                                     try {
-                                        resolvedHospitalId = Long.parseLong(headerHosp.trim());
+                                        resolvedHospitalId = Long.valueOf(headerHosp.trim());
                                     } catch (NumberFormatException nfe) {
                                         log.warn(com.care.medi.utils.Constants.LOG_INVALID_HEADER, "X-Hospital-Id", headerHosp, nfe);
                                         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -108,12 +110,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 request.setAttribute("X-Hospital-Id", resolvedHospitalId);
                             }
 
-                            filterChain.doFilter(request, response);
-                            return;
+                            autoRefreshed = true;
                         }
                     }
-                } catch (Exception ex) {
+                } catch (JwtException | UsernameNotFoundException | IllegalArgumentException ex) {
                     log.warn(com.care.medi.utils.Constants.LOG_AUTO_REFRESH_FAILED, ex.getMessage(), ex);
+                }
+
+                if (autoRefreshed) {
+                    filterChain.doFilter(request, response);
+                    return;
                 }
             }
 
@@ -152,7 +158,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         String headerHosp = request.getHeader("X-Hospital-Id");
                         if (headerHosp != null && !headerHosp.isBlank()) {
                             try {
-                                hospitalId = Long.parseLong(headerHosp.trim());
+                                hospitalId = Long.valueOf(headerHosp.trim());
                             } catch (NumberFormatException nfe) {
                                 log.warn(com.care.medi.utils.Constants.LOG_INVALID_HEADER, "X-Hospital-Id", headerHosp, nfe);
                             }
@@ -161,9 +167,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     if (hospitalId != null) {
                         request.setAttribute("X-Hospital-Id", hospitalId);
                     }
-                } catch (Exception ex) {
+                } catch (JwtException | IllegalArgumentException ex) {
                     log.error("Failed to extract hospitalId from JWT token", ex);
-                    throw new AuthenticationException("Failed to extract hospitalId from JWT token", ex);
                 }
             }
         }

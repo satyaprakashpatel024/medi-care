@@ -1,28 +1,31 @@
 package com.care.medi.services;
 
-import com.care.medi.dtos.response.UserResponseDTO;
-import com.care.medi.entity.Role;
-import com.care.medi.entity.Users;
-import com.care.medi.exception.ResourceNotFoundException;
-import com.care.medi.repository.UsersRepository;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.care.medi.dtos.response.UserResponseDTO;
+import com.care.medi.entity.Role;
+import com.care.medi.entity.Users;
+import com.care.medi.exception.ResourceNotFoundException;
+import com.care.medi.repository.UsersRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserAdminService Unit Tests")
@@ -36,6 +39,7 @@ class UserAdminServiceImplTest {
 
     private Users testUser;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         testUser = new Users();
@@ -76,7 +80,9 @@ class UserAdminServiceImplTest {
     void testGetUserById_NotFound() {
         when(usersRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> userAdminService.getUserById(1L));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userAdminService.getUserById(1L));
+        assertEquals("User not found with ID: 1", exception.getMessage());
     }
 
     @Test
@@ -98,7 +104,9 @@ class UserAdminServiceImplTest {
     void testUpdateUserRole_NotFound() {
         when(usersRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> userAdminService.updateUserRole(1L, Role.DOCTOR));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userAdminService.updateUserRole(1L, Role.DOCTOR));
+        assertEquals("User not found with ID: 1", exception.getMessage());
     }
 
     @Test
@@ -120,6 +128,8 @@ class UserAdminServiceImplTest {
     void testUpdateUserStatus_NotFound() {
         when(usersRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> userAdminService.updateUserStatus(1L, false));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userAdminService.updateUserStatus(1L, false));
+        assertEquals("User not found with ID: 1", exception.getMessage());
     }
 }

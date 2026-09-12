@@ -128,9 +128,11 @@ public class AuthService {
     @Transactional
     public void forgotPassword(ForgotPasswordRequestDTO request) {
         String email = request.getEmail();
-        Users user = usersRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("No account found with email: " + email));
-
+        boolean exists = usersRepository.existsByEmail(email);
+        if(!exists) {
+            log.warn("Forgot password request for non-existent email: {}", Helpers.maskEmail(email));
+            throw new UserNotFoundException("No account found with email: " + email);
+        }
         otpTableRepository.deleteByEmail(email);
 
         String otp = String.format("%06d", new SecureRandom().nextInt(1000000));

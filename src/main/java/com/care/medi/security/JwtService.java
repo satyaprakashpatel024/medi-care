@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,9 +40,9 @@ public class JwtService {
         return extractClaim(token, claims -> {
             Object val = claims.get("userId");
             if (val == null) return null;
-            if (val instanceof Number) return ((Number) val).longValue();
+            if (val instanceof Number number) return number.longValue();
             try {
-                return Long.parseLong(val.toString());
+                return Long.valueOf(val.toString());
             } catch (NumberFormatException e) {
                 log.warn("Failed to parse userId claim from token value [{}]: {}", val, e.getMessage());
                 return null;
@@ -52,9 +54,9 @@ public class JwtService {
         return extractClaim(token, claims -> {
             Object val = claims.get("hospitalId");
             if (val == null) return null;
-            if (val instanceof Number) return ((Number) val).longValue();
+            if (val instanceof Number number) return number.longValue();
             try {
-                return Long.parseLong(val.toString());
+                return Long.valueOf(val.toString());
             } catch (NumberFormatException e) {
                 log.warn("Failed to parse hospitalId claim from token value [{}]: {}", val, e.getMessage());
                 return null;
@@ -73,11 +75,11 @@ public class JwtService {
         // If calling class passes a domain user that exposes an id, include it.
         try {
             // Avoid direct dependency on entity package here; use reflection to read getId() if present
-            java.lang.reflect.Method m = userDetails.getClass().getMethod("getId");
+            Method m = userDetails.getClass().getMethod("getId");
             Object id = m.invoke(userDetails);
             if (id != null) extra.put("userId", id);
-        } catch (Exception ignored) {
-            // no getId method or inaccessible - skip
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            log.debug("Could not extract userId claim from userDetails class [{}]: {}", userDetails.getClass().getName(), e.getMessage());
         }
 
         return generateToken(extra, userDetails);

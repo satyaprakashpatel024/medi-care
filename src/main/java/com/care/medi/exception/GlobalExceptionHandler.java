@@ -82,7 +82,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "valid format";
+        Class<?> requiredTypeClass = ex.getRequiredType();
+        String requiredType = requiredTypeClass != null ? requiredTypeClass.getSimpleName() : "valid format";
         String message = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s",
                 ex.getValue(), ex.getName(), requiredType);
 

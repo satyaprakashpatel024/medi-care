@@ -1,5 +1,28 @@
 package com.care.medi.controller;
 
+import java.util.Collections;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.care.medi.dtos.request.UserRoleUpdateRequestDTO;
 import com.care.medi.dtos.request.UserStatusUpdateRequestDTO;
 import com.care.medi.dtos.response.UserResponseDTO;
@@ -9,25 +32,6 @@ import com.care.medi.security.JwtService;
 import com.care.medi.services.UserAdminService;
 import com.care.medi.services.UsersDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserAdminController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -40,12 +44,15 @@ public class UserAdminControllerTest {
     private UserAdminService userAdminService;
 
     @MockitoBean
+    @SuppressWarnings("unused")
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @MockitoBean
+    @SuppressWarnings("unused")
     private JwtService jwtService;
 
     @MockitoBean
+    @SuppressWarnings("unused")
     private UsersDetailsService usersDetailsService;
 
     @Autowired
@@ -54,6 +61,7 @@ public class UserAdminControllerTest {
     private UserResponseDTO userResponseDTO;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         userResponseDTO = UserResponseDTO.builder()
                 .id(1L)
