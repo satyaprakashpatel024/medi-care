@@ -15,6 +15,7 @@ import com.care.medi.repository.HospitalRepository;
 import com.care.medi.repository.UsersRepository;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -92,10 +94,10 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    @Cacheable(value = "doctors", key = "#id")
+    @Cacheable(value = "doctors", key = "{#id, #hospitalId}")
     public DoctorResponseDTO getDoctorByIdAndHospital(Long id, Long hospitalId) {
         Doctor doctor = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(id, hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(Constants.DOCTOR_NOT_FOUND, id, hospitalId)));
         List<AddressResponseDTO> addresses = addressService.getAddressesByDoctorId(doctor.getUserId());
         return DoctorResponseDTO.toResponse(doctor, addresses);
     }
@@ -155,7 +157,7 @@ public class DoctorServiceImpl implements DoctorService {
     @CacheEvict(value = {"doctors", "doctorsList"}, allEntries = true)
     public void deleteDoctorByIdAndHospital(Long doctorId, Long hospitalId) {
         Doctor byId = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(doctorId, hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + doctorId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(Constants.DOCTOR_NOT_FOUND, doctorId, hospitalId)));
         byId.setActive(false);
         doctorRepository.delete(byId);
     }

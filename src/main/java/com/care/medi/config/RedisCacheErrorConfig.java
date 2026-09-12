@@ -23,7 +23,7 @@ public class RedisCacheErrorConfig implements CachingConfigurer {
             }
 
             @Override
-            public void handleCachePutError(@NonNull RuntimeException exception, @NonNull Cache cache, @NonNull Object key,Object value) {
+            public void handleCachePutError(@NonNull RuntimeException exception, @NonNull Cache cache, @NonNull Object key, Object value) {
                 log.warn("Redis PUT failed for key {}.", key, exception);
             }
 

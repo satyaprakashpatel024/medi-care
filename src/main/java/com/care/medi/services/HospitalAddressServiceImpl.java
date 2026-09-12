@@ -9,8 +9,10 @@ import com.care.medi.repository.HospitalAddressRepository;
 import com.care.medi.repository.HospitalRepository;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HospitalAddressServiceImpl implements HospitalAddressService {

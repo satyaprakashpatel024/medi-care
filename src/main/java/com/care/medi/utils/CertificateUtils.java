@@ -1,7 +1,6 @@
 package com.care.medi.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -10,9 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+@Slf4j
 public final class CertificateUtils {
-
-    private static final Logger log = LoggerFactory.getLogger(CertificateUtils.class);
 
     private CertificateUtils() {
     }
@@ -41,6 +39,7 @@ public final class CertificateUtils {
             return tempFile.toAbsolutePath().toString();
 
         } catch (IOException e) {
+            log.error("Unable to load certificate from classpath location [{}]: {}", classpathLocation, e.getMessage(), e);
             throw new RuntimeException("Unable to load certificate: " + classpathLocation, e);
         }
     }

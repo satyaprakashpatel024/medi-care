@@ -23,14 +23,18 @@ public class EmailNotificationConsumer {
     )
     public void consumeAppointmentNotification(EmailNotificationEvent event) {
         log.info("Received Appointment Notification Event : {}", event);
-        emailService.sendAppointmentConfirmation(
-                event.getToEmail(),
-                event.getPatientName(),
-                event.getDoctorName(),
-                event.getDate(),
-                event.getTime(),
-                event.getAppointmentId()
-        );
+        try {
+            emailService.sendAppointmentConfirmation(
+                    event.getToEmail(),
+                    event.getPatientName(),
+                    event.getDoctorName(),
+                    event.getDate(),
+                    event.getTime(),
+                    event.getAppointmentId()
+            );
+        } catch (Exception e) {
+            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION, e);
+        }
     }
 
     @KafkaListener(
@@ -39,7 +43,11 @@ public class EmailNotificationConsumer {
     )
     public void consumeOtpNotification(OtpNotificationEvent event) {
         log.info("Received OTP Notification Event : {}", event);
-        emailService.sendOtpEmail(event.getToEmail(), event.getOtp());
+        try {
+            emailService.sendOtpEmail(event.getToEmail(), event.getOtp());
+        } catch (Exception e) {
+            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_OTP_NOTIFICATION, e);
+        }
     }
 
     @KafkaListener(
@@ -48,6 +56,10 @@ public class EmailNotificationConsumer {
     )
     public void consumePasswordChangedNotification(PasswordChangedNotificationEvent event) {
         log.info("Received Password Changed Notification Event : {}", event);
-        emailService.sendPasswordChangedEmail(event.getToEmail());
+        try {
+            emailService.sendPasswordChangedEmail(event.getToEmail());
+        } catch (Exception e) {
+            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION, e);
+        }
     }
 }

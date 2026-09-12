@@ -56,7 +56,7 @@ public class DepartmentController {
      * @return a {@link ResponseEntity} with status 201 Created and the created {@link DepartmentResponseDTO}
      */
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> createDepartment(
             @RequestBody @Valid DepartmentRequestDTO departmentRequestDTO) {
         DepartmentResponseDTO department = departmentService.createDepartment(departmentRequestDTO);
@@ -90,7 +90,7 @@ public class DepartmentController {
      * @return a {@link ResponseEntity} wrapping the updated {@link DepartmentResponseDTO}
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> updateDepartment(
             @PathVariable("id") Long id,
             @RequestBody @Valid DepartmentRequestDTO request

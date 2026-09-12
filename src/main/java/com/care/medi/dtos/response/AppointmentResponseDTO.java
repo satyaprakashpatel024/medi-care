@@ -26,7 +26,6 @@ public record AppointmentResponseDTO(
         String updatedAt) implements java.io.Serializable {
 
 
-
     public static AppointmentResponseDTO fromEntity(Appointment appointment) {
         return AppointmentResponseDTO.builder()
                 .appointmentId(appointment.getId())

@@ -33,7 +33,7 @@ public class StaffController {
      * Registers a new staff member under a hospital.
      */
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
     public ResponseEntity<ApiResponse<StaffResponseDTO>> createStaff(
             @RequestAttribute(value = "X-Hospital-Id", required = false) Long headerHospitalId,
             @RequestBody @Valid StaffRequestDTO request) {
@@ -51,7 +51,7 @@ public class StaffController {
      * Retrieves a paginated list of all staff members.
      */
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Page<StaffResponseDTO>>> getAllStaff(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -65,7 +65,7 @@ public class StaffController {
      * Retrieves a paginated list of staff members for a specific hospital.
      */
     @GetMapping("/hospital/{hospitalId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF')")
     public ResponseEntity<ApiResponse<Page<StaffResponseDTO>>> getStaffByHospital(
             @PathVariable("hospitalId") @Min(value = 1, message = "Hospital ID must be greater than 0") Long hospitalId,
             @RequestParam(defaultValue = "0") int page,
@@ -80,7 +80,7 @@ public class StaffController {
      * Retrieves staff details by staff ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('STAFF') and @userSecurity.isSelfStaff(#id, authentication))")
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN') or (hasRole('STAFF') and @userSecurity.isSelfStaff(#id, authentication))")
     public ResponseEntity<ApiResponse<StaffResponseDTO>> getStaffById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 ApiResponse.success("Staff details retrieved successfully", staffService.getStaffById(id))
@@ -91,7 +91,7 @@ public class StaffController {
      * Updates an existing staff profile.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
     public ResponseEntity<ApiResponse<StaffResponseDTO>> updateStaff(
             @PathVariable("id") Long id,
             @RequestBody @Valid StaffUpdateRequestDTO request) {
@@ -104,7 +104,7 @@ public class StaffController {
      * Removes/deactivates a staff member.
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteStaff(@PathVariable("id") Long id) {
         staffService.deleteStaff(id);
         return ResponseEntity.accepted().body(

@@ -35,7 +35,8 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> {})
+        http.cors(cors -> {
+                })
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -80,15 +81,15 @@ public class SecurityConfiguration {
 
     /**
      * Role hierarchy: higher roles inherit all permissions of lower roles.
-     * OWNER > ADMIN > DOCTOR = STAFF = RECEPTIONIST > PATIENT > GUEST
+     * SUPER_ADMIN > HOSPITAL_ADMIN > DOCTOR = STAFF = RECEPTIONIST > PATIENT > GUEST
      */
     @Bean
     public RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl.fromHierarchy("""
-                ROLE_OWNER > ROLE_ADMIN
-                ROLE_ADMIN > ROLE_DOCTOR
-                ROLE_ADMIN > ROLE_STAFF
-                ROLE_ADMIN > ROLE_RECEPTIONIST
+                ROLE_SUPER_ADMIN > ROLE_HOSPITAL_ADMIN
+                ROLE_HOSPITAL_ADMIN > ROLE_DOCTOR
+                ROLE_HOSPITAL_ADMIN > ROLE_STAFF
+                ROLE_HOSPITAL_ADMIN > ROLE_RECEPTIONIST
                 ROLE_DOCTOR > ROLE_PATIENT
                 ROLE_STAFF > ROLE_PATIENT
                 ROLE_RECEPTIONIST > ROLE_PATIENT
@@ -98,7 +99,7 @@ public class SecurityConfiguration {
 
     /**
      * Wire the role hierarchy into @PreAuthorize SpEL expressions
-     * so that hasRole('ADMIN') automatically includes OWNER, etc.
+     * so that higher roles automatically inherit lower role permissions.
      */
     @Bean
     public MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {

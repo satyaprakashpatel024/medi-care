@@ -109,7 +109,7 @@ public class ObjectLevelAuthorizationSecurityTest {
 
     @Test
     @DisplayName("Admin requesting any endpoint should return HTTP 200 OK")
-    @WithMockUser(username = "admin@hospital.com", roles = {"ADMIN"})
+    @WithMockUser(username = "admin@hospital.com", roles = {"SUPER_ADMIN"})
     void testAdmin_RequestingAnyEndpoint_Returns200() throws Exception {
         when(doctorService.getDoctorByIdAndHospital(2L, 1L))
                 .thenReturn(DoctorResponseDTO.builder().id(2L).build());

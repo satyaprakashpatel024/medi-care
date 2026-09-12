@@ -14,6 +14,7 @@ import com.care.medi.repository.PatientRepository;
 import com.care.medi.repository.UsersRepository;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PatientServiceImpl implements PatientService {
@@ -36,7 +38,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional(readOnly = true)
     @Override
-    @Cacheable(value = "patients", key = "#patientId")
+    @Cacheable(value = "patients", key = "{#patientId, #hospitalId}")
     public PatientResponseDTO getPatientByIdAndHospitalId(long hospitalId, Long patientId) {
         Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
         if (byId.isEmpty()) {

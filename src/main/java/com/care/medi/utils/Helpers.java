@@ -1,6 +1,10 @@
 package com.care.medi.utils;
 
 import com.care.medi.entity.Patient;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -8,13 +12,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 
+@Slf4j
+@Component
 public class Helpers {
-    // 1. Keep the fields static, but DO NOT put @Value here
-    private static final String devEmail = "1008tonystark@gmail.com";
-    private static final boolean isDevEnvironment = true;
 
-    private Helpers() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    private static String devEmail;
+    private static boolean isDevEnvironment;
+
+    public Helpers() {
+        // Default constructor for Spring component lifecycle
+    }
+
+    public static void logDevConfig() {
+        log.info("[Health Check Test] devEmail = {}, isDevEnvironment = {}", devEmail, isDevEnvironment);
     }
 
     public static LocalDate getStartOfTheDay(LocalDate date) {
@@ -25,7 +35,6 @@ public class Helpers {
         return date.atTime(LocalTime.MAX).toLocalDate();
     }
 
-
     public static LocalDate parseAppointmentDate(String dateString, Map<String, String> errorMap) {
         if (dateString == null || dateString.isBlank()) {
             return null;
@@ -34,6 +43,7 @@ public class Helpers {
             // Standard ISO_LOCAL_DATE (yyyy-MM-dd)
             return LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
         } catch (Exception e) {
+            log.warn("Failed to parse appointment date [{}]: {}", dateString, e.getMessage());
             errorMap.put("appointmentDate", "Invalid date format. Expected: yyyy-MM-dd (e.g., 2026-04-17)");
             return null;
         }
@@ -49,6 +59,7 @@ public class Helpers {
             String time = appointmentTime.trim().toUpperCase(Locale.ENGLISH);
             return LocalTime.parse(time, Constants.HUMAN_TIME_FORMAT);
         } catch (Exception e) {
+            log.warn("Failed to parse appointment time [{}]: {}", appointmentTime, e.getMessage());
             errorMap.put("appointmentTime", "Invalid format. Expected: 10:00 AM");
             return null;
         }
@@ -120,5 +131,22 @@ public class Helpers {
             return maskEmail(key);
         }
         return key;
+    }
+
+    @Value("${app.dev.email}")
+    public void setDevEmail(String email) {
+        if (email != null && !email.isBlank()) {
+            devEmail = email.replace("\"", "").trim();
+        }
+    }
+
+    @Value("${app.dev.environment}")
+    public void setIsDevEnvironment(boolean devEnv) {
+        isDevEnvironment = devEnv;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("Helpers initialized: devEmail = {}, devEnvironment = {}", devEmail, isDevEnvironment);
     }
 }

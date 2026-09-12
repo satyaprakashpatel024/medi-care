@@ -166,7 +166,7 @@ public class GlobalExceptionHandler {
             throw ex; // Safe rethrow without cast
         }
 
-        log.error("Unhandled internal server error occurred at URL {}: {}", request.getRequestURI(), ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName());
+        log.error(com.care.medi.utils.Constants.LOG_UNHANDLED_EXCEPTION, request.getRequestURI(), ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName(), ex);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ApiResponse.error("An unexpected error occurred. Please try again later.", "INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR)

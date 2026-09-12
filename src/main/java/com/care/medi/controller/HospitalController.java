@@ -53,7 +53,7 @@ public class HospitalController {
      *
      * @param id the unique identifier of the hospital to retrieve
      * @return a {@link ResponseEntity} containing an {@link ApiResponse} wrapping
-     *         the {@link HospitalResponseDTO}
+     * the {@link HospitalResponseDTO}
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> getHospitalById(@PathVariable("id") Long id) {
@@ -63,15 +63,15 @@ public class HospitalController {
     /**
      * Creates a new hospital.
      * <p>
-     * Restricted to users with the {@code OWNER} role.
+     * Restricted to users with the {@code SUPER_ADMIN} role.
      * </p>
      *
      * @param request the payload containing hospital registration details
      * @return a {@link ResponseEntity} containing an {@link ApiResponse} wrapping
-     *         the created {@link HospitalResponseDTO} with HTTP status 201 Created
+     * the created {@link HospitalResponseDTO} with HTTP status 201 Created
      */
     @PostMapping
-    @PreAuthorize("hasRole('OWNER')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @Validated
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> createHospital(@Valid @RequestBody HospitalRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -81,16 +81,16 @@ public class HospitalController {
     /**
      * Updates an existing hospital's details by its identifier.
      * <p>
-     * Restricted to users with the {@code ADMIN} role.
+     * Restricted to users with the {@code HOSPITAL_ADMIN} role.
      * </p>
      *
      * @param id      the unique identifier of the hospital to update
      * @param request the payload containing updated hospital details
      * @return a {@link ResponseEntity} containing an {@link ApiResponse} wrapping
-     *         the updated {@link HospitalResponseDTO} with HTTP status 202 Accepted
+     * the updated {@link HospitalResponseDTO} with HTTP status 202 Accepted
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
     @Validated
     public ResponseEntity<ApiResponse<HospitalResponseDTO>> updateHospital(
             @PathVariable("id") Long id,

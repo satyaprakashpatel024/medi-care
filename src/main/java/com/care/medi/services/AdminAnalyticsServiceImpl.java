@@ -9,11 +9,13 @@ import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.repository.*;
 import com.care.medi.utils.Constants;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

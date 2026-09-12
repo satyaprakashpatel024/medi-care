@@ -27,7 +27,7 @@ public class AdminHospitalDepartmentController {
      * Lists all hospital department mappings.
      */
     @GetMapping("/departments")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<HospitalDepartmentResponseDTO>>> getAllHospitalDepartments() {
         return ResponseEntity.ok(
                 ApiResponse.success("Hospital departments retrieved successfully", hospitalDepartmentService.findAll())
@@ -38,7 +38,7 @@ public class AdminHospitalDepartmentController {
      * Maps a department to a hospital.
      */
     @PostMapping("/{hospitalId}/departments/{departmentId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<HospitalDepartmentResponseDTO>> mapDepartmentToHospital(
             @PathVariable("hospitalId") Long hospitalId,
             @PathVariable("departmentId") Long departmentId) {
@@ -51,7 +51,7 @@ public class AdminHospitalDepartmentController {
      * Removes department mapping from a hospital.
      */
     @DeleteMapping("/{hospitalId}/departments/{departmentId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> unmapDepartmentFromHospital(
             @PathVariable("hospitalId") Long hospitalId,
             @PathVariable("departmentId") Long departmentId) {

@@ -28,7 +28,7 @@ public class InsuranceController {
      * @return a {@link ResponseEntity} containing an {@link ApiResponse} wrapping the {@link InsuranceResponseDTO}
      */
     @GetMapping("/{policyNumber}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isInsuranceOwner(#policyNumber, authentication))")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isInsuranceOwner(#policyNumber, authentication))")
     public ResponseEntity<ApiResponse<InsuranceResponseDTO>> getInsurancesByPolicyNumber(
             @PathVariable("policyNumber") String policyNumber) {
         InsuranceResponseDTO insuranceByPolicyNumber = insuranceService.getInsuranceByPolicyNumber(policyNumber);

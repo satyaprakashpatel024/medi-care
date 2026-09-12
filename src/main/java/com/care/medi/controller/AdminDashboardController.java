@@ -26,7 +26,7 @@ public class AdminDashboardController {
      * Retrieves overall system KPI metrics.
      */
     @GetMapping("/kpis")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<SystemKpiResponseDTO>> getSystemKpis() {
         return ResponseEntity.ok(
                 ApiResponse.success("System KPIs retrieved successfully", adminAnalyticsService.getSystemKpis())
@@ -37,7 +37,7 @@ public class AdminDashboardController {
      * Retrieves hospital-specific utilization statistics and counts.
      */
     @GetMapping("/hospitals/{hospitalId}/stats")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<HospitalStatsResponseDTO>> getHospitalStats(
             @PathVariable("hospitalId") Long hospitalId) {
         return ResponseEntity.ok(
@@ -49,7 +49,7 @@ public class AdminDashboardController {
      * Retrieves appointment status analytics breakdown.
      */
     @GetMapping("/appointments/analytics")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AppointmentAnalyticsResponseDTO>> getAppointmentAnalytics(
             @RequestParam(value = "hospitalId", required = false) Long hospitalId) {
         return ResponseEntity.ok(

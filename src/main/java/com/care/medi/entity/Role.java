@@ -4,8 +4,8 @@ public enum Role {
     PATIENT,
     DOCTOR,
     STAFF,
-    ADMIN,
+    SUPER_ADMIN,
+    HOSPITAL_ADMIN,
     RECEPTIONIST,
-    GUEST,
-    OWNER
+    GUEST
 }

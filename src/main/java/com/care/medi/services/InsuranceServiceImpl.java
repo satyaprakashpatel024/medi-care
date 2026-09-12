@@ -5,11 +5,13 @@ import com.care.medi.dtos.response.InsuranceResponseDTO;
 import com.care.medi.entity.Insurance;
 import com.care.medi.repository.InsuranceRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InsuranceServiceImpl implements InsuranceService {

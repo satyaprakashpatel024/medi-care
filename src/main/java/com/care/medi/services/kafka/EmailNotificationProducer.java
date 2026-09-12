@@ -21,8 +21,17 @@ public class EmailNotificationProducer {
      * Generic send method to publish any event type T to a specified topic with a key.
      */
     public <T> void sendEvent(String topic, String key, T event) {
-        kafkaTemplate.send(topic, key, event);
-        log.info("Published Kafka event to topic '{}' with key '{}': {}", topic, Helpers.maskKey(key), event);
+        try {
+            kafkaTemplate.send(topic, key, event).whenComplete((result, ex) -> {
+                if (ex != null) {
+                    log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, ex.getMessage(), ex);
+                } else {
+                    log.info("Published Kafka event to topic '{}' with key '{}': {}", topic, Helpers.maskKey(key), event);
+                }
+            });
+        } catch (Exception e) {
+            log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, e.getMessage(), e);
+        }
     }
 
     public void sendEmailNotification(EmailNotificationEvent event) {

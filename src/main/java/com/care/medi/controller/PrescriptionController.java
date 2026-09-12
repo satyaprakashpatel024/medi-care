@@ -37,7 +37,7 @@ public class PrescriptionController {
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link PrescriptionResponseDTO}
      */
     @GetMapping("/patient/{patientId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
     public ResponseEntity<ApiResponse<Page<PrescriptionResponseDTO>>> getPrescriptionByPatientId(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -57,7 +57,7 @@ public class PrescriptionController {
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link PrescriptionResponseDTO}
      */
     @GetMapping("/appointment/{appointmentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or @userSecurity.isAppointmentOwnerOrDoctor(#appointmentId, authentication)")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF') or @userSecurity.isAppointmentOwnerOrDoctor(#appointmentId, authentication)")
     public ResponseEntity<ApiResponse<Page<PrescriptionResponseDTO>>> getPrescriptionByAppointmentId(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -76,7 +76,7 @@ public class PrescriptionController {
      * @return a {@link ResponseEntity} with status 201 Created and the created {@link PrescriptionResponseDTO}
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<PrescriptionResponseDTO>> assignPrescription(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,

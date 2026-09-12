@@ -58,7 +58,7 @@ public class UserAdminControllerTest {
         userResponseDTO = UserResponseDTO.builder()
                 .id(1L)
                 .email("admin@care.com")
-                .role(Role.ADMIN)
+                .role(Role.SUPER_ADMIN)
                 .isActive(true)
                 .build();
     }
@@ -94,10 +94,10 @@ public class UserAdminControllerTest {
     @DisplayName("Should update user role")
     void testUpdateUserRole() throws Exception {
         UserRoleUpdateRequestDTO request = UserRoleUpdateRequestDTO.builder()
-                .role(Role.ADMIN)
+                .role(Role.SUPER_ADMIN)
                 .build();
 
-        when(userAdminService.updateUserRole(eq(1L), eq(Role.ADMIN))).thenReturn(userResponseDTO);
+        when(userAdminService.updateUserRole(eq(1L), eq(Role.SUPER_ADMIN))).thenReturn(userResponseDTO);
 
         mockMvc.perform(put("/api/v1/admin/users/1/role")
                         .contentType(MediaType.APPLICATION_JSON)

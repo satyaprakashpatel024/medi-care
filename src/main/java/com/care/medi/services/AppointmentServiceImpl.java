@@ -15,6 +15,7 @@ import com.care.medi.services.kafka.EmailNotificationProducer;
 import com.care.medi.utils.Constants;
 import com.care.medi.utils.Helpers;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.logging.Logger;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
@@ -39,8 +40,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final HospitalRepository hospitalRepository;
     private final PrescriptionRepository prescriptionRepository;
     private final EmailNotificationProducer emailNotificationProducer;
-    private final Logger logger = Logger.getLogger(AppointmentServiceImpl.class.getName());
-
 
     @Override
     public Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses) {
@@ -126,7 +125,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponseDTO getAppointmentByIdAndHospital(Long id, Long hospitalId) {
         Optional<Appointment> byId = appointmentRepository.findByIdAndHospitalId(id, hospitalId);
         if (byId.isEmpty()) {
-            logger.warning(String.format("Appointment with Id %s and Hospital Id %s not found.", id, hospitalId));
+            log.warn(String.format("Appointment with Id %s and Hospital Id %s not found.", id, hospitalId));
             throw new ResourceNotFoundException(String.format("%s %%s And Hospital Id : %%s".formatted(Constants.APPOINTMENT_NOT_FOUND), id, hospitalId));
         }
         return AppointmentResponseDTO.fromEntity(byId.get());
@@ -185,6 +184,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Transactional
+    @Override
     public AppointmentResponseDTO updateAppointmentStatus(Long id, AppointmentStatus status) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Constants.APPOINTMENT_NOT_FOUND + id));
@@ -290,6 +290,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 return patientRepository.findById(newPatient.id()).orElseThrow(() -> new ResourceNotFoundException(String.format("Patient not found with ID: %s", newPatient.id())));
             }
         } catch (Exception e) {
+            log.warn(Constants.LOG_SERVICE_EXCEPTION, "AppointmentServiceImpl.resolvePatient", e.getMessage(), e);
             errorMap.put("patient", e.getMessage());
             return null;
         }
@@ -299,7 +300,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (doctorId == null) return null;
         return doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(doctorId, hospitalId)
                 .orElseGet(() -> {
-                    errorMap.put("doctorId", Constants.DOCTOR_NOT_FOUND + doctorId);
+                    errorMap.put("doctorId", String.format(Constants.DOCTOR_NOT_FOUND, doctorId, hospitalId));
                     return null;
                 });
     }
@@ -357,6 +358,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             }
             return appointment;
         } catch (ResourceNotFoundException ex) {
+            log.warn(Constants.LOG_SERVICE_EXCEPTION, "AppointmentServiceImpl.validateAppointmentForReschedule", ex.getMessage(), ex);
             errorMap.put("appointment", ex.getMessage());
             return null;
         }

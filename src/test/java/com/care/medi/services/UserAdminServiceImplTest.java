@@ -41,7 +41,7 @@ class UserAdminServiceImplTest {
         testUser = new Users();
         testUser.setId(1L);
         testUser.setEmail("admin@test.com");
-        testUser.setRole(Role.ADMIN);
+        testUser.setRole(Role.SUPER_ADMIN);
         testUser.setIsActive(true);
     }
 

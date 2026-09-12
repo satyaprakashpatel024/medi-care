@@ -45,8 +45,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
 
-    public record AuthTokens(String accessToken, String refreshToken, String role) {}
-
     public AuthTokens login(LoginRequestDTO request) {
         Authentication authenticate;
         try {
@@ -89,6 +87,7 @@ public class AuthService {
         try {
             userEmail = jwtService.extractUsername(refreshToken);
         } catch (Exception e) {
+            log.warn(com.care.medi.utils.Constants.LOG_SERVICE_EXCEPTION, "AuthService.refresh", e.getMessage(), e);
             throw new InvalidCredentialsException("Invalid or expired refresh token");
         }
 
@@ -194,5 +193,8 @@ public class AuthService {
 
         emailNotificationProducer.sendPasswordChangedNotification(Helpers.getRecipientEmail(email));
         log.info("Password successfully updated for user: {}", Helpers.maskEmail(email));
+    }
+
+    public record AuthTokens(String accessToken, String refreshToken, String role) {
     }
 }

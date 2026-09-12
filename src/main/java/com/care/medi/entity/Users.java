@@ -43,7 +43,7 @@ public class Users extends BaseEntity implements UserDetails {
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(name = "password_hash", nullable = false)
     private String password;
 
     @NotNull(message = "Role is required")

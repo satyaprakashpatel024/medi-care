@@ -47,7 +47,7 @@ public class DoctorController {
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DoctorListResponseDTO}
      */
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getAllActiveDoctors(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -66,7 +66,7 @@ public class DoctorController {
      * @return a {@link ResponseEntity} wrapping the {@link DoctorResponseDTO}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('DOCTOR') and @userSecurity.isSelfDoctor(#id, authentication))")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('DOCTOR') and @userSecurity.isSelfDoctor(#id, authentication))")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> getActiveDoctorByIdAndHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -86,7 +86,7 @@ public class DoctorController {
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DoctorListResponseDTO}
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getAllActiveDoctorsByHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -110,7 +110,7 @@ public class DoctorController {
      * @return a {@link ResponseEntity} with status 201 Created and the created {@link DoctorResponseDTO}
      */
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> createDoctorInHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -137,7 +137,7 @@ public class DoctorController {
      * @return a {@link ResponseEntity} wrapping the updated {@link DoctorResponseDTO}
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('DOCTOR') and @userSecurity.isSelfDoctor(#id, authentication))")
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN') or (hasRole('DOCTOR') and @userSecurity.isSelfDoctor(#id, authentication))")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> updateDoctor(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -156,7 +156,7 @@ public class DoctorController {
      * @return a {@link ResponseEntity} containing a confirmation message
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
     public ResponseEntity<ApiResponse<String>> deleteDoctorByIdAndHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -180,7 +180,7 @@ public class DoctorController {
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentListResponseDTO}
      */
     @GetMapping("/{id}/appointments")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or (hasRole('DOCTOR') and @userSecurity.isSelfDoctor(#doctorId, authentication))")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF') or (hasRole('DOCTOR') and @userSecurity.isSelfDoctor(#doctorId, authentication))")
     public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByDoctorAndHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -209,7 +209,7 @@ public class DoctorController {
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DoctorListResponseDTO}
      */
     @GetMapping("/department/{departmentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getDoctorsByDepartmentAndHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -236,7 +236,7 @@ public class DoctorController {
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DoctorListResponseDTO}
      */
     @GetMapping("/speciality")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
     public ResponseEntity<ApiResponse<Page<DoctorListResponseDTO>>> getActiveDoctorBySpecialityAndHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
