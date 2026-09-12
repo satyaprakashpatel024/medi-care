@@ -1,6 +1,8 @@
 package com.care.medi.services.kafka;
 
 import com.care.medi.dtos.EmailNotificationEvent;
+import com.care.medi.dtos.OtpNotificationEvent;
+import com.care.medi.dtos.PasswordChangedNotificationEvent;
 import com.care.medi.emails.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,35 +23,33 @@ public class EmailNotificationConsumerTest {
     private EmailNotificationConsumer emailNotificationConsumer;
 
     @Test
-    @DisplayName("Should consume FORGOT_PASSWORD_OTP event and send OTP email")
+    @DisplayName("Should consume OTP notification event and send OTP email")
     void testConsumeForgotPasswordOtp() {
-        EmailNotificationEvent event = EmailNotificationEvent.builder()
+        OtpNotificationEvent event = OtpNotificationEvent.builder()
                 .toEmail("user@example.com")
                 .otp("654321")
-                .eventType("FORGOT_PASSWORD_OTP")
                 .build();
 
-        emailNotificationConsumer.consume(event);
+        emailNotificationConsumer.consumeOtpNotification(event);
 
         verify(emailService).sendOtpEmail("user@example.com", "654321");
     }
 
     @Test
-    @DisplayName("Should consume PASSWORD_CHANGED event and send password changed email")
+    @DisplayName("Should consume PASSWORD_CHANGED notification event and send email")
     void testConsumePasswordChanged() {
-        EmailNotificationEvent event = EmailNotificationEvent.builder()
+        PasswordChangedNotificationEvent event = PasswordChangedNotificationEvent.builder()
                 .toEmail("user@example.com")
-                .eventType("PASSWORD_CHANGED")
                 .build();
 
-        emailNotificationConsumer.consume(event);
+        emailNotificationConsumer.consumePasswordChangedNotification(event);
 
         verify(emailService).sendPasswordChangedEmail("user@example.com");
     }
 
     @Test
-    @DisplayName("Should consume appointment confirmation event by default")
-    void testConsumeAppointmentConfirmationDefault() {
+    @DisplayName("Should consume appointment notification event and send appointment email")
+    void testConsumeAppointmentConfirmation() {
         EmailNotificationEvent event = EmailNotificationEvent.builder()
                 .toEmail("patient@example.com")
                 .patientName("John Doe")
@@ -57,10 +57,9 @@ public class EmailNotificationConsumerTest {
                 .date("2026-09-10")
                 .time("10:00 AM")
                 .appointmentId(101L)
-                .eventType("APPOINTMENT_CONFIRMATION")
                 .build();
 
-        emailNotificationConsumer.consume(event);
+        emailNotificationConsumer.consumeAppointmentNotification(event);
 
         verify(emailService).sendAppointmentConfirmation(
                 "patient@example.com",
@@ -70,19 +69,5 @@ public class EmailNotificationConsumerTest {
                 "10:00 AM",
                 101L
         );
-    }
-
-    @Test
-    @DisplayName("Should fallback to FORGOT_PASSWORD_OTP when eventType is null but OTP is present")
-    void testConsumeFallbackOtpWhenEventTypeNull() {
-        EmailNotificationEvent event = EmailNotificationEvent.builder()
-                .toEmail("user@example.com")
-                .otp("112233")
-                .eventType(null)
-                .build();
-
-        emailNotificationConsumer.consume(event);
-
-        verify(emailService).sendOtpEmail("user@example.com", "112233");
     }
 }

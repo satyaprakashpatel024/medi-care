@@ -5,7 +5,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public final class Constants {
-    public static final String KAFKA_TOPIC = "medicare.email.notification";
+    public static final String KAFKA_TOPIC_APPOINTMENT_NOTIFICATION = "appointment.emails.notification";
+    public static final String KAFKA_TOPIC_OTP_NOTIFICATION = "medicare.otp.notification";
+    public static final String KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION = "medicare.password-changed.notification";
+
+    // --- Kafka Consumer Group IDs ---
+    public static final String KAFKA_GROUP_APPOINTMENT_NOTIFICATION = "appointment-notification-group";
+    public static final String KAFKA_GROUP_OTP_NOTIFICATION = "otp-notification-group";
+    public static final String KAFKA_GROUP_PASSWORD_CHANGED_NOTIFICATION = "password-changed-notification-group";
     // --- Entity Not Found Messages ---
     public static final String MSG_NOT_FOUND = "%s not found with ID: %s";
 
@@ -33,7 +40,7 @@ public final class Constants {
     public static final DateTimeFormatter HUMAN_DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy");
     public static final DateTimeFormatter SHORT_DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy");
     public static final DateTimeFormatter HUMAN_TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
-    public static final ZoneId ZONE_ID = ZoneId.of(TIME_ZONE);              // 10:30 AM
+    public static final ZoneId ZONE_ID = ZoneId.of(TIME_ZONE); // 10:30 AM
     public static final DateTimeFormatter HUMAN_DATETIME_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a");    // 15 April 2025, 10:30 AM
     public static final DateTimeFormatter JWT_EXPIRATION_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm:ss 'IST'");
     public static final String APPOINTMENT_NOT_FOUND_IN_HOSPITAL = "Appointment not found with ID: %s in this Hospital. Please provide correct appointmentId or hospitalId";

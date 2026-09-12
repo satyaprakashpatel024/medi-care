@@ -1,57 +1,47 @@
 package com.care.medi.services.kafka;
 
 import com.care.medi.dtos.EmailNotificationEvent;
+import com.care.medi.dtos.OtpNotificationEvent;
+import com.care.medi.dtos.PasswordChangedNotificationEvent;
 import com.care.medi.utils.Constants;
+import com.care.medi.utils.Helpers;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EmailNotificationProducer {
-    private static final String TOPIC = Constants.KAFKA_TOPIC;
 
-    private final KafkaTemplate<String, EmailNotificationEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    /**
+     * Generic send method to publish any event type T to a specified topic with a key.
+     */
+    public <T> void sendEvent(String topic, String key, T event) {
+        kafkaTemplate.send(topic, key, event);
+        log.info("Published Kafka event to topic '{}' with key '{}': {}", topic, Helpers.maskKey(key), event);
+    }
 
     public void sendEmailNotification(EmailNotificationEvent event) {
         String key = event.getAppointmentId() != null ? event.getAppointmentId().toString() : event.getToEmail();
-        kafkaTemplate.send(
-                TOPIC,
-                key,
-                event
-        );
-
-        System.out.println("Event Published : " + event);
+        sendEvent(Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION, key, event);
     }
 
     public void sendOtpNotification(String toEmail, String otp) {
-        EmailNotificationEvent event = EmailNotificationEvent.builder()
+        OtpNotificationEvent event = OtpNotificationEvent.builder()
                 .toEmail(toEmail)
                 .otp(otp)
-                .eventType("FORGOT_PASSWORD_OTP")
                 .build();
-
-        kafkaTemplate.send(
-                TOPIC,
-                toEmail,
-                event
-        );
-
-        System.out.println("OTP Event Published : " + event);
+        sendEvent(Constants.KAFKA_TOPIC_OTP_NOTIFICATION, toEmail, event);
     }
 
     public void sendPasswordChangedNotification(String toEmail) {
-        EmailNotificationEvent event = EmailNotificationEvent.builder()
+        PasswordChangedNotificationEvent event = PasswordChangedNotificationEvent.builder()
                 .toEmail(toEmail)
-                .eventType("PASSWORD_CHANGED")
                 .build();
-
-        kafkaTemplate.send(
-                TOPIC,
-                toEmail,
-                event
-        );
-
-        System.out.println("Password Changed Event Published : " + event);
+        sendEvent(Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION, toEmail, event);
     }
 }

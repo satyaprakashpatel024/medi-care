@@ -20,7 +20,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +43,7 @@ class GlobalExceptionHandlerTest {
         AccessDeniedException ex = new AccessDeniedException("Access Denied");
         ResponseEntity<ApiResponse<String>> response = exceptionHandler.handleAccessDenied(ex);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("FORBIDDEN", response.getBody().errors());
     }
 
@@ -53,6 +53,7 @@ class GlobalExceptionHandlerTest {
         InvalidCredentialsException ex = new InvalidCredentialsException("Invalid creds");
         ResponseEntity<ApiResponse<String>> response = exceptionHandler.handleAuthenticationException(ex);
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("UNAUTHORIZED", response.getBody().errors());
     }
 
@@ -67,6 +68,7 @@ class GlobalExceptionHandlerTest {
 
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleValidationErrors(ex);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertNotNull(response.getBody().errors());
     }
 
@@ -84,6 +86,7 @@ class GlobalExceptionHandlerTest {
 
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleConstraintViolation(ex);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals(Collections.singletonMap("field", "must not be null"), response.getBody().errors());
     }
 
@@ -97,6 +100,7 @@ class GlobalExceptionHandlerTest {
 
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleTypeMismatch(ex);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("INVALID_PARAMETER_TYPE", response.getBody().errors());
     }
 
@@ -106,6 +110,7 @@ class GlobalExceptionHandlerTest {
         HttpMessageNotReadableException ex = new HttpMessageNotReadableException("Malformed");
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleMalformedJson(ex);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("MALFORMED_REQUEST_BODY", response.getBody().errors());
     }
 
@@ -115,6 +120,7 @@ class GlobalExceptionHandlerTest {
         MissingServletRequestParameterException ex = new MissingServletRequestParameterException("param", "type");
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleMissingParams(ex);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("MISSING_QUERY_PARAMETER", response.getBody().errors());
     }
 
@@ -124,6 +130,7 @@ class GlobalExceptionHandlerTest {
         HttpRequestMethodNotSupportedException ex = new HttpRequestMethodNotSupportedException("POST");
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleMethodNotSupported(ex);
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("METHOD_NOT_ALLOWED", response.getBody().errors());
     }
 
@@ -133,6 +140,7 @@ class GlobalExceptionHandlerTest {
         ResourceNotFoundException ex = new ResourceNotFoundException("Not found");
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleNotFound(ex);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("RESOURCE_NOT_FOUND", response.getBody().errors());
     }
 
@@ -142,6 +150,7 @@ class GlobalExceptionHandlerTest {
         DuplicateResourceException ex = new DuplicateResourceException("Duplicate");
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleDuplicateResource(ex);
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("DUPLICATE_RESOURCE", response.getBody().errors());
     }
 
@@ -151,6 +160,7 @@ class GlobalExceptionHandlerTest {
         InvalidRequestException ex = new InvalidRequestException("Bad request");
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleBadRequest(ex);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("BAD_REQUEST", response.getBody().errors());
     }
 
@@ -161,6 +171,7 @@ class GlobalExceptionHandlerTest {
         ResourceValidationException ex = new ResourceValidationException(errors);
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleCustomValidationException(ex);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals(errors, response.getBody().errors());
     }
 
@@ -173,6 +184,7 @@ class GlobalExceptionHandlerTest {
 
         ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleGenericException(request, ex);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals("INTERNAL_SERVER_ERROR", response.getBody().errors());
     }
 }

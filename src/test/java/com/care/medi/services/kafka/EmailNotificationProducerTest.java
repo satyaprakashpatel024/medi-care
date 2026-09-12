@@ -1,6 +1,8 @@
 package com.care.medi.services.kafka;
 
 import com.care.medi.dtos.EmailNotificationEvent;
+import com.care.medi.dtos.OtpNotificationEvent;
+import com.care.medi.dtos.PasswordChangedNotificationEvent;
 import com.care.medi.utils.Constants;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,7 @@ import static org.mockito.Mockito.verify;
 public class EmailNotificationProducerTest {
 
     @Mock
-    private KafkaTemplate<String, EmailNotificationEvent> kafkaTemplate;
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     @InjectMocks
     private EmailNotificationProducer emailNotificationProducer;
@@ -34,7 +36,7 @@ public class EmailNotificationProducerTest {
 
         emailNotificationProducer.sendEmailNotification(event);
 
-        verify(kafkaTemplate).send(eq(Constants.KAFKA_TOPIC), eq("100"), eq(event));
+        verify(kafkaTemplate).send(eq(Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION), eq("100"), eq(event));
     }
 
     @Test
@@ -47,7 +49,7 @@ public class EmailNotificationProducerTest {
 
         emailNotificationProducer.sendEmailNotification(event);
 
-        verify(kafkaTemplate).send(eq(Constants.KAFKA_TOPIC), eq("patient@example.com"), eq(event));
+        verify(kafkaTemplate).send(eq(Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION), eq("patient@example.com"), eq(event));
     }
 
     @Test
@@ -58,13 +60,12 @@ public class EmailNotificationProducerTest {
 
         emailNotificationProducer.sendOtpNotification(email, otp);
 
-        ArgumentCaptor<EmailNotificationEvent> eventCaptor = ArgumentCaptor.forClass(EmailNotificationEvent.class);
-        verify(kafkaTemplate).send(eq(Constants.KAFKA_TOPIC), eq(email), eventCaptor.capture());
+        ArgumentCaptor<OtpNotificationEvent> eventCaptor = ArgumentCaptor.forClass(OtpNotificationEvent.class);
+        verify(kafkaTemplate).send(eq(Constants.KAFKA_TOPIC_OTP_NOTIFICATION), eq(email), eventCaptor.capture());
 
-        EmailNotificationEvent captured = eventCaptor.getValue();
+        OtpNotificationEvent captured = eventCaptor.getValue();
         assertEquals(email, captured.getToEmail());
         assertEquals(otp, captured.getOtp());
-        assertEquals("FORGOT_PASSWORD_OTP", captured.getEventType());
     }
 
     @Test
@@ -74,11 +75,10 @@ public class EmailNotificationProducerTest {
 
         emailNotificationProducer.sendPasswordChangedNotification(email);
 
-        ArgumentCaptor<EmailNotificationEvent> eventCaptor = ArgumentCaptor.forClass(EmailNotificationEvent.class);
-        verify(kafkaTemplate).send(eq(Constants.KAFKA_TOPIC), eq(email), eventCaptor.capture());
+        ArgumentCaptor<PasswordChangedNotificationEvent> eventCaptor = ArgumentCaptor.forClass(PasswordChangedNotificationEvent.class);
+        verify(kafkaTemplate).send(eq(Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION), eq(email), eventCaptor.capture());
 
-        EmailNotificationEvent captured = eventCaptor.getValue();
+        PasswordChangedNotificationEvent captured = eventCaptor.getValue();
         assertEquals(email, captured.getToEmail());
-        assertEquals("PASSWORD_CHANGED", captured.getEventType());
     }
 }

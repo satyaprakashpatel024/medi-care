@@ -1,6 +1,5 @@
 package com.care.medi.config;
 
-import com.care.medi.dtos.EmailNotificationEvent;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,19 +14,19 @@ public class TestKafkaConfig {
 
     @Bean
     @SuppressWarnings("unchecked")
-    public ConsumerFactory<String, EmailNotificationEvent> consumerFactory() {
+    public ConsumerFactory<String, Object> consumerFactory() {
         return Mockito.mock(ConsumerFactory.class);
     }
 
     @Bean
     @SuppressWarnings("unchecked")
-    public ProducerFactory<String, EmailNotificationEvent> producerFactory() {
+    public ProducerFactory<String, Object> producerFactory() {
         return Mockito.mock(ProducerFactory.class);
     }
 
     @Bean
     @SuppressWarnings("unchecked")
-    public KafkaTemplate<String, EmailNotificationEvent> kafkaTemplate() {
+    public KafkaTemplate<String, Object> kafkaTemplate() {
         return Mockito.mock(KafkaTemplate.class);
     }
 }

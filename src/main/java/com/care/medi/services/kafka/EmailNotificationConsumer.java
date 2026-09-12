@@ -1,6 +1,8 @@
 package com.care.medi.services.kafka;
 
 import com.care.medi.dtos.EmailNotificationEvent;
+import com.care.medi.dtos.OtpNotificationEvent;
+import com.care.medi.dtos.PasswordChangedNotificationEvent;
 import com.care.medi.emails.EmailService;
 import com.care.medi.utils.Constants;
 import lombok.AllArgsConstructor;
@@ -16,27 +18,36 @@ public class EmailNotificationConsumer {
     private final EmailService emailService;
 
     @KafkaListener(
-            topics = Constants.KAFKA_TOPIC,
-            groupId = "email-service-group"
+            topics = Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION,
+            groupId = Constants.KAFKA_GROUP_APPOINTMENT_NOTIFICATION
     )
-    public void consume(EmailNotificationEvent event) {
+    public void consumeAppointmentNotification(EmailNotificationEvent event) {
+        log.info("Received Appointment Notification Event : {}", event);
+        emailService.sendAppointmentConfirmation(
+                event.getToEmail(),
+                event.getPatientName(),
+                event.getDoctorName(),
+                event.getDate(),
+                event.getTime(),
+                event.getAppointmentId()
+        );
+    }
 
-        log.info("Received Email Event : {}", event);
-        String eventType = event.getEventType() != null
-                ? event.getEventType().toUpperCase()
-                : (event.getOtp() != null ? "FORGOT_PASSWORD_OTP" : "APPOINTMENT_CONFIRMATION");
+    @KafkaListener(
+            topics = Constants.KAFKA_TOPIC_OTP_NOTIFICATION,
+            groupId = Constants.KAFKA_GROUP_OTP_NOTIFICATION
+    )
+    public void consumeOtpNotification(OtpNotificationEvent event) {
+        log.info("Received OTP Notification Event : {}", event);
+        emailService.sendOtpEmail(event.getToEmail(), event.getOtp());
+    }
 
-        switch (eventType) {
-            case "FORGOT_PASSWORD_OTP" -> emailService.sendOtpEmail(event.getToEmail(), event.getOtp());
-            case "PASSWORD_CHANGED" -> emailService.sendPasswordChangedEmail(event.getToEmail());
-            default -> emailService.sendAppointmentConfirmation(
-                    event.getToEmail(),
-                    event.getPatientName(),
-                    event.getDoctorName(),
-                    event.getDate(),
-                    event.getTime(),
-                    event.getAppointmentId()
-            );
-        }
+    @KafkaListener(
+            topics = Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION,
+            groupId = Constants.KAFKA_GROUP_PASSWORD_CHANGED_NOTIFICATION
+    )
+    public void consumePasswordChangedNotification(PasswordChangedNotificationEvent event) {
+        log.info("Received Password Changed Notification Event : {}", event);
+        emailService.sendPasswordChangedEmail(event.getToEmail());
     }
 }

@@ -70,4 +70,55 @@ public class Helpers {
         }
         return getRecipientEmail(patientEntity.getUser().getEmail());
     }
+
+    public static String maskEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return "***";
+        }
+        int atIndex = email.indexOf('@');
+        if (atIndex <= 0) {
+            return "***";
+        }
+        String local = email.substring(0, atIndex);
+        String domain = email.substring(atIndex);
+        if (local.length() <= 2) {
+            return local.charAt(0) + "***" + domain;
+        }
+        return local.charAt(0) + "***" + local.charAt(local.length() - 1) + domain;
+    }
+
+    public static String maskName(String name) {
+        if (name == null || name.isBlank()) {
+            return "***";
+        }
+        String[] parts = name.trim().split("\\s+");
+        StringBuilder masked = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if (!part.isEmpty()) {
+                masked.append(part.charAt(0)).append("***");
+                if (i < parts.length - 1) {
+                    masked.append(" ");
+                }
+            }
+        }
+        return masked.toString();
+    }
+
+    public static String maskOtp(String otp) {
+        if (otp == null || otp.isBlank()) {
+            return "******";
+        }
+        return "******";
+    }
+
+    public static String maskKey(String key) {
+        if (key == null) {
+            return "***";
+        }
+        if (key.contains("@")) {
+            return maskEmail(key);
+        }
+        return key;
+    }
 }

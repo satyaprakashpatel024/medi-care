@@ -53,18 +53,18 @@ public class AuthService {
             authenticate = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
-            log.info("Login successful for user: {}", request.getEmail());
+            log.info("Login successful for user: {}", Helpers.maskEmail(request.getEmail()));
         } catch (BadCredentialsException e) {
-            log.warn("Login failed for user [{}]: Invalid credentials", request.getEmail());
+            log.warn("Login failed for user [{}]: Invalid credentials", Helpers.maskEmail(request.getEmail()));
             throw new InvalidCredentialsException("Invalid email or password");
         } catch (DisabledException e) {
-            log.warn("Login failed for user [{}]: Account is disabled", request.getEmail());
+            log.warn("Login failed for user [{}]: Account is disabled", Helpers.maskEmail(request.getEmail()));
             throw new InvalidCredentialsException("Account is disabled. Please contact support.");
         } catch (LockedException e) {
-            log.warn("Login failed for user [{}]: Account is locked", request.getEmail());
+            log.warn("Login failed for user [{}]: Account is locked", Helpers.maskEmail(request.getEmail()));
             throw new InvalidCredentialsException("Account is locked. Please contact support.");
         } catch (AuthenticationException e) {
-            log.warn("Authentication failure for user [{}]: {}", request.getEmail(), e.getMessage());
+            log.warn("Authentication failure for user [{}]: {}", Helpers.maskEmail(request.getEmail()), e.getMessage());
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
@@ -143,7 +143,7 @@ public class AuthService {
         otpTableRepository.save(otpEntry);
 
         emailNotificationProducer.sendOtpNotification(Helpers.getRecipientEmail(email), otp);
-        log.info("Sent forgot password OTP via Kafka to: {}", email);
+        log.info("Sent forgot password OTP via Kafka to: {}", Helpers.maskEmail(email));
     }
 
     @Transactional(readOnly = true)
@@ -173,7 +173,7 @@ public class AuthService {
 
         otpTableRepository.deleteByEmail(request.getEmail());
         emailNotificationProducer.sendPasswordChangedNotification(Helpers.getRecipientEmail(request.getEmail()));
-        log.info("Password successfully reset for user: {}", request.getEmail());
+        log.info("Password successfully reset for user: {}", Helpers.maskEmail(request.getEmail()));
     }
 
     @Transactional
@@ -193,6 +193,6 @@ public class AuthService {
         usersRepository.save(user);
 
         emailNotificationProducer.sendPasswordChangedNotification(Helpers.getRecipientEmail(email));
-        log.info("Password successfully updated for user: {}", email);
+        log.info("Password successfully updated for user: {}", Helpers.maskEmail(email));
     }
 }
