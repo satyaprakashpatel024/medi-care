@@ -24,4 +24,6 @@ public interface InsuranceRepository extends JpaRepository<Insurance, Long> {
 
     boolean existsByPolicyNumber(@NotBlank(message = "Policy number is required") String policyNumber);
 
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(i) > 0 FROM Insurance i WHERE i.policyNumber = :policyNumber AND i.patient.user.id = :userId")
+    boolean existsByPolicyNumberAndPatientUserId(@org.springframework.data.repository.query.Param("policyNumber") String policyNumber, @org.springframework.data.repository.query.Param("userId") Long userId);
 }

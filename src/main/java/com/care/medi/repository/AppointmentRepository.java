@@ -111,6 +111,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :appointmentId AND a.hospitalId = :hospitalId AND a.doctor.id = :doctorId AND a.patient.id = :patientId")
     boolean isAppointmentContextValid(@Param("appointmentId") Long appointmentId, @Param("hospitalId") Long hospitalId, @Param("doctorId") Long doctorId, @Param("patientId") Long patientId);
 
+    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :id AND (a.patient.user.id = :userId OR a.doctor.userId = :userId)")
+    boolean isPatientOrDoctorOfAppointment(@Param("id") Long id, @Param("userId") Long userId);
+
+    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :id AND a.doctor.userId = :userId")
+    boolean isDoctorOfAppointment(@Param("id") Long id, @Param("userId") Long userId);
+
+    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :id AND a.patient.user.id = :userId")
+    boolean isPatientOfAppointment(@Param("id") Long id, @Param("userId") Long userId);
+
     @Query(value = """
                     SELECT EXISTS ( SELECT 1 FROM appointments a WHERE a.hospital_id = :hospitalId
             AND a.doctor_id = :doctorId AND a.appointment_date = :date AND a.start_time < :endTime

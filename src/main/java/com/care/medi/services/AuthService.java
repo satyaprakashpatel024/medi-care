@@ -53,7 +53,6 @@ public class AuthService {
             authenticate = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
-            log.info("Login successful for user: {}", Helpers.maskEmail(request.getEmail()));
         } catch (BadCredentialsException e) {
             log.warn("Login failed for user [{}]: Invalid credentials", Helpers.maskEmail(request.getEmail()));
             throw new InvalidCredentialsException("Invalid email or password");
@@ -77,6 +76,7 @@ public class AuthService {
 
         resolveHospitalId(user).ifPresent(hospitalId -> extraClaims.put("hospitalId", hospitalId));
 
+        log.info("Login successful for user: {}, hospitalId: {}", Helpers.maskEmail(request.getEmail()), extraClaims.get("hospitalId"));
         String accessToken = jwtService.generateToken(extraClaims, user);
         String refreshToken = jwtService.generateRefreshToken(extraClaims, user);
 

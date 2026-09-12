@@ -137,4 +137,7 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Lo
     boolean existsByAppointmentIdAndHospitalId(Long appointmentId, Long hospitalId);
 
     boolean existsByIdAndHospitalId(Long id, Long hospitalId);
+
+    @Query("SELECT COUNT(mr) > 0 FROM MedicalRecord mr WHERE mr.id = :id AND (mr.patient.user.id = :userId OR mr.doctor.userId = :userId)")
+    boolean isPatientOrDoctorOfRecord(@Param("id") Long id, @Param("userId") Long userId);
 }

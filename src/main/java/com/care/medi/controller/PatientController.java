@@ -63,7 +63,7 @@ public class PatientController {
      * @return a {@link ResponseEntity} wrapping the {@link PatientResponseDTO}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> getPatientByIdAndHospital(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") long hospitalId,
@@ -108,7 +108,7 @@ public class PatientController {
      * @return a {@link ResponseEntity} wrapping the modified {@link PatientResponseDTO}
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#id, authentication))")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -131,7 +131,7 @@ public class PatientController {
      * @return a {@link ResponseEntity} wrapping the created {@link InsuranceResponseDTO}
      */
     @PostMapping("/{id}/insurances")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
     public ResponseEntity<ApiResponse<InsuranceResponseDTO>> assignInsuranceToPatient(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -152,7 +152,7 @@ public class PatientController {
      * @return a {@link ResponseEntity} wrapping a list of {@link InsuranceResponseDTO}
      */
     @GetMapping("/{id}/insurances")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
     public ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurancesOfPatient(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,

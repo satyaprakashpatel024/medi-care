@@ -9,7 +9,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class EmailNotificationEvent implements Serializable {
 

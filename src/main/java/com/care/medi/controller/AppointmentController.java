@@ -48,7 +48,7 @@ public class AppointmentController {
      * @return a {@link ResponseEntity} wrapping an {@link ApiResponse} with the {@link AppointmentResponseDTO}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST') or @userSecurity.isAppointmentOwnerOrDoctor(#id, authentication)")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -177,7 +177,7 @@ public class AppointmentController {
      * @return a {@link ResponseEntity} containing the modified {@link AppointmentResponseDTO}
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or (hasRole('DOCTOR') and @userSecurity.isAppointmentDoctor(#id, authentication))")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateAppointment(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -198,7 +198,7 @@ public class AppointmentController {
      * @return a {@link ResponseEntity} containing the updated {@link AppointmentResponseDTO}
      */
     @PatchMapping("/{id}/cancel")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'RECEPTIONIST') or @userSecurity.isAppointmentOwnerOrDoctor(#id, authentication)")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
@@ -221,7 +221,7 @@ public class AppointmentController {
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentResponseDTO}
      */
     @GetMapping("/patient/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllAppointmentsByHospitalAndPatientId(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,

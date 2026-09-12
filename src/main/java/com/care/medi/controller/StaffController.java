@@ -80,7 +80,7 @@ public class StaffController {
      * Retrieves staff details by staff ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STAFF') and @userSecurity.isSelfStaff(#id, authentication))")
     public ResponseEntity<ApiResponse<StaffResponseDTO>> getStaffById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 ApiResponse.success("Staff details retrieved successfully", staffService.getStaffById(id))

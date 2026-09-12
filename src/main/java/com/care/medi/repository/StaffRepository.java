@@ -28,6 +28,9 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
     @Query("SELECT s FROM Staff s WHERE s.user.id = :userId")
     java.util.Optional<Staff> findByUserId(Long userId);
 
+    @Query("SELECT COUNT(s) > 0 FROM Staff s WHERE s.id = :id AND s.user.id = :userId")
+    boolean existsByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
+
     @Query(value = "SELECT s.hospital_id FROM staffs s WHERE s.user_id = :userId AND s.is_deleted = false", nativeQuery = true)
     Optional<Long> findHospitalIdByUserId(@Param("userId") Long userId);
 
