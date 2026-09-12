@@ -28,8 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,12 +56,14 @@ class AuthServiceTest {
     private UserDetailsService userDetailsService;
 
     @Mock
+    @SuppressWarnings("unused")
     private DoctorRepository doctorRepository;
 
     @Mock
     private PatientRepository patientRepository;
 
     @Mock
+    @SuppressWarnings("unused")
     private StaffRepository staffRepository;
 
     @InjectMocks
@@ -71,6 +72,7 @@ class AuthServiceTest {
     private Users testUser;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         testUser = Users.builder()
                 .email("test@example.com")
@@ -109,7 +111,8 @@ class AuthServiceTest {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
-        assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
+        assertEquals("Invalid email or password", exception.getMessage());
     }
 
     @Test
@@ -136,13 +139,14 @@ class AuthServiceTest {
         RefreshTokenRequestDTO request = new RefreshTokenRequestDTO("invalid_token");
         when(jwtService.extractUsername("invalid_token")).thenThrow(new RuntimeException("Invalid token"));
 
-        assertThrows(InvalidCredentialsException.class, () -> authService.refresh(request));
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.refresh(request));
+        assertEquals("Invalid or expired refresh token", exception.getMessage());
     }
 
     @Test
     void testForgotPassword_Success() {
         ForgotPasswordRequestDTO request = new ForgotPasswordRequestDTO("test@example.com");
-        when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(usersRepository.existsByEmail("test@example.com")).thenReturn(true);
 
         authService.forgotPassword(request);
 
@@ -154,9 +158,10 @@ class AuthServiceTest {
     @Test
     void testForgotPassword_UserNotFound() {
         ForgotPasswordRequestDTO request = new ForgotPasswordRequestDTO("unknown@example.com");
-        when(usersRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+        when(usersRepository.existsByEmail("unknown@example.com")).thenReturn(false);
 
-        assertThrows(UserNotFoundException.class, () -> authService.forgotPassword(request));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> authService.forgotPassword(request));
+        assertEquals("No account found with email: unknown@example.com", exception.getMessage());
     }
 
     @Test
@@ -186,7 +191,8 @@ class AuthServiceTest {
         when(otpTableRepository.findByEmailAndOtp("test@example.com", "123456"))
                 .thenReturn(Optional.of(otpTable));
 
-        assertThrows(InvalidRequestException.class, () -> authService.verifyOtp(request));
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> authService.verifyOtp(request));
+        assertEquals("OTP has expired. Please request a new one.", exception.getMessage());
     }
 
     @Test
@@ -230,7 +236,8 @@ class AuthServiceTest {
     void testUpdatePassword_MismatchedConfirmPassword() {
         UpdatePasswordRequestDTO request = new UpdatePasswordRequestDTO("oldPass123", "newPass123", "differentPass");
 
-        assertThrows(InvalidRequestException.class, () -> authService.updatePassword("test@example.com", request));
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> authService.updatePassword("test@example.com", request));
+        assertEquals("New password and confirm password do not match", exception.getMessage());
     }
 
     @Test
@@ -240,6 +247,7 @@ class AuthServiceTest {
         when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches("wrongOldPass", "encoded_old_password")).thenReturn(false);
 
-        assertThrows(InvalidCredentialsException.class, () -> authService.updatePassword("test@example.com", request));
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.updatePassword("test@example.com", request));
+        assertEquals("Current password is incorrect", exception.getMessage());
     }
 }

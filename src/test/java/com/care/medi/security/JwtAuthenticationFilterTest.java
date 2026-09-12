@@ -1,5 +1,8 @@
 package com.care.medi.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -17,7 +20,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,11 +52,13 @@ class JwtAuthenticationFilterTest {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         SecurityContextHolder.clearContext();
     }
 
     @AfterEach
+    @SuppressWarnings("unused")
     void tearDown() {
         SecurityContextHolder.clearContext();
     }
@@ -75,7 +84,7 @@ class JwtAuthenticationFilterTest {
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        assert SecurityContextHolder.getContext().getAuthentication() != null;
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
@@ -90,21 +99,130 @@ class JwtAuthenticationFilterTest {
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        assert SecurityContextHolder.getContext().getAuthentication() != null;
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
     void testDoFilterInternal_InvalidToken() throws ServletException, IOException {
         when(request.getHeader("Authorization")).thenReturn("Bearer invalidToken");
-        when(jwtService.extractUsername("invalidToken")).thenThrow(new RuntimeException("Invalid token"));
+        when(jwtService.extractUsername("invalidToken")).thenThrow(new JwtException("Invalid token"));
 
-        java.io.PrintWriter writer = mock(java.io.PrintWriter.class);
+        PrintWriter writer = mock(PrintWriter.class);
         when(response.getWriter()).thenReturn(writer);
 
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        verify(writer).write(anyString());
+        verify(writer).write(contains("Invalid JWT token."));
         verifyNoInteractions(filterChain);
     }
+
+    @Test
+    void testDoFilterInternal_ExpiredToken_NoRefreshToken() throws ServletException, IOException {
+        when(request.getHeader("Authorization")).thenReturn("Bearer expiredToken");
+
+        Claims claims = mock(Claims.class);
+        when(claims.getExpiration()).thenReturn(new Date(System.currentTimeMillis() - 1000));
+        ExpiredJwtException expiredException = new ExpiredJwtException(null, claims, "Token expired");
+        when(jwtService.extractUsername("expiredToken")).thenThrow(expiredException);
+
+        PrintWriter writer = mock(PrintWriter.class);
+        when(response.getWriter()).thenReturn(writer);
+
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(writer).write(contains("Your token is expired"));
+        verifyNoInteractions(filterChain);
+    }
+
+    @Test
+    void testDoFilterInternal_ExpiredToken_WithValidRefreshToken() throws ServletException, IOException {
+        when(request.getHeader("Authorization")).thenReturn("Bearer expiredToken");
+        when(request.getHeader("Refresh-Token")).thenReturn("validRefreshToken");
+
+        Claims claims = mock(Claims.class);
+        when(claims.get("userId")).thenReturn(123L);
+        when(claims.get("hospitalId")).thenReturn(456L);
+        ExpiredJwtException expiredException = new ExpiredJwtException(null, claims, "Token expired");
+        when(jwtService.extractUsername("expiredToken")).thenThrow(expiredException);
+
+        when(jwtService.extractUsername("validRefreshToken")).thenReturn("testuser");
+        when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
+        when(jwtService.isTokenValid("validRefreshToken", userDetails)).thenReturn(true);
+        when(jwtService.generateToken(anyMap(), eq(userDetails))).thenReturn("newAccessToken");
+        when(jwtService.getJwtExpiration()).thenReturn(86400000L);
+
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        verify(response).addHeader(eq("Set-Cookie"), contains("jwt=newAccessToken"));
+        verify(response).addHeader("X-New-Access-Token", "newAccessToken");
+        verify(request).setAttribute("X-Hospital-Id", 456L);
+        verify(filterChain).doFilter(request, response);
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    @Test
+    void testDoFilterInternal_ExpiredToken_WithInvalidRefreshToken() throws ServletException, IOException {
+        when(request.getHeader("Authorization")).thenReturn("Bearer expiredToken");
+        when(request.getHeader("Refresh-Token")).thenReturn("invalidRefreshToken");
+
+        Claims claims = mock(Claims.class);
+        when(claims.getExpiration()).thenReturn(new Date(System.currentTimeMillis() - 1000));
+        ExpiredJwtException expiredException = new ExpiredJwtException(null, claims, "Token expired");
+        when(jwtService.extractUsername("expiredToken")).thenThrow(expiredException);
+
+        when(jwtService.extractUsername("invalidRefreshToken")).thenThrow(new JwtException("Invalid refresh token"));
+
+        PrintWriter writer = mock(PrintWriter.class);
+        when(response.getWriter()).thenReturn(writer);
+
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(writer).write(contains("Your token is expired"));
+        verifyNoInteractions(filterChain);
+    }
+
+    @Test
+    void testDoFilterInternal_ExpiredToken_InvalidHospitalIdHeader() throws ServletException, IOException {
+        when(request.getHeader("Authorization")).thenReturn("Bearer expiredToken");
+        when(request.getHeader("Refresh-Token")).thenReturn("validRefreshToken");
+        when(request.getHeader("X-Hospital-Id")).thenReturn("invalid_number");
+
+        Claims claims = mock(Claims.class);
+        when(claims.get("userId")).thenReturn(123L);
+        when(claims.get("hospitalId")).thenReturn(null);
+        ExpiredJwtException expiredException = new ExpiredJwtException(null, claims, "Token expired");
+        when(jwtService.extractUsername("expiredToken")).thenThrow(expiredException);
+
+        when(jwtService.extractUsername("validRefreshToken")).thenReturn("testuser");
+        when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
+        when(jwtService.isTokenValid("validRefreshToken", userDetails)).thenReturn(true);
+        when(jwtService.generateToken(anyMap(), eq(userDetails))).thenReturn("newAccessToken");
+
+        PrintWriter writer = mock(PrintWriter.class);
+        when(response.getWriter()).thenReturn(writer);
+
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(writer).write(contains("Invalid X-Hospital-Id header."));
+        verifyNoInteractions(filterChain);
+    }
+
+    @Test
+    void testDoFilterInternal_ValidToken_HospitalIdExtractorException() throws ServletException, IOException {
+        when(request.getHeader("Authorization")).thenReturn("Bearer validToken");
+        when(jwtService.extractUsername("validToken")).thenReturn("testuser");
+        when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
+        when(jwtService.isTokenValid("validToken", userDetails)).thenReturn(true);
+        when(jwtService.extractHospitalId("validToken")).thenThrow(new JwtException("Failed to extract hospital ID"));
+
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+    }
 }
+

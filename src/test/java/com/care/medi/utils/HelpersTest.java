@@ -2,6 +2,7 @@ package com.care.medi.utils;
 
 import com.care.medi.entity.Patient;
 import com.care.medi.entity.Users;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +14,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HelpersTest {
+
+    @BeforeEach
+    @SuppressWarnings("unused")
+    void setUp() {
+        Helpers helpers = new Helpers();
+        helpers.setDevEmail("1008tonystark@gmail.com");
+        helpers.setIsDevEnvironment(true);
+    }
 
     @Test
     @DisplayName("Should get start of the day")
