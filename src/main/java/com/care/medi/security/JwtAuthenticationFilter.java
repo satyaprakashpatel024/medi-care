@@ -30,6 +30,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(@NotNull @NonNull HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        String method = request.getMethod();
+
+        // 1. Health check & API documentation endpoints (Always bypass filter)
+        if (path.startsWith("/api/v1/health")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-ui.html")
+                || path.startsWith("/api-docs")) {
+            return true;
+        }
+
+        // 2. Auth endpoints (Bypass except /update-password which requires authentication context)
+        if (path.startsWith("/api/v1/auth/")) {
+            return !path.equals("/api/v1/auth/update-password");
+        }
+
+        // 3. Hospital endpoints - GET requests are public
+        if (path.startsWith("/api/v1/hospitals") && "GET".equalsIgnoreCase(method)) {
+            return true;
+        }
+
+        // 4. Appointment endpoints - POST requests are public (patient booking)
+        return path.startsWith("/api/v1/appointments") && "POST".equalsIgnoreCase(method);
+    }
+
+    @Override
     protected void doFilterInternal(
             @NotNull @NonNull HttpServletRequest request,
             @NotNull @NonNull HttpServletResponse response,

@@ -129,7 +129,7 @@ public class AuthService {
     public void forgotPassword(ForgotPasswordRequestDTO request) {
         String email = request.getEmail();
         boolean exists = usersRepository.existsByEmail(email);
-        if(!exists) {
+        if (!exists) {
             log.warn("Forgot password request for non-existent email: {}", Helpers.maskEmail(email));
             throw new UserNotFoundException("No account found with email: " + email);
         }

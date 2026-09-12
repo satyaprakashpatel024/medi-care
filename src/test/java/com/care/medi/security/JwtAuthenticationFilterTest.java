@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,6 +63,39 @@ class JwtAuthenticationFilterTest {
     @SuppressWarnings("unused")
     void tearDown() {
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void testShouldNotFilter_PublicPaths() throws ServletException {
+        // Health check & Documentation endpoints
+        when(request.getServletPath()).thenReturn("/api/v1/health");
+        assertTrue(jwtAuthenticationFilter.shouldNotFilter(request));
+
+        when(request.getServletPath()).thenReturn("/swagger-ui/index.html");
+        assertTrue(jwtAuthenticationFilter.shouldNotFilter(request));
+
+        // Auth endpoints
+        when(request.getServletPath()).thenReturn("/api/v1/auth/login");
+        assertTrue(jwtAuthenticationFilter.shouldNotFilter(request));
+
+        when(request.getServletPath()).thenReturn("/api/v1/auth/update-password");
+        assertFalse(jwtAuthenticationFilter.shouldNotFilter(request));
+
+        // Hospital endpoints
+        when(request.getServletPath()).thenReturn("/api/v1/hospitals/1");
+        when(request.getMethod()).thenReturn("GET");
+        assertTrue(jwtAuthenticationFilter.shouldNotFilter(request));
+
+        when(request.getMethod()).thenReturn("POST");
+        assertFalse(jwtAuthenticationFilter.shouldNotFilter(request));
+
+        // Appointment endpoints
+        when(request.getServletPath()).thenReturn("/api/v1/appointments");
+        when(request.getMethod()).thenReturn("POST");
+        assertTrue(jwtAuthenticationFilter.shouldNotFilter(request));
+
+        when(request.getMethod()).thenReturn("GET");
+        assertFalse(jwtAuthenticationFilter.shouldNotFilter(request));
     }
 
     @Test

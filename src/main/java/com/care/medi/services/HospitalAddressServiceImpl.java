@@ -1,7 +1,5 @@
 package com.care.medi.services;
 
-import org.springframework.stereotype.Service;
-
 import com.care.medi.dtos.request.HospitalAddressRequestDTO;
 import com.care.medi.dtos.response.HospitalAddressResponseDTO;
 import com.care.medi.entity.Hospital;
@@ -10,9 +8,9 @@ import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.repository.HospitalAddressRepository;
 import com.care.medi.repository.HospitalRepository;
 import com.care.medi.utils.Constants;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
