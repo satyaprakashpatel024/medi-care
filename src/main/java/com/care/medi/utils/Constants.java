@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public final class Constants {
-    public static final String KAFKA_TOPIC_APPOINTMENT_NOTIFICATION = "appointment.emails.notification";
+    public static final String KAFKA_TOPIC_APPOINTMENT_NOTIFICATION = "medicare.appointment.notification";
     public static final String KAFKA_TOPIC_OTP_NOTIFICATION = "medicare.otp.notification";
     public static final String KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION = "medicare.password-changed.notification";
 

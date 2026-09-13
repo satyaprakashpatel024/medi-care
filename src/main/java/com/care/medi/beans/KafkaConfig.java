@@ -22,11 +22,6 @@ public class KafkaConfig {
                 CertificateUtils.copyToTempFile("certificates/ca.pem")
         );
 
-        properties.getProperties().put(
-                SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-                CertificateUtils.copyToTempFile("certificates/svc.pem")
-        );
-
         return new DefaultKafkaConsumerFactory<>(properties.buildConsumerProperties());
     }
 
@@ -39,10 +34,6 @@ public class KafkaConfig {
         props.put(
                 SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
                 CertificateUtils.copyToTempFile("certificates/ca.pem"));
-
-        props.put(
-                SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-                CertificateUtils.copyToTempFile("certificates/svc.pem"));
 
         return new DefaultKafkaProducerFactory<>(props);
     }
