@@ -30,6 +30,9 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
 
+    @org.springframework.beans.factory.annotation.Value("${app.security.cookie-secure:false}")
+    private boolean cookieSecure;
+
     /**
      * Authenticates a user using their credentials, sets the access JWT in an HttpOnly cookie,
      * and returns the refresh token and user role in the response body.
@@ -44,6 +47,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("jwt", tokens.accessToken())
                 .httpOnly(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(jwtService.getJwtExpiration() / 1000)
                 .sameSite("Lax")
@@ -72,6 +76,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("jwt", tokens.accessToken())
                 .httpOnly(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(jwtService.getJwtExpiration() / 1000)
                 .sameSite("Lax")
@@ -95,6 +100,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse servletResponse) {
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(0)
                 .sameSite("Lax")

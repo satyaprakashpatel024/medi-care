@@ -1,25 +1,5 @@
 package com.care.medi.security;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.test.context.support.WithMockUser;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
 import com.care.medi.config.SecurityConfiguration;
 import com.care.medi.controller.DoctorController;
 import com.care.medi.controller.PatientController;
@@ -28,6 +8,26 @@ import com.care.medi.dtos.response.PatientResponseDTO;
 import com.care.medi.services.DoctorServiceImpl;
 import com.care.medi.services.PatientServiceImpl;
 import com.care.medi.services.UsersDetailsService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {DoctorController.class, PatientController.class})
 @Import({SecurityConfiguration.class, AopAutoConfiguration.class})
@@ -50,7 +50,13 @@ public class ObjectLevelAuthorizationSecurityTest {
 
     @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    
+
+    @MockitoBean
+    private RateLimitingFilter rateLimitingFilter;
+
+    @MockitoBean
+    private CorrelationIdFilter correlationIdFilter;
+
     @SuppressWarnings("unused")
     @MockitoBean
     private JwtService jwtService;
@@ -58,7 +64,7 @@ public class ObjectLevelAuthorizationSecurityTest {
     @SuppressWarnings("unused")
     @MockitoBean
     private UsersDetailsService usersDetailsService;
- 
+
     @SuppressWarnings("unused")
     @BeforeEach
     void setup() throws Exception {
@@ -69,6 +75,22 @@ public class ObjectLevelAuthorizationSecurityTest {
             chain.doFilter(request, response);
             return null;
         }).when(jwtAuthenticationFilter).doFilter(any(), any(), any());
+
+        org.mockito.Mockito.doAnswer(invocation -> {
+            jakarta.servlet.ServletRequest request = invocation.getArgument(0);
+            jakarta.servlet.ServletResponse response = invocation.getArgument(1);
+            jakarta.servlet.FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(rateLimitingFilter).doFilter(any(), any(), any());
+
+        org.mockito.Mockito.doAnswer(invocation -> {
+            jakarta.servlet.ServletRequest request = invocation.getArgument(0);
+            jakarta.servlet.ServletResponse response = invocation.getArgument(1);
+            jakarta.servlet.FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(correlationIdFilter).doFilter(any(), any(), any());
 
         mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(springSecurity())

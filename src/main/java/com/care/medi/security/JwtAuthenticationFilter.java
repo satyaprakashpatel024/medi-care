@@ -29,6 +29,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    @org.springframework.beans.factory.annotation.Value("${app.security.cookie-secure:false}")
+    private boolean cookieSecure;
+
     @Override
     protected boolean shouldNotFilter(@NotNull @NonNull HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
@@ -112,6 +115,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                             org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("jwt", newAccessToken)
                                     .httpOnly(true)
+                                    .secure(cookieSecure)
                                     .path("/")
                                     .maxAge(jwtService.getJwtExpiration() / 1000)
                                     .sameSite("Lax")
