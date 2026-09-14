@@ -39,7 +39,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private int windowSeconds;
 
     @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         if (!rateLimitEnabled) {
             return true;
         }

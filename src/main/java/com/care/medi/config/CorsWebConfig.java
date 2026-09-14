@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
-public class WebConfig implements WebMvcConfigurer {
+public class CorsWebConfig implements WebMvcConfigurer {
 
     @Value("${app.cors.allowed-origins:http://localhost:4200,http://localhost:5173,http://localhost:3000}")
     private String[] allowedOrigins;

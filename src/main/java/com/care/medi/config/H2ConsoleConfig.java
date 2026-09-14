@@ -1,4 +1,4 @@
-//package com.care.medi.config;
+package com.care.medi.config;
 //
 //import org.h2.server.web.JakartaWebServlet;
 //import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -8,7 +8,7 @@
 //
 //@Configuration
 //@Profile("local")
-//public class H2ConsoleConfig {
+public class H2ConsoleConfig {
 //
 //    @Bean
 //    public ServletRegistrationBean<JakartaWebServlet> h2Console() {
@@ -19,4 +19,4 @@
 //        registrationBean.setLoadOnStartup(1);
 //        return registrationBean;
 //    }
-//}
+}
