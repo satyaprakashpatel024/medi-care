@@ -5,6 +5,7 @@ import com.care.medi.dtos.request.*;
 import com.care.medi.dtos.response.*;
 import com.care.medi.entity.*;
 import com.care.medi.exception.BusinessException;
+import com.care.medi.exception.DuplicateResourceException;
 import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.exception.ResourceValidationException;
@@ -411,14 +412,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 // Add a safety check in case creation fails silently or returns null
                 if (newPatient == null || newPatient.id() == null) {
-                    throw new BusinessException("Failed to create new patient record.");
+                    log.error(Constants.LOG_KAFKA_CONSUME_ERROR, "AppointmentServiceImpl.resolvePatient", "Failed to create new patient record.");
+                    throw new ResourceNotFoundException("Failed to create new patient record.");
                 }
 
                 return patientRepository.findById(newPatient.id())
                         .orElseThrow(() -> new ResourceNotFoundException(String.format("Patient not found with ID: %s", newPatient.id())));
             }
-        } catch (Exception e) {
-            // Removed the ', e' from the end so it doesn't print stack traces in tests
+        } catch (ResourceNotFoundException | BusinessException | DuplicateResourceException e) {
             log.warn(Constants.LOG_SERVICE_EXCEPTION, "AppointmentServiceImpl.resolvePatient", e.getMessage());
             errorMap.put("patient", e.getMessage());
             return null;
