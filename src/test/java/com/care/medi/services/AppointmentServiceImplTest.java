@@ -109,6 +109,7 @@ class AppointmentServiceImplTest {
         testAppointment.setId(1L);
         testAppointment.setHospitalId(1L);
         testAppointment.setDoctor(testDoctor);
+        testAppointment.setDoctorId(1L);
         testAppointment.setPatient(testPatient);
         testAppointment.setDepartment(testDepartment);
         testAppointment.setAppointmentDate(LocalDate.now().plusDays(1));
@@ -279,7 +280,6 @@ class AppointmentServiceImplTest {
 
         // Now your error map will be clean and you can assert the specific hospital error!
         assertTrue(exception.getErrors().containsKey("hospitalId"));
-        System.out.println("Errors: " + exception.getErrors());
     }
 
     @Test
