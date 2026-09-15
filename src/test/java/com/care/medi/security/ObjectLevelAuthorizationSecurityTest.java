@@ -5,6 +5,7 @@ import com.care.medi.controller.DoctorController;
 import com.care.medi.controller.PatientController;
 import com.care.medi.dtos.response.DoctorResponseDTO;
 import com.care.medi.dtos.response.PatientResponseDTO;
+import com.care.medi.services.DoctorScheduleService;
 import com.care.medi.services.DoctorServiceImpl;
 import com.care.medi.services.PatientServiceImpl;
 import com.care.medi.services.UsersDetailsService;
@@ -41,6 +42,9 @@ public class ObjectLevelAuthorizationSecurityTest {
 
     @MockitoBean
     private DoctorServiceImpl doctorService;
+
+    @MockitoBean
+    private DoctorScheduleService doctorScheduleService;
 
     @MockitoBean
     private PatientServiceImpl patientService;

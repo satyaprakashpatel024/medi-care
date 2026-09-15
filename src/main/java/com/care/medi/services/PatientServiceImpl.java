@@ -54,7 +54,7 @@ public class PatientServiceImpl implements PatientService {
         if (usersRepository.existsByEmail(patient.getEmail())) {
             throw new DuplicateResourceException(Constants.DUPLICATE_EMAIL + patient.getEmail());
         }
-        Users user = Users.toEntity(patient.getEmail(), "default", Role.PATIENT);
+        Users user = Users.toEntity(patient.getEmail(), "Password@123", Role.PATIENT);
         user = usersRepository.save(user);
         Patient save = patientRepository.save(Patient.toEntity(patient, user));
         return PatientResponseDTO.fromEntity(save);

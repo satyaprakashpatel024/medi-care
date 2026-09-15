@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -86,6 +87,7 @@ public class Appointment extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "appointment", cascade = CascadeType.MERGE)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Prescription> prescription = new ArrayList<>();
 
     // Add the Entity relationship purely to generate the Foreign Key constraint

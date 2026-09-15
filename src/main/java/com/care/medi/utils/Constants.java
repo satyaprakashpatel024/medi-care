@@ -54,14 +54,14 @@ public final class Constants {
     // --- Logging Constants ---
     public static final String LOG_AUTH_FAILURE = "Authentication failed for user [{}]: {}";
     public static final String LOG_TOKEN_EXPIRED = "JWT token expired at: {}. Refresh token missing or expired. User logged out.";
-    public static final String LOG_INVALID_TOKEN = "Invalid JWT token: {}";
-    public static final String LOG_AUTO_REFRESH_FAILED = "Automatic refresh failed: {}";
-    public static final String LOG_INVALID_HEADER = "Invalid {} header: {}";
+    public static final String LOG_INVALID_TOKEN = "Invalid JWT token: {}, Exception: {}";
+    public static final String LOG_AUTO_REFRESH_FAILED = "Automatic refresh failed: {}, Exception: {}";
+    public static final String LOG_INVALID_HEADER = "Invalid {} header: {} , Exception: {}";
     public static final String LOG_SERVICE_EXCEPTION = "Exception in service [{}]: {}";
     public static final String LOG_KAFKA_PRODUCE_ERROR = "Failed to send Kafka notification event to topic [{}]: {}";
-    public static final String LOG_KAFKA_CONSUME_ERROR = "Error processing Kafka notification event for topic/type [{}]: {}";
+    public static final String LOG_KAFKA_CONSUME_ERROR = "Error processing Kafka notification event for topic/type {} : {}";
     public static final String LOG_EMAIL_SEND_ERROR = "Failed to send email to [{}]: {}";
-    public static final String LOG_UNHANDLED_EXCEPTION = "Unhandled internal server error occurred at URL {}: {}";
+    public static final String LOG_UNHANDLED_EXCEPTION = "Internal server error occurred at URL {}: {}";
 
     // ENCODING
     public static final String ENCODING = "UTF-8";

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -94,10 +95,12 @@ public class Doctor extends BaseEntity {
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Appointment> appointments = new ArrayList<>();
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Prescription> prescriptions = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

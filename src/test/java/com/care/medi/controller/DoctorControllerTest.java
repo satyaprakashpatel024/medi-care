@@ -1,6 +1,5 @@
 package com.care.medi.controller;
 
-
 import com.care.medi.dtos.request.DoctorRequestDTO;
 import com.care.medi.dtos.request.DoctorUpdateRequestDTO;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
@@ -8,6 +7,7 @@ import com.care.medi.dtos.response.DoctorListResponseDTO;
 import com.care.medi.dtos.response.DoctorResponseDTO;
 import com.care.medi.security.JwtAuthenticationFilter;
 import com.care.medi.security.JwtService;
+import com.care.medi.services.DoctorScheduleService;
 import com.care.medi.services.DoctorServiceImpl;
 import com.care.medi.services.UsersDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DoctorController.class)
-@AutoConfigureMockMvc(addFilters = false) // Disable security filters for simple controller testing
+@AutoConfigureMockMvc(addFilters = false)
 public class DoctorControllerTest {
 
     @Autowired
@@ -42,6 +42,10 @@ public class DoctorControllerTest {
 
     @MockitoBean
     private DoctorServiceImpl doctorService;
+
+    // <-- Added MockBean to satisfy DoctorController's constructor
+    @MockitoBean
+    private DoctorScheduleService doctorScheduleService;
 
     @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;

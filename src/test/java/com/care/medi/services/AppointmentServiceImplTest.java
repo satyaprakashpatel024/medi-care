@@ -1,16 +1,19 @@
 package com.care.medi.services;
 
 import com.care.medi.dtos.request.AppointmentRequestDTO;
+import com.care.medi.dtos.request.AppointmentRescheduleDTO;
 import com.care.medi.dtos.request.PatientRequestDTO;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
 import com.care.medi.dtos.response.PatientResponseDTO;
 import com.care.medi.entity.*;
+import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.exception.ResourceValidationException;
 import com.care.medi.repository.*;
 import com.care.medi.services.kafka.EmailNotificationProducer;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,8 +31,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,14 +65,12 @@ class AppointmentServiceImplTest {
     private Doctor testDoctor;
     private Patient testPatient;
     private Department testDepartment;
-    private Hospital testHospital;
     private AppointmentRequestDTO appointmentRequestDTO;
-    private Users testDoctorUser;
-    private Users testPatientUser;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
-        testHospital = new Hospital();
+        Hospital testHospital = new Hospital();
         testHospital.setId(1L);
         testHospital.setName("Test Hospital");
 
@@ -78,7 +78,7 @@ class AppointmentServiceImplTest {
         testDepartment.setId(1L);
         testDepartment.setName("Cardiology");
 
-        testDoctorUser = new Users();
+        Users testDoctorUser = new Users();
         testDoctorUser.setId(1L);
         testDoctorUser.setEmail("doctor@test.com");
         testDoctorUser.setRole(Role.DOCTOR);
@@ -92,7 +92,7 @@ class AppointmentServiceImplTest {
         testDoctor.setLastName("Doe");
         testDoctor.setActive(true);
 
-        testPatientUser = new Users();
+        Users testPatientUser = new Users();
         testPatientUser.setId(2L);
         testPatientUser.setEmail("patient@test.com");
         testPatientUser.setRole(Role.PATIENT);
@@ -113,6 +113,7 @@ class AppointmentServiceImplTest {
         testAppointment.setDepartment(testDepartment);
         testAppointment.setAppointmentDate(LocalDate.now().plusDays(1));
         testAppointment.setStartTime(LocalTime.of(10, 0));
+        testAppointment.setEndTime(LocalTime.of(10, 30));
         testAppointment.setStatus(AppointmentStatus.SCHEDULED);
 
         appointmentRequestDTO = new AppointmentRequestDTO();
@@ -227,9 +228,9 @@ class AppointmentServiceImplTest {
         when(appointmentRepository.findByIdAndHospitalId(1L, 1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class,
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> appointmentService.getAppointmentByIdAndHospital(1L, 1L));
-
+        assertTrue(exception.getMessage().contains("Appointment not found with ID:"));
         verify(appointmentRepository).findByIdAndHospitalId(1L, 1L);
     }
 
@@ -257,9 +258,28 @@ class AppointmentServiceImplTest {
     @Test
     @DisplayName("Should throw ResourceValidationException when creating appointment with missing hospital")
     void testCreateAppointment_HospitalNotFound() {
+        // 1. Mock the hospital failure
         when(hospitalRepository.existsById(1L)).thenReturn(false);
 
-        assertThrows(ResourceValidationException.class, () -> appointmentService.createAppointment(1L, appointmentRequestDTO));
+        // 2. Prevent the NPE by mocking the downstream patient service call
+        // Assuming your request doesn't have a patient ID and triggers the creation flow:
+        PatientResponseDTO dummyPatientResponse = PatientResponseDTO.builder().id(99L).build();
+        when(patientService.createPatientInHospital(anyLong(), any())).thenReturn(dummyPatientResponse);
+
+        // Mock the repository call that happens right after creation
+        Patient dummyPatient = new Patient();
+        dummyPatient.setId(99L);
+        when(patientRepository.findById(99L)).thenReturn(java.util.Optional.of(dummyPatient));
+
+        // 3. Execute and Assert
+        ResourceValidationException exception = assertThrows(
+                ResourceValidationException.class,
+                () -> appointmentService.createAppointment(1L, appointmentRequestDTO)
+        );
+
+        // Now your error map will be clean and you can assert the specific hospital error!
+        assertTrue(exception.getErrors().containsKey("hospitalId"));
+        System.out.println("Errors: " + exception.getErrors());
     }
 
     @Test
@@ -291,13 +311,14 @@ class AppointmentServiceImplTest {
         com.care.medi.dtos.request.AppointmentUpdateRequestDTO updateReq = new com.care.medi.dtos.request.AppointmentUpdateRequestDTO();
         when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
 
-        assertThrows(com.care.medi.exception.InvalidRequestException.class, () -> appointmentService.updateAppointment(1L, 1L, updateReq));
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> appointmentService.updateAppointment(1L, 1L, updateReq));
+        assertTrue(exception.getMessage().contains("Action Denied : Cannot Reschedule Appointment that is already COMPLETED."));
     }
 
     @Test
     @DisplayName("Should reschedule appointment successfully")
     void testRescheduleAppointment_Success() {
-        com.care.medi.dtos.request.AppointmentRescheduleDTO rescheduleReq = new com.care.medi.dtos.request.AppointmentRescheduleDTO();
+        AppointmentRescheduleDTO rescheduleReq = new AppointmentRescheduleDTO();
         rescheduleReq.setAppointmentDate("2025-01-01");
         rescheduleReq.setAppointmentTime("10:00 AM");
 
@@ -315,14 +336,15 @@ class AppointmentServiceImplTest {
     @Test
     @DisplayName("Should throw when rescheduling with conflicting appointment")
     void testRescheduleAppointment_Conflict() {
-        com.care.medi.dtos.request.AppointmentRescheduleDTO rescheduleReq = new com.care.medi.dtos.request.AppointmentRescheduleDTO();
+        AppointmentRescheduleDTO rescheduleReq = new AppointmentRescheduleDTO();
         rescheduleReq.setAppointmentDate("2025-01-01");
         rescheduleReq.setAppointmentTime("10:00 AM");
 
         when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
         when(appointmentRepository.existsConflictingAppointment(any(Long.class), any(Long.class), any(), any(), any())).thenReturn(true);
 
-        assertThrows(com.care.medi.exception.ResourceValidationException.class, () -> appointmentService.rescheduleAppointment(1L, rescheduleReq, 1L));
+        ResourceValidationException exception = assertThrows(ResourceValidationException.class, () -> appointmentService.rescheduleAppointment(1L, rescheduleReq, 1L));
+        Assertions.assertTrue(exception.getErrors().get("conflictingAppointment").contains("Action denied: This doctor is already scheduled for this time."));
     }
 
     @Test
@@ -359,8 +381,9 @@ class AppointmentServiceImplTest {
         when(appointmentRepository.findByIdAndHospitalId(1L, 1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class,
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> appointmentService.cancelAppointment(1L, 1L));
+        assertTrue(exception.getMessage().contains("Appointment not found with ID: "));
 
         verify(appointmentRepository).findByIdAndHospitalId(1L, 1L);
     }
@@ -383,8 +406,9 @@ class AppointmentServiceImplTest {
         when(appointmentRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class,
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> appointmentService.deleteAppointment(1L, 1L));
+        assertTrue(exception.getMessage().contains("Appointment not found with ID: "));
 
         verify(appointmentRepository).findById(1L);
     }
@@ -392,7 +416,6 @@ class AppointmentServiceImplTest {
     @Test
     @DisplayName("Should get appointments by hospital and patient")
     void testGetAppointmentsByHospitalAndPatient_Success() {
-        Page<AppointmentResponseDTO> appointmentPage = new PageImpl<>(List.of());
         when(patientRepository.existsById(1L)).thenReturn(true);
         when(appointmentRepository.findByHospitalIdAndPatientId(eq(1L), eq(1L), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(testAppointment)));
@@ -442,7 +465,6 @@ class AppointmentServiceImplTest {
     @DisplayName("Should get appointments by patient and date")
     void testGetAppointmentsByPatientAndDate_Success() {
         LocalDate date = LocalDate.now();
-        Page<AppointmentResponseDTO> appointmentPage = new PageImpl<>(List.of());
         when(appointmentRepository.findByPatientIdAndAppointmentDateBetween(
                 eq(1L), any(LocalDate.class), any(LocalDate.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(testAppointment)));

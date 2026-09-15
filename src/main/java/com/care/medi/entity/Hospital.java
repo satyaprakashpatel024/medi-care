@@ -39,27 +39,32 @@ public class Hospital extends BaseEntity {
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    @BatchSize(size = 3)
+    @BatchSize(size = 25)
     private Set<HospitalAddress> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private Set<HospitalDepartment> hospitalDepartments = new HashSet<>();
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Staff> staffs = new ArrayList<>();
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Doctor> doctors = new ArrayList<>();
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Appointment> appointments = new ArrayList<>();
 
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Patient> patients = new ArrayList<>();
 
     public void addAddress(HospitalAddress address) {
