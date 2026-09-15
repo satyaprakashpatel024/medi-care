@@ -72,7 +72,9 @@ public class AuthService {
             extraClaims.put("userId", user.getId());
         }
 
-        resolveHospitalId(user).ifPresent(hospitalId -> extraClaims.put("hospitalId", hospitalId));
+        Optional<Long> l = resolveHospitalId(user);
+        l.ifPresent(hospitalId -> extraClaims.put("hospitalId", hospitalId));
+        log.info("Resolved hospitalId for user {}: {}", Helpers.maskEmail(request.getEmail()), l.orElse(-1L));
 
         log.info("Login successful for user: {}, hospitalId: {}", Helpers.maskEmail(request.getEmail()), extraClaims.get("hospitalId"));
         String accessToken = jwtService.generateToken(extraClaims, user);

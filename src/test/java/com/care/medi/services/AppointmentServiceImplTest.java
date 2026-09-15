@@ -53,6 +53,8 @@ class AppointmentServiceImplTest {
     private PrescriptionRepository prescriptionRepository;
     @Mock
     private EmailNotificationProducer emailNotificationProducer;
+    @Mock
+    private DoctorScheduleService doctorScheduleService;
 
     @InjectMocks
     private AppointmentServiceImpl appointmentService;
@@ -483,5 +485,34 @@ class AppointmentServiceImplTest {
 
         assertFalse(result);
         verify(appointmentRepository).existsConflictingAppointment(1L, 1L, date, startTime, endTime);
+    }
+
+    @Test
+    @DisplayName("Should get available slots for doctor successfully")
+    void testGetAvailableSlots_Success() {
+        LocalDate date = LocalDate.now().plusDays(5);
+        when(hospitalRepository.existsById(1L)).thenReturn(true);
+        when(doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(1L, 1L)).thenReturn(Optional.of(testDoctor));
+        DoctorSchedule mockSchedule = DoctorSchedule.builder()
+                .doctorId(1L)
+                .hospitalId(1L)
+                .workStartTime(LocalTime.of(9, 0))
+                .workEndTime(LocalTime.of(12, 0))
+                .breakStartTime(LocalTime.of(10, 0))
+                .breakEndTime(LocalTime.of(10, 30))
+                .slotDurationMinutes(15)
+                .workingDays("MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY")
+                .isActive(true)
+                .build();
+        when(doctorScheduleService.getDoctorScheduleEntityOrDefault(1L, 1L)).thenReturn(mockSchedule);
+        when(appointmentRepository.findByDoctorIdAndHospitalIdAndAppointmentDateAndStatusNot(eq(1L), eq(1L), eq(date), eq(AppointmentStatus.CANCELLED)))
+                .thenReturn(List.of(testAppointment));
+
+        com.care.medi.dtos.response.DoctorDaySlotsResponseDTO result = appointmentService.getAvailableSlots(1L, 1L, date);
+
+        assertNotNull(result);
+        assertEquals(1L, result.doctorId());
+        assertEquals(15, result.slotDurationMinutes());
+        assertTrue(result.totalSlots() > 0);
     }
 }

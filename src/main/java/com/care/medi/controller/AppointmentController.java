@@ -7,6 +7,7 @@ import com.care.medi.dtos.response.ApiResponse;
 import com.care.medi.dtos.response.AppointmentListResponseDTO;
 import com.care.medi.dtos.response.AppointmentResponseDTO;
 import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
+import com.care.medi.dtos.response.DoctorDaySlotsResponseDTO;
 import com.care.medi.entity.AppointmentStatus;
 import com.care.medi.services.AppointmentServiceImpl;
 import com.care.medi.utils.Constants;
@@ -251,5 +252,32 @@ public class AppointmentController {
         return ResponseEntity.accepted().body(
                 ApiResponse.success("Appointment deleted successfully", null, HttpStatus.ACCEPTED)
         );
+    }
+
+    /**
+     * Retrieves available time slots for a doctor on a specific date.
+     *
+     * @param hospitalId the unique identifier of the hospital passed via the request attribute or header
+     * @param doctorId   the unique identifier of the doctor
+     * @param date       the date for which to retrieve available slots (ISO format)
+     * @return a {@link ResponseEntity} wrapping an {@link ApiResponse} with {@link DoctorDaySlotsResponseDTO}
+     */
+    @GetMapping("/available-slots")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<DoctorDaySlotsResponseDTO>> getAvailableSlots(
+            @RequestAttribute(value = "X-Hospital-Id", required = false) Long requestAttrHospitalId,
+            @RequestHeader(value = "X-Hospital-Id", required = false) Long requestHeaderHospitalId,
+            @RequestParam("doctorId") Long doctorId,
+            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        Long hospitalId = requestAttrHospitalId != null ? requestAttrHospitalId : requestHeaderHospitalId;
+        if (hospitalId == null || hospitalId < 1) {
+            throw new com.care.medi.exception.InvalidRequestException("Hospital ID (X-Hospital-Id) is required and must be a positive number.");
+        }
+
+        LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
+        DoctorDaySlotsResponseDTO availableSlots = appointmentService.getAvailableSlots(hospitalId, doctorId, filterDate);
+        String msg = String.format("Successfully retrieved available slots for Doctor ID %d on %s.", doctorId, filterDate);
+        return ResponseEntity.ok(ApiResponse.success(msg, availableSlots));
     }
 }

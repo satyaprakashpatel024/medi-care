@@ -2,10 +2,7 @@ package com.care.medi.services;
 
 import com.care.medi.dtos.EmailNotificationEvent;
 import com.care.medi.dtos.request.*;
-import com.care.medi.dtos.response.AppointmentListResponseDTO;
-import com.care.medi.dtos.response.AppointmentResponseDTO;
-import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
-import com.care.medi.dtos.response.PatientResponseDTO;
+import com.care.medi.dtos.response.*;
 import com.care.medi.entity.*;
 import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.ResourceNotFoundException;
@@ -40,12 +37,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final HospitalRepository hospitalRepository;
     private final PrescriptionRepository prescriptionRepository;
     private final EmailNotificationProducer emailNotificationProducer;
+    private final DoctorScheduleService doctorScheduleService;
 
     @Override
     public Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses) {
         return appointmentRepository.findByIdAndStatusIn(id, statuses);
     }
-
 
     @Override
     public boolean isAppointmentContextValid(Long appointmentId, Long hospitalId, Long doctorId, Long patientId) {
@@ -66,14 +63,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Page<AppointmentSummaryResponseDTO> getAllAppointmentsByHospitalAndDate(
             Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        // Convert LocalDate to the start and end of that specific day
-        // 1. Create the start of the day in IST
         LocalDate startOfDay = date.atStartOfDay().toLocalDate();
         LocalDate endOfDay = startOfDay.plusDays(1);
         return appointmentRepository.findByHospitalIdAndAppointmentDateBetween(hospitalId, startOfDay, endOfDay, pageable);
     }
 
-    // Appointment slots are every 10 minutes: 09:00, 09:10, 09:20 ...
     @Override
     @Transactional
     public AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request) {
@@ -81,13 +75,22 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // 1. Validate Hospital
         validateHospital(hospitalId, errorMap);
+
         // 2. Validate Date and Time
         LocalDate date = Helpers.parseAppointmentDate(request.getAppointmentDate(), errorMap);
-        System.out.println("appointmentTime = [" + request.getAppointmentTime() + "]");
         LocalTime time = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
-        // 3. validate appointment slot
-        if (date != null && time != null) {
-            boolean b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(10));
+
+        // 3. Validate appointment slot using Doctor's configured slot duration
+        int slotDuration = 15;
+        if (request.getDoctorId() != null) {
+            DoctorSchedule schedule = doctorScheduleService.getDoctorScheduleEntityOrDefault(hospitalId, request.getDoctorId());
+            if (schedule != null && schedule.getSlotDurationMinutes() != null && schedule.getSlotDurationMinutes() > 0) {
+                slotDuration = schedule.getSlotDurationMinutes();
+            }
+        }
+
+        if (date != null && time != null && request.getDoctorId() != null) {
+            boolean b = appointmentRepository.existsConflictingAppointment(request.getDoctorId(), hospitalId, date, time, time.plusMinutes(slotDuration));
             if (b) {
                 errorMap.put("conflictingAppointment", Constants.CONFLICTING_APPOINTMENT);
             }
@@ -95,18 +98,23 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // 4. Resolve Patient (Existing or New)
         Patient patientEntity = resolvePatient(hospitalId, request.getPatient(), errorMap);
+
         // 5. Validate Domain Entities Doctor
         Doctor doctor = validateDoctor(hospitalId, request.getDoctorId(), errorMap);
+
         // 6. Validate Department
         Department department = validateDepartment(request.getDepartmentId(), errorMap);
+
         // 7. Guard Clause: Throw if any errors collected
         if (!errorMap.isEmpty() || patientEntity == null) {
             throw new ResourceValidationException(errorMap);
         }
+
         // 8. Build and persist
-        Appointment appointment = Appointment.toEntity(patientEntity, doctor, department, hospitalId, date, time);
+        Appointment appointment = Appointment.toEntity(patientEntity, doctor, department, hospitalId, date, time, slotDuration);
         Appointment save = appointmentRepository.save(appointment);
-        // 9. Sent confirmation Email
+
+        // 9. Send confirmation Email
         String recipientEmail = Helpers.getRecipientEmail(patientEntity);
         emailNotificationProducer.sendEmailNotification(
                 new EmailNotificationEvent(
@@ -143,11 +151,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         Patient patient = appointment.getPatient();
         String recipientEmail = Helpers.getRecipientEmail(patient);
 
-        // Construct names cleanly using String.format()
         String patientFullName = String.format("%s %s", patient.getFirstName(), patient.getLastName());
         String doctorFullName = String.format("%s %s", appointment.getDoctor().getFirstName(), appointment.getDoctor().getLastName());
         emailNotificationProducer.sendEmailNotification(
-                new com.care.medi.dtos.EmailNotificationEvent(
+                new EmailNotificationEvent(
                         recipientEmail,
                         patientFullName,
                         doctorFullName,
@@ -179,7 +186,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setNotes(request.getNotes());
         appointment.setPrescription(prescription);
 
-        // saveAndFlush
         return AppointmentResponseDTO.fromEntity(appointmentRepository.saveAndFlush(appointment));
     }
 
@@ -200,7 +206,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         switch (appointment.getStatus()) {
             case SCHEDULED, NO_SHOW -> {
                 appointment.setStatus(AppointmentStatus.CANCELLED);
-                appointmentRepository.save(appointment); // saveAndFlush is usually overkill here
+                appointmentRepository.save(appointment);
             }
             case COMPLETED -> {
                 throw new InvalidRequestException(Constants.INVALID_REQUEST_APPOINTMENT_IS_COMPLETED);
@@ -212,7 +218,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                     throw new InvalidRequestException(Constants.INVALID_APPOINTMENT_STATUS + appointment.getStatus().name());
         }
         emailNotificationProducer.sendEmailNotification(
-                new com.care.medi.dtos.EmailNotificationEvent(
+                new EmailNotificationEvent(
                         Helpers.getRecipientEmail(appointment.getPatient()),
                         String.format("%s %s", appointment.getPatient().getFirstName(), appointment.getPatient().getLastName()),
                         String.format("%s %s", appointment.getDoctor().getFirstName(), appointment.getDoctor().getLastName()),
@@ -244,13 +250,10 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .map(AppointmentResponseDTO::fromEntity);
     }
 
-
     @Override
     public Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, AppointmentStatus status, int page, int size, String sortBy, LocalDate date) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        // 1. Create the start of the day in IST
         LocalDate startOfDay = Helpers.getStartOfTheDay(date);
-        // 2. Create the end of the day in IST
         LocalDate endOfDay = Helpers.getEndOfTheDay(date);
         return appointmentRepository
                 .findByHospitalIdAndStatusAndAppointmentDateBetween(hospitalId, status, startOfDay, endOfDay, pageable);
@@ -258,10 +261,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndHospitalIdAndDate(Long doctorId, Long hospitalId, int page, int size, String sortBy, LocalDate date) {
-
-        // 1. Create the start of the day in IST
         LocalDate startOfDay = Helpers.getStartOfTheDay(date);
-        // 2. Create the end of the day in IST
         LocalDate endOfDay = Helpers.getEndOfTheDay(date);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return appointmentRepository
@@ -271,13 +271,128 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public Page<AppointmentResponseDTO> getAppointmentsByPatientAndDate(Long patientId, LocalDate date, int page, int size, String sortBy) {
-        // 1. Create the start of the day in IST
         LocalDate startOfDay = date.atStartOfDay().toLocalDate();
         LocalDate endOfDay = startOfDay.plusDays(1);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<Appointment> byPatientIdAndAppointmentDateBetween = appointmentRepository.findByPatientIdAndAppointmentDateBetween(patientId, startOfDay, endOfDay, pageable);
         return byPatientIdAndAppointmentDateBetween.map(AppointmentResponseDTO::fromEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DoctorDaySlotsResponseDTO getAvailableSlots(Long hospitalId, Long doctorId, LocalDate date) {
+        LocalDate targetDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
+        if (!hospitalRepository.existsById(hospitalId)) {
+            throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId);
+        }
+        Doctor doctor = doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(doctorId, hospitalId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(Constants.DOCTOR_NOT_FOUND, doctorId, hospitalId)));
+
+        DoctorSchedule schedule = doctorScheduleService.getDoctorScheduleEntityOrDefault(hospitalId, doctorId);
+        int slotDuration = 15;
+        if (schedule != null && schedule.getSlotDurationMinutes() != null && schedule.getSlotDurationMinutes() > 0) {
+            slotDuration = schedule.getSlotDurationMinutes();
+        }
+
+        String dayOfWeekStr = targetDate.getDayOfWeek().name();
+        String workingDaysRaw = (schedule != null) ? schedule.getWorkingDays() : null;
+        List<String> workingDays = (workingDaysRaw != null && !workingDaysRaw.isBlank())
+                ? Arrays.stream(workingDaysRaw.split(",")).map(String::trim).map(String::toUpperCase).toList()
+                : List.of("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY");
+
+        boolean isWorkingDay = workingDays.contains(dayOfWeekStr);
+
+        List<Appointment> bookedAppointments = isWorkingDay
+                ? appointmentRepository.findByDoctorIdAndHospitalIdAndAppointmentDateAndStatusNot(doctorId, hospitalId, targetDate, AppointmentStatus.CANCELLED)
+                : List.of();
+
+        LocalTime workStart = (schedule != null && schedule.getWorkStartTime() != null) ? schedule.getWorkStartTime() : LocalTime.of(9, 0);
+        LocalTime workEnd = (schedule != null && schedule.getWorkEndTime() != null) ? schedule.getWorkEndTime() : LocalTime.of(17, 0);
+        LocalTime breakStart = (schedule != null) ? schedule.getBreakStartTime() : null;
+        LocalTime breakEnd = (schedule != null) ? schedule.getBreakEndTime() : null;
+
+        LocalTime currentTimeInZone = LocalTime.now(Constants.ZONE_ID);
+        LocalDate todayInZone = LocalDate.now(Constants.ZONE_ID);
+
+        List<AppointmentSlotDTO> slots = new ArrayList<>();
+        int availableCount = 0;
+
+        if (!isWorkingDay) {
+            LocalTime tempStart = workStart;
+            while (!tempStart.plusMinutes(slotDuration).isAfter(workEnd)) {
+                LocalTime tempEnd = tempStart.plusMinutes(slotDuration);
+                String timeRangeFormatted = String.format("%s - %s",
+                        tempStart.format(Constants.HUMAN_TIME_FORMAT),
+                        tempEnd.format(Constants.HUMAN_TIME_FORMAT));
+                slots.add(AppointmentSlotDTO.builder()
+                        .startTime(tempStart)
+                        .endTime(tempEnd)
+                        .available(false)
+                        .status("NON_WORKING_DAY")
+                        .formattedTimeRange(timeRangeFormatted)
+                        .build());
+                tempStart = tempEnd;
+            }
+        } else {
+            LocalTime tempStart = workStart;
+            while (!tempStart.plusMinutes(slotDuration).isAfter(workEnd)) {
+                LocalTime tempEnd = tempStart.plusMinutes(slotDuration);
+                final LocalTime finalStart = tempStart;
+                final LocalTime finalEnd = tempEnd;
+
+                String slotStatus = "AVAILABLE";
+                boolean isAvailable = true;
+
+                if (breakStart != null && breakEnd != null && finalStart.compareTo(breakEnd) < 0 && finalEnd.compareTo(breakStart) > 0) {
+                    slotStatus = "BREAK";
+                    isAvailable = false;
+                } else if (targetDate.equals(todayInZone) && finalStart.isBefore(currentTimeInZone)) {
+                    slotStatus = "PAST_TIME";
+                    isAvailable = false;
+                } else {
+                    boolean isBooked = bookedAppointments.stream().anyMatch(appt ->
+                            appt.getStartTime().compareTo(finalEnd) < 0 && appt.getEndTime().compareTo(finalStart) > 0
+                    );
+                    if (isBooked) {
+                        slotStatus = "BOOKED";
+                        isAvailable = false;
+                    }
+                }
+
+                if (isAvailable) {
+                    availableCount++;
+                }
+
+                String timeRangeFormatted = String.format("%s - %s",
+                        tempStart.format(Constants.HUMAN_TIME_FORMAT),
+                        tempEnd.format(Constants.HUMAN_TIME_FORMAT));
+
+                slots.add(AppointmentSlotDTO.builder()
+                        .startTime(tempStart)
+                        .endTime(tempEnd)
+                        .available(isAvailable)
+                        .status(slotStatus)
+                        .formattedTimeRange(timeRangeFormatted)
+                        .build());
+
+                tempStart = tempEnd;
+            }
+        }
+
+        String doctorFullName = String.format("%s %s", doctor.getFirstName(), doctor.getLastName());
+
+        return DoctorDaySlotsResponseDTO.builder()
+                .doctorId(doctorId)
+                .doctorName(doctorFullName)
+                .hospitalId(hospitalId)
+                .date(targetDate)
+                .dayOfWeek(dayOfWeekStr)
+                .slotDurationMinutes(slotDuration)
+                .totalSlots(slots.size())
+                .availableSlotsCount(availableCount)
+                .slots(slots)
+                .build();
     }
 
     private Patient resolvePatient(Long hospitalId, PatientRequestDTO patientReq, Map<String, String> errorMap) {
@@ -340,19 +455,26 @@ public class AppointmentServiceImpl implements AppointmentService {
                 errorMap.put("appointmentDateTime", "Both appointmentDate and appointmentTime are required for rescheduling.");
                 return null;
             }
+
+            DoctorSchedule doctorSchedule = doctorScheduleService.getDoctorScheduleEntityOrDefault(hospitalId, appointment.getDoctor().getId());
+            int slotDuration = 15;
+            if (doctorSchedule != null && doctorSchedule.getSlotDurationMinutes() != null && doctorSchedule.getSlotDurationMinutes() > 0) {
+                slotDuration = doctorSchedule.getSlotDurationMinutes();
+            }
+
             boolean b = appointmentRepository.existsConflictingAppointment(
                     appointment.getDoctor().getId(),
                     hospitalId,
                     rawDate,
                     rawTime,
-                    rawTime.plusMinutes(10));
+                    rawTime.plusMinutes(slotDuration));
             if (b) {
                 errorMap.put("conflictingAppointment", Constants.CONFLICTING_APPOINTMENT);
                 return null;
             }
             appointment.setAppointmentDate(rawDate);
             appointment.setStartTime(rawTime);
-            appointment.setEndTime(rawTime.plusMinutes(10));
+            appointment.setEndTime(rawTime.plusMinutes(slotDuration));
             if (request.getStatus() != null) {
                 appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
             }
