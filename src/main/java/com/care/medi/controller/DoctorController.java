@@ -9,7 +9,6 @@ import com.care.medi.dtos.response.DoctorResponseDTO;
 import com.care.medi.services.DoctorServiceImpl;
 import com.care.medi.utils.Constants;
 import jakarta.validation.Valid;
-import com.care.medi.services.DoctorScheduleService;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
