@@ -23,9 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.*;
 
@@ -66,7 +64,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void testShouldNotFilter_PublicPaths() throws ServletException {
+    void testShouldNotFilter_PublicPaths() {
         // Health check & Documentation endpoints
         when(request.getServletPath()).thenReturn("/api/v1/health");
         assertTrue(jwtAuthenticationFilter.shouldNotFilter(request));

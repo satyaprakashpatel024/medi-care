@@ -50,4 +50,5 @@ public interface AppointmentService {
 
     AppointmentResponseDTO updateAppointmentStatus(Long id, AppointmentStatus status);
 
+    com.care.medi.dtos.response.DoctorDaySlotsResponseDTO getAvailableSlots(Long hospitalId, Long doctorId, LocalDate date);
 }

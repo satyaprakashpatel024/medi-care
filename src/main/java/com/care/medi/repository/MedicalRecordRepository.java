@@ -57,11 +57,12 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Lo
     /**
      * All records for a patient within a hospital, newest first.
      */
-    @Query("SELECT mr FROM MedicalRecord mr " +
+    @Query(value = "SELECT mr FROM MedicalRecord mr " +
             "JOIN FETCH mr.doctor d " +
             "LEFT JOIN FETCH mr.appointment a " +
             "WHERE mr.patient.id = :patientId AND mr.hospitalId = :hospitalId " +
-            "ORDER BY mr.recordDate DESC, mr.createdAt DESC")
+            "ORDER BY mr.recordDate DESC, mr.createdAt DESC",
+            countQuery = "SELECT COUNT(mr) FROM MedicalRecord mr WHERE mr.patient.id = :patientId AND mr.hospitalId = :hospitalId")
     Page<MedicalRecord> findAllByPatientIdAndHospitalId(
             @Param("patientId") Long patientId,
             @Param("hospitalId") Long hospitalId,
@@ -70,11 +71,12 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Lo
     /**
      * Active records only for a patient.
      */
-    @Query("SELECT mr FROM MedicalRecord mr " +
+    @Query(value = "SELECT mr FROM MedicalRecord mr " +
             "JOIN FETCH mr.doctor d " +
             "WHERE mr.patient.id = :patientId AND mr.hospitalId = :hospitalId " +
             "AND mr.status = 'ACTIVE' " +
-            "ORDER BY mr.recordDate DESC")
+            "ORDER BY mr.recordDate DESC",
+            countQuery = "SELECT COUNT(mr) FROM MedicalRecord mr WHERE mr.patient.id = :patientId AND mr.hospitalId = :hospitalId AND mr.status = 'ACTIVE'")
     Page<MedicalRecord> findActiveByPatientIdAndHospitalId(
             @Param("patientId") Long patientId,
             @Param("hospitalId") Long hospitalId,
@@ -83,12 +85,13 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Lo
     /**
      * Most recent active record for a patient (for the /latest endpoint).
      */
-    @Query("SELECT mr FROM MedicalRecord mr " +
+    @Query(value = "SELECT mr FROM MedicalRecord mr " +
             "JOIN FETCH mr.doctor d " +
             "LEFT JOIN FETCH mr.appointment a " +
             "WHERE mr.patient.id = :patientId AND mr.hospitalId = :hospitalId " +
             "AND mr.status = 'ACTIVE' " +
-            "ORDER BY mr.recordDate DESC, mr.createdAt DESC")
+            "ORDER BY mr.recordDate DESC, mr.createdAt DESC",
+            countQuery = "SELECT COUNT(mr) FROM MedicalRecord mr WHERE mr.patient.id = :patientId AND mr.hospitalId = :hospitalId AND mr.status = 'ACTIVE'")
     Page<MedicalRecord> findLatestActiveByPatientIdAndHospitalId(
             @Param("patientId") Long patientId,
             @Param("hospitalId") Long hospitalId,
@@ -101,11 +104,12 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Lo
     /**
      * All records written by a doctor within a hospital.
      */
-    @Query("SELECT mr FROM MedicalRecord mr " +
+    @Query(value = "SELECT mr FROM MedicalRecord mr " +
             "JOIN FETCH mr.patient p " +
             "LEFT JOIN FETCH mr.appointment a " +
             "WHERE mr.doctor.id = :doctorId AND mr.hospitalId = :hospitalId " +
-            "ORDER BY mr.recordDate DESC")
+            "ORDER BY mr.recordDate DESC",
+            countQuery = "SELECT COUNT(mr) FROM MedicalRecord mr WHERE mr.doctor.id = :doctorId AND mr.hospitalId = :hospitalId")
     Page<MedicalRecord> findAllByDoctorIdAndHospitalId(
             @Param("doctorId") Long doctorId,
             @Param("hospitalId") Long hospitalId,
@@ -115,14 +119,15 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Lo
     // Date-range + status filter query (hospital-wide)
     // -------------------------------------------------------------------------
 
-    @Query("SELECT mr FROM MedicalRecord mr " +
+    @Query(value = "SELECT mr FROM MedicalRecord mr " +
             "JOIN FETCH mr.patient p " +
             "JOIN FETCH mr.doctor d " +
             "WHERE mr.hospitalId = :hospitalId " +
             "AND (:status IS NULL OR mr.status = :status) " +
             "AND (:from IS NULL OR mr.recordDate >= :from) " +
             "AND (:to   IS NULL OR mr.recordDate <= :to) " +
-            "ORDER BY mr.recordDate DESC")
+            "ORDER BY mr.recordDate DESC",
+            countQuery = "SELECT COUNT(mr) FROM MedicalRecord mr WHERE mr.hospitalId = :hospitalId AND (:status IS NULL OR mr.status = :status) AND (:from IS NULL OR mr.recordDate >= :from) AND (:to IS NULL OR mr.recordDate <= :to)")
     Page<MedicalRecord> findAllByHospitalIdFiltered(
             @Param("hospitalId") Long hospitalId,
             @Param("status") RecordStatus status,

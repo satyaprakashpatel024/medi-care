@@ -1,16 +1,17 @@
 package com.care.medi.services;
 
 import com.care.medi.dtos.request.AppointmentRequestDTO;
+import com.care.medi.dtos.request.AppointmentRescheduleDTO;
 import com.care.medi.dtos.request.PatientRequestDTO;
-import com.care.medi.dtos.response.AppointmentListResponseDTO;
-import com.care.medi.dtos.response.AppointmentResponseDTO;
-import com.care.medi.dtos.response.AppointmentSummaryResponseDTO;
-import com.care.medi.dtos.response.PatientResponseDTO;
+import com.care.medi.dtos.response.*;
 import com.care.medi.entity.*;
+import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.exception.ResourceValidationException;
 import com.care.medi.repository.*;
 import com.care.medi.services.kafka.EmailNotificationProducer;
+import com.care.medi.utils.Constants;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,8 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +53,8 @@ class AppointmentServiceImplTest {
     private PrescriptionRepository prescriptionRepository;
     @Mock
     private EmailNotificationProducer emailNotificationProducer;
+    @Mock
+    private DoctorScheduleService doctorScheduleService;
 
     @InjectMocks
     private AppointmentServiceImpl appointmentService;
@@ -61,14 +63,12 @@ class AppointmentServiceImplTest {
     private Doctor testDoctor;
     private Patient testPatient;
     private Department testDepartment;
-    private Hospital testHospital;
     private AppointmentRequestDTO appointmentRequestDTO;
-    private Users testDoctorUser;
-    private Users testPatientUser;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
-        testHospital = new Hospital();
+        Hospital testHospital = new Hospital();
         testHospital.setId(1L);
         testHospital.setName("Test Hospital");
 
@@ -76,7 +76,7 @@ class AppointmentServiceImplTest {
         testDepartment.setId(1L);
         testDepartment.setName("Cardiology");
 
-        testDoctorUser = new Users();
+        Users testDoctorUser = new Users();
         testDoctorUser.setId(1L);
         testDoctorUser.setEmail("doctor@test.com");
         testDoctorUser.setRole(Role.DOCTOR);
@@ -90,7 +90,7 @@ class AppointmentServiceImplTest {
         testDoctor.setLastName("Doe");
         testDoctor.setActive(true);
 
-        testPatientUser = new Users();
+        Users testPatientUser = new Users();
         testPatientUser.setId(2L);
         testPatientUser.setEmail("patient@test.com");
         testPatientUser.setRole(Role.PATIENT);
@@ -107,10 +107,12 @@ class AppointmentServiceImplTest {
         testAppointment.setId(1L);
         testAppointment.setHospitalId(1L);
         testAppointment.setDoctor(testDoctor);
+        testAppointment.setDoctorId(1L);
         testAppointment.setPatient(testPatient);
         testAppointment.setDepartment(testDepartment);
         testAppointment.setAppointmentDate(LocalDate.now().plusDays(1));
         testAppointment.setStartTime(LocalTime.of(10, 0));
+        testAppointment.setEndTime(LocalTime.of(10, 30));
         testAppointment.setStatus(AppointmentStatus.SCHEDULED);
 
         appointmentRequestDTO = new AppointmentRequestDTO();
@@ -225,9 +227,9 @@ class AppointmentServiceImplTest {
         when(appointmentRepository.findByIdAndHospitalId(1L, 1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class,
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> appointmentService.getAppointmentByIdAndHospital(1L, 1L));
-
+        assertTrue(exception.getMessage().contains("Appointment not found with ID:"));
         verify(appointmentRepository).findByIdAndHospitalId(1L, 1L);
     }
 
@@ -255,9 +257,27 @@ class AppointmentServiceImplTest {
     @Test
     @DisplayName("Should throw ResourceValidationException when creating appointment with missing hospital")
     void testCreateAppointment_HospitalNotFound() {
+        // 1. Mock the hospital failure
         when(hospitalRepository.existsById(1L)).thenReturn(false);
 
-        assertThrows(ResourceValidationException.class, () -> appointmentService.createAppointment(1L, appointmentRequestDTO));
+        // 2. Prevent the NPE by mocking the downstream patient service call
+        // Assuming your request doesn't have a patient ID and triggers the creation flow:
+        PatientResponseDTO dummyPatientResponse = PatientResponseDTO.builder().id(99L).build();
+        when(patientService.createPatientInHospital(anyLong(), any())).thenReturn(dummyPatientResponse);
+
+        // Mock the repository call that happens right after creation
+        Patient dummyPatient = new Patient();
+        dummyPatient.setId(99L);
+        when(patientRepository.findById(99L)).thenReturn(java.util.Optional.of(dummyPatient));
+
+        // 3. Execute and Assert
+        ResourceValidationException exception = assertThrows(
+                ResourceValidationException.class,
+                () -> appointmentService.createAppointment(1L, appointmentRequestDTO)
+        );
+
+        // Now your error map will be clean and you can assert the specific hospital error!
+        assertTrue(exception.getErrors().containsKey("hospitalId"));
     }
 
     @Test
@@ -289,13 +309,14 @@ class AppointmentServiceImplTest {
         com.care.medi.dtos.request.AppointmentUpdateRequestDTO updateReq = new com.care.medi.dtos.request.AppointmentUpdateRequestDTO();
         when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
 
-        assertThrows(com.care.medi.exception.InvalidRequestException.class, () -> appointmentService.updateAppointment(1L, 1L, updateReq));
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> appointmentService.updateAppointment(1L, 1L, updateReq));
+        assertTrue(exception.getMessage().contains("Action Denied : Cannot Reschedule Appointment that is already COMPLETED."));
     }
 
     @Test
     @DisplayName("Should reschedule appointment successfully")
     void testRescheduleAppointment_Success() {
-        com.care.medi.dtos.request.AppointmentRescheduleDTO rescheduleReq = new com.care.medi.dtos.request.AppointmentRescheduleDTO();
+        AppointmentRescheduleDTO rescheduleReq = new AppointmentRescheduleDTO();
         rescheduleReq.setAppointmentDate("2025-01-01");
         rescheduleReq.setAppointmentTime("10:00 AM");
 
@@ -313,14 +334,15 @@ class AppointmentServiceImplTest {
     @Test
     @DisplayName("Should throw when rescheduling with conflicting appointment")
     void testRescheduleAppointment_Conflict() {
-        com.care.medi.dtos.request.AppointmentRescheduleDTO rescheduleReq = new com.care.medi.dtos.request.AppointmentRescheduleDTO();
+        AppointmentRescheduleDTO rescheduleReq = new AppointmentRescheduleDTO();
         rescheduleReq.setAppointmentDate("2025-01-01");
         rescheduleReq.setAppointmentTime("10:00 AM");
 
         when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
         when(appointmentRepository.existsConflictingAppointment(any(Long.class), any(Long.class), any(), any(), any())).thenReturn(true);
 
-        assertThrows(com.care.medi.exception.ResourceValidationException.class, () -> appointmentService.rescheduleAppointment(1L, rescheduleReq, 1L));
+        ResourceValidationException exception = assertThrows(ResourceValidationException.class, () -> appointmentService.rescheduleAppointment(1L, rescheduleReq, 1L));
+        Assertions.assertTrue(exception.getErrors().get("conflictingAppointment").contains("Action denied: This doctor is already scheduled for this time."));
     }
 
     @Test
@@ -357,8 +379,9 @@ class AppointmentServiceImplTest {
         when(appointmentRepository.findByIdAndHospitalId(1L, 1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class,
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> appointmentService.cancelAppointment(1L, 1L));
+        assertTrue(exception.getMessage().contains("Appointment not found with ID: "));
 
         verify(appointmentRepository).findByIdAndHospitalId(1L, 1L);
     }
@@ -381,8 +404,9 @@ class AppointmentServiceImplTest {
         when(appointmentRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class,
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> appointmentService.deleteAppointment(1L, 1L));
+        assertTrue(exception.getMessage().contains("Appointment not found with ID: "));
 
         verify(appointmentRepository).findById(1L);
     }
@@ -390,7 +414,6 @@ class AppointmentServiceImplTest {
     @Test
     @DisplayName("Should get appointments by hospital and patient")
     void testGetAppointmentsByHospitalAndPatient_Success() {
-        Page<AppointmentResponseDTO> appointmentPage = new PageImpl<>(List.of());
         when(patientRepository.existsById(1L)).thenReturn(true);
         when(appointmentRepository.findByHospitalIdAndPatientId(eq(1L), eq(1L), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(testAppointment)));
@@ -440,7 +463,6 @@ class AppointmentServiceImplTest {
     @DisplayName("Should get appointments by patient and date")
     void testGetAppointmentsByPatientAndDate_Success() {
         LocalDate date = LocalDate.now();
-        Page<AppointmentResponseDTO> appointmentPage = new PageImpl<>(List.of());
         when(appointmentRepository.findByPatientIdAndAppointmentDateBetween(
                 eq(1L), any(LocalDate.class), any(LocalDate.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(testAppointment)));
@@ -483,5 +505,192 @@ class AppointmentServiceImplTest {
 
         assertFalse(result);
         verify(appointmentRepository).existsConflictingAppointment(1L, 1L, date, startTime, endTime);
+    }
+
+    @Test
+    @DisplayName("Should get available slots for doctor successfully")
+    void testGetAvailableSlots_Success() {
+        LocalDate date = LocalDate.now().plusDays(5);
+        when(hospitalRepository.existsById(1L)).thenReturn(true);
+        when(doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(1L, 1L)).thenReturn(Optional.of(testDoctor));
+        DoctorSchedule mockSchedule = DoctorSchedule.builder()
+                .doctorId(1L)
+                .hospitalId(1L)
+                .workStartTime(LocalTime.of(9, 0))
+                .workEndTime(LocalTime.of(12, 0))
+                .breakStartTime(LocalTime.of(10, 0))
+                .breakEndTime(LocalTime.of(10, 30))
+                .slotDurationMinutes(15)
+                .workingDays("MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY")
+                .isActive(true)
+                .build();
+        when(doctorScheduleService.getDoctorScheduleEntityOrDefault(1L, 1L)).thenReturn(mockSchedule);
+        when(appointmentRepository.findByDoctorIdAndHospitalIdAndAppointmentDateAndStatusNot(eq(1L), eq(1L), eq(date), eq(AppointmentStatus.CANCELLED)))
+                .thenReturn(List.of(testAppointment));
+
+        com.care.medi.dtos.response.DoctorDaySlotsResponseDTO result = appointmentService.getAvailableSlots(1L, 1L, date);
+
+        assertNotNull(result);
+        assertEquals(1L, result.doctorId());
+        assertEquals(15, result.slotDurationMinutes());
+        assertTrue(result.totalSlots() > 0);
+    }
+
+    // ── cancelAppointment additional branches ────────────────────────────────
+
+    @Test
+    @DisplayName("Should throw InvalidRequestException when cancelling a COMPLETED appointment")
+    void testCancelAppointment_CompletedStatus() {
+        testAppointment.setStatus(AppointmentStatus.COMPLETED);
+        when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
+
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> appointmentService.cancelAppointment(1L, 1L));
+        assertNotNull(exception);
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidRequestException when cancelling an already CANCELLED appointment")
+    void testCancelAppointment_CancelledStatus() {
+        testAppointment.setStatus(AppointmentStatus.CANCELLED);
+        when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
+
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> appointmentService.cancelAppointment(1L, 1L));
+        assertNotNull(exception);
+    }
+
+    @Test
+    @DisplayName("Should cancel a NO_SHOW appointment successfully")
+    void testCancelAppointment_NoShowStatus() {
+        testAppointment.setStatus(AppointmentStatus.NO_SHOW);
+        when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));
+
+        appointmentService.cancelAppointment(1L, 1L);
+
+        assertEquals(AppointmentStatus.CANCELLED, testAppointment.getStatus());
+        verify(appointmentRepository).save(testAppointment);
+    }
+
+    // ── updateAppointmentStatus — not found ──────────────────────────────────
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when updating status of non-existent appointment")
+    void testUpdateAppointmentStatus_NotFound() {
+        when(appointmentRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> appointmentService.updateAppointmentStatus(99L, AppointmentStatus.COMPLETED));
+        assertNotNull(exception);
+    }
+
+    // ── getAppointmentsByHospitalAndPatient — patient not found ───────────────
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when patient not found in getAppointmentsByHospitalAndPatient")
+    void testGetAppointmentsByHospitalAndPatient_PatientNotFound() {
+        when(patientRepository.existsById(99L)).thenReturn(false);
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> appointmentService.getAppointmentsByHospitalAndPatient(1L, 99L, 0, 10, "id"));
+        assertNotNull(exception);
+    }
+
+    // ── getAvailableSlots — hospital not found ───────────────────────────────
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when hospital not found in getAvailableSlots")
+    void testGetAvailableSlots_HospitalNotFound() {
+        when(hospitalRepository.existsById(99L)).thenReturn(false);
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> appointmentService.getAvailableSlots(99L, 1L, LocalDate.now()));
+        assertNotNull(exception);
+    }
+
+    // ── getAvailableSlots — doctor not found ─────────────────────────────────
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when doctor not found in getAvailableSlots")
+    void testGetAvailableSlots_DoctorNotFound() {
+        when(hospitalRepository.existsById(1L)).thenReturn(true);
+        when(doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(99L, 1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> appointmentService.getAvailableSlots(1L, 99L, LocalDate.now()));
+        assertNotNull(exception);
+    }
+
+    // ── getAvailableSlots — null date ────────────────────────────────────────
+
+    @Test
+    @DisplayName("Should default to today when date is null in getAvailableSlots")
+    void testGetAvailableSlots_NullDate() {
+        when(hospitalRepository.existsById(1L)).thenReturn(true);
+        when(doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(1L, 1L)).thenReturn(Optional.of(testDoctor));
+        DoctorSchedule mockSchedule = DoctorSchedule.builder()
+                .doctorId(1L).hospitalId(1L)
+                .workStartTime(LocalTime.of(9, 0)).workEndTime(LocalTime.of(12, 0))
+                .slotDurationMinutes(15)
+                .workingDays("MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY")
+                .isActive(true).build();
+        when(doctorScheduleService.getDoctorScheduleEntityOrDefault(1L, 1L)).thenReturn(mockSchedule);
+        when(appointmentRepository.findByDoctorIdAndHospitalIdAndAppointmentDateAndStatusNot(eq(1L), eq(1L), any(LocalDate.class), eq(AppointmentStatus.CANCELLED)))
+                .thenReturn(List.of());
+
+        com.care.medi.dtos.response.DoctorDaySlotsResponseDTO result = appointmentService.getAvailableSlots(1L, 1L, null);
+
+        assertNotNull(result);
+        assertEquals(1L, result.doctorId());
+    }
+
+    // ── getAvailableSlots — non-working day ──────────────────────────────────
+
+    @Test
+    @DisplayName("Should return NON_WORKING_DAY slots when doctor does not work on that day")
+    void testGetAvailableSlots_NonWorkingDay() {
+        // Pick a date that falls on SUNDAY
+        LocalDate sunday = LocalDate.now().plusDays(1);
+        while (sunday.getDayOfWeek() != java.time.DayOfWeek.SUNDAY) {
+            sunday = sunday.plusDays(1);
+        }
+        when(hospitalRepository.existsById(1L)).thenReturn(true);
+        when(doctorRepository.findByIdAndHospitalIdAndIsActiveTrue(1L, 1L)).thenReturn(Optional.of(testDoctor));
+        DoctorSchedule mockSchedule = DoctorSchedule.builder()
+                .doctorId(1L).hospitalId(1L)
+                .workStartTime(LocalTime.of(9, 0)).workEndTime(LocalTime.of(12, 0))
+                .slotDurationMinutes(15)
+                .workingDays("MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY")
+                .isActive(true).build();
+        when(doctorScheduleService.getDoctorScheduleEntityOrDefault(1L, 1L)).thenReturn(mockSchedule);
+
+        DoctorDaySlotsResponseDTO result = appointmentService.getAvailableSlots(1L, 1L, sunday);
+
+        assertNotNull(result);
+        assertEquals(0, result.availableSlotsCount());
+        assertTrue(result.totalSlots() > 0);
+    }
+
+    // ── createAppointment — conflicting appointment ──────────────────────────
+
+    @Test
+    @DisplayName("Should throw ResourceValidationException when conflicting appointment exists")
+    void testCreateAppointment_ConflictingAppointment() {
+        LocalDate futureDate = LocalDate.now().plusDays(10);
+        appointmentRequestDTO.setAppointmentDate(futureDate.toString());
+        appointmentRequestDTO.setAppointmentTime("10:00 AM");
+        appointmentRequestDTO.setDoctorId(1L);
+
+        when(hospitalRepository.existsById(1L)).thenReturn(true);
+        DoctorSchedule mockSchedule = DoctorSchedule.builder()
+                .slotDurationMinutes(15).build();
+        when(doctorScheduleService.getDoctorScheduleEntityOrDefault(1L, 1L)).thenReturn(mockSchedule);
+        when(appointmentRepository.existsConflictingAppointment(eq(1L), eq(1L), eq(futureDate), eq(LocalTime.of(10, 0)), eq(LocalTime.of(10, 15))))
+                .thenReturn(true);
+
+        ResourceValidationException exception = assertThrows(ResourceValidationException.class,
+                () -> appointmentService.createAppointment(1L, appointmentRequestDTO));
+
+        assertNotNull(exception.getErrors());
+        assertTrue(exception.getErrors().containsKey("conflictingAppointment"));
+        assertEquals(Constants.CONFLICTING_APPOINTMENT, exception.getErrors().get("conflictingAppointment"));
     }
 }

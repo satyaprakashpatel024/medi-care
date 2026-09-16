@@ -22,11 +22,6 @@ public class KafkaConfig {
                 CertificateUtils.copyToTempFile("certificates/ca.pem")
         );
 
-        properties.getProperties().put(
-                SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-                CertificateUtils.copyToTempFile("certificates/svc.pem")
-        );
-
         return new DefaultKafkaConsumerFactory<>(properties.buildConsumerProperties());
     }
 
@@ -40,10 +35,6 @@ public class KafkaConfig {
                 SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
                 CertificateUtils.copyToTempFile("certificates/ca.pem"));
 
-        props.put(
-                SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-                CertificateUtils.copyToTempFile("certificates/svc.pem"));
-
         return new DefaultKafkaProducerFactory<>(props);
     }
 
@@ -52,5 +43,29 @@ public class KafkaConfig {
             ProducerFactory<String, Object> producerFactory) {
 
         return new KafkaTemplate<>(producerFactory);
+    }
+
+    @Bean
+    public org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
+            ConsumerFactory<String, Object> consumerFactory,
+            KafkaTemplate<String, Object> kafkaTemplate
+    ) {
+        org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+                new org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory);
+
+        // Exponential Backoff Retries + Dead Letter Topic (DLT) Recoverer
+        org.springframework.kafka.listener.DeadLetterPublishingRecoverer recoverer =
+                new org.springframework.kafka.listener.DeadLetterPublishingRecoverer(kafkaTemplate);
+
+        org.springframework.util.backoff.ExponentialBackOff backOff =
+                new org.springframework.util.backoff.ExponentialBackOff(1000L, 2.0);
+        backOff.setMaxElapsedTime(10000L);
+
+        org.springframework.kafka.listener.DefaultErrorHandler errorHandler =
+                new org.springframework.kafka.listener.DefaultErrorHandler(recoverer, backOff);
+
+        factory.setCommonErrorHandler(errorHandler);
+        return factory;
     }
 }

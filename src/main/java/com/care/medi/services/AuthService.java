@@ -10,6 +10,7 @@ import com.care.medi.exception.UserNotFoundException;
 import com.care.medi.repository.*;
 import com.care.medi.security.JwtService;
 import com.care.medi.services.kafka.EmailNotificationProducer;
+import com.care.medi.utils.Constants;
 import com.care.medi.utils.Helpers;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -72,7 +73,9 @@ public class AuthService {
             extraClaims.put("userId", user.getId());
         }
 
-        resolveHospitalId(user).ifPresent(hospitalId -> extraClaims.put("hospitalId", hospitalId));
+        Optional<Long> l = resolveHospitalId(user);
+        l.ifPresent(hospitalId -> extraClaims.put("hospitalId", hospitalId));
+        log.info("Resolved hospitalId for user {}: {}", Helpers.maskEmail(request.getEmail()), l.orElse(-1L));
 
         log.info("Login successful for user: {}, hospitalId: {}", Helpers.maskEmail(request.getEmail()), extraClaims.get("hospitalId"));
         String accessToken = jwtService.generateToken(extraClaims, user);
@@ -87,7 +90,7 @@ public class AuthService {
         try {
             userEmail = jwtService.extractUsername(refreshToken);
         } catch (Exception e) {
-            log.warn(com.care.medi.utils.Constants.LOG_SERVICE_EXCEPTION, "AuthService.refresh", e.getMessage(), e);
+            log.warn(Constants.LOG_SERVICE_EXCEPTION, "AuthService.refresh", e.getMessage());
             throw new InvalidCredentialsException("Invalid or expired refresh token");
         }
 

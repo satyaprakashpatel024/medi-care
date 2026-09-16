@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -86,6 +87,7 @@ public class Appointment extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "appointment", cascade = CascadeType.MERGE)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Prescription> prescription = new ArrayList<>();
 
     // Add the Entity relationship purely to generate the Foreign Key constraint
@@ -97,7 +99,7 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "doctor_id", foreignKey = @ForeignKey(name = "fk_appointment_doctor"), insertable = false, updatable = false)
     private Doctor doctor;
 
-    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime) {
+    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime, int slotDurationMinutes) {
         return Appointment.builder()
                 .patient(patientEntity)
                 .doctorId(doctor.getId())
@@ -106,14 +108,25 @@ public class Appointment extends BaseEntity {
                 .appointmentDate(date)
                 .status(AppointmentStatus.SCHEDULED)
                 .startTime(startTime)
-                .endTime(startTime.plusMinutes(10))
+                .endTime(startTime.plusMinutes(slotDurationMinutes > 0 ? slotDurationMinutes : 15))
                 .createdAt(ZonedDateTime.now(Constants.ZONE_ID))
                 .build();
     }
 
-    public LocalTime setEndTime() {
-        if (this.startTime != null)
-            this.endTime = startTime.plusMinutes(10);
+    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime) {
+        return toEntity(patientEntity, doctor, department, hospitalId, date, startTime, 15);
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public LocalTime setEndTimeFromDuration(int slotDurationMinutes) {
+        this.endTime = this.startTime.plusMinutes(slotDurationMinutes > 0 ? slotDurationMinutes : 15);
         return this.endTime;
+    }
+
+    public LocalTime setEndTimeFromDuration() {
+        return setEndTimeFromDuration(15);
     }
 }

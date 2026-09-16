@@ -1,6 +1,7 @@
 package com.care.medi.exception;
 
 import com.care.medi.dtos.response.ApiResponse;
+import com.care.medi.utils.Constants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -164,11 +165,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(HttpServletRequest request, Exception ex) throws Exception {
         if (request.getRequestURI().startsWith("/h2-console")) {
-            throw ex; // Safe rethrow without cast
+            throw ex;
         }
-
-        log.error(com.care.medi.utils.Constants.LOG_UNHANDLED_EXCEPTION, request.getRequestURI(), ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName(), ex);
-
+        log.error(Constants.LOG_UNHANDLED_EXCEPTION, request.getRequestURI(), ex.toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ApiResponse.error("An unexpected error occurred. Please try again later.", "INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR)
         );

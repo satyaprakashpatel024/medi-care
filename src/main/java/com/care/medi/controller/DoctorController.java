@@ -37,6 +37,7 @@ import java.time.LocalDate;
 public class DoctorController {
 
     private final DoctorServiceImpl doctorService;
+    private final com.care.medi.services.DoctorScheduleService doctorScheduleService;
 
     /**
      * Retrieves a paginated list of all active doctors across all hospitals.
@@ -251,6 +252,44 @@ public class DoctorController {
                         msg,
                         doctorService.getActiveDoctorsBySpecialityAndHospital(speciality, hospitalId, page, size, sortBy)
                 )
+        );
+    }
+
+    /**
+     * Retrieves the schedule configuration for a doctor within a hospital.
+     *
+     * @param hospitalId the hospital identifier
+     * @param id         the doctor identifier
+     * @return a {@link ResponseEntity} with the {@link com.care.medi.dtos.response.DoctorScheduleResponseDTO}
+     */
+    @GetMapping("/{id}/schedule")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('DOCTOR') and @userSecurity.isSelfDoctor(#id, authentication))")
+    public ResponseEntity<ApiResponse<com.care.medi.dtos.response.DoctorScheduleResponseDTO>> getDoctorSchedule(
+            @RequestAttribute(value = "X-Hospital-Id")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @PathVariable("id") Long id) {
+        com.care.medi.dtos.response.DoctorScheduleResponseDTO schedule = doctorScheduleService.getScheduleByDoctorAndHospital(hospitalId, id);
+        return ResponseEntity.ok(ApiResponse.success("Doctor schedule fetched successfully", schedule));
+    }
+
+    /**
+     * Creates or updates the schedule configuration for a doctor within a hospital.
+     *
+     * @param hospitalId the hospital identifier
+     * @param id         the doctor identifier
+     * @param request    the schedule configuration request DTO
+     * @return a {@link ResponseEntity} with the updated {@link com.care.medi.dtos.response.DoctorScheduleResponseDTO}
+     */
+    @PutMapping("/{id}/schedule")
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN') or (hasRole('DOCTOR') and @userSecurity.isSelfDoctor(#id, authentication))")
+    public ResponseEntity<ApiResponse<com.care.medi.dtos.response.DoctorScheduleResponseDTO>> updateDoctorSchedule(
+            @RequestAttribute(value = "X-Hospital-Id")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @PathVariable("id") Long id,
+            @RequestBody @Valid com.care.medi.dtos.request.DoctorScheduleRequestDTO request) {
+        com.care.medi.dtos.response.DoctorScheduleResponseDTO schedule = doctorScheduleService.createOrUpdateSchedule(hospitalId, id, request);
+        return ResponseEntity.accepted().body(
+                ApiResponse.success("Doctor schedule updated successfully", schedule, HttpStatus.ACCEPTED)
         );
     }
 }

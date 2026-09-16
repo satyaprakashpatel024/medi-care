@@ -33,7 +33,7 @@ public class EmailNotificationConsumer {
                     event.getAppointmentId()
             );
         } catch (Exception e) {
-            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION, e);
+            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION, e.toString());
         }
     }
 
@@ -46,7 +46,7 @@ public class EmailNotificationConsumer {
         try {
             emailService.sendOtpEmail(event.getToEmail(), event.getOtp());
         } catch (Exception e) {
-            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_OTP_NOTIFICATION, e);
+            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_OTP_NOTIFICATION, e.toString());
         }
     }
 
@@ -59,7 +59,7 @@ public class EmailNotificationConsumer {
         try {
             emailService.sendPasswordChangedEmail(event.getToEmail());
         } catch (Exception e) {
-            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION, e);
+            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION, e.toString());
         }
     }
 }

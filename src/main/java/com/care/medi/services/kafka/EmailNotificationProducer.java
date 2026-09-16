@@ -24,13 +24,13 @@ public class EmailNotificationProducer {
         try {
             kafkaTemplate.send(topic, key, event).whenComplete((result, ex) -> {
                 if (ex != null) {
-                    log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, ex.getMessage(), ex);
+                    log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, ex.toString());
                 } else {
                     log.info("Published Kafka event to topic '{}' with key '{}': {}", topic, Helpers.maskKey(key), event);
                 }
             });
         } catch (Exception e) {
-            log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, e.getMessage(), e);
+            log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, e.toString());
         }
     }
 

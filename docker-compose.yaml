@@ -1,5 +1,34 @@
 version: "3.8"
+
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: medicare_postgres
+    environment:
+      POSTGRES_DB: medicare
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d medicare" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: medicare_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   app:
     build:
       context: .
@@ -7,3 +36,26 @@ services:
     container_name: medi_care_v1
     ports:
       - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/medicare
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgrespassword
+      SPRING_REDIS_URL: redis://redis:6379
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: "587"
+      SPRING_MAIL_USERNAME: "1008alexrider@gmail.com"
+      SPRING_MAIL_PASSWORD: ${SMTP_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: "medicare-kafka-alexrider-978b.h.aivencloud.com:20940"
+      KAFKA_USERNAME: ${AIVEN_USERNAME}
+      KAFKA_PASSWORD: ${AIVEN_PASSWORD}
+      JWT_SECRET: "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437"
+      APP_SWAGGER_ENABLED: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

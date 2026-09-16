@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -40,14 +41,17 @@ public class Department extends BaseEntity {
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<HospitalDepartment> hospitalDepartments = new ArrayList<>();
 
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Doctor> doctors = new ArrayList<>();
 
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 25)
     private List<Appointment> appointments = new ArrayList<>();
 
     // ── Helper methods  ──────────────────────────────────────────────
