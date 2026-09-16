@@ -89,8 +89,10 @@ public class PrescriptionControllerTest {
         request.setPatientId(1L);
         request.setAppointmentId(1L);
         request.setDoctorId(1L);
-        request.setMedications("Paracetamol");
-        request.setDosageInstructions("500mg, 5 days, After meals");
+        com.care.medi.dtos.request.PrescriptionItemRequestDTO item = new com.care.medi.dtos.request.PrescriptionItemRequestDTO();
+        item.setMedicationId(1L);
+        item.setDosageInstructions("500mg, 5 days, After meals");
+        request.setItems(java.util.Collections.singletonList(item));
 
         when(prescriptionService.assignPrescriptionToAppointment(eq(1L), any(PrescriptionRequestDTO.class))).thenReturn(prescriptionResponseDTO);
 

@@ -7,5 +7,6 @@ public enum Role {
     SUPER_ADMIN,
     HOSPITAL_ADMIN,
     RECEPTIONIST,
-    GUEST
+    GUEST,
+    PHARMACIST
 }

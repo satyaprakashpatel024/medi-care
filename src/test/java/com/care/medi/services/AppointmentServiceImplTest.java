@@ -288,7 +288,10 @@ class AppointmentServiceImplTest {
         updateReq.setTreatment("Treatment");
         updateReq.setNotes("Notes");
         com.care.medi.dtos.request.PrescriptionRequestDTO pDto = new com.care.medi.dtos.request.PrescriptionRequestDTO();
-        pDto.setMedications("Med1");
+        com.care.medi.dtos.request.PrescriptionItemRequestDTO item = new com.care.medi.dtos.request.PrescriptionItemRequestDTO();
+        item.setMedicationId(1L);
+        item.setDosageInstructions("Med1");
+        pDto.setItems(java.util.Collections.singletonList(item));
         updateReq.setPrescription(pDto);
 
         testAppointment.setPrescription(new java.util.ArrayList<>());

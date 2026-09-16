@@ -45,6 +45,9 @@ class PrescriptionServiceImplTest {
     @Mock
     private AppointmentRepository appointmentRepository;
 
+    @Mock
+    private com.care.medi.repository.MedicationRepository medicationRepository;
+
     @InjectMocks
     private PrescriptionServiceImpl prescriptionService;
 
@@ -59,23 +62,43 @@ class PrescriptionServiceImplTest {
         requestDTO.setAppointmentId(1L);
         requestDTO.setPatientId(1L);
         requestDTO.setDoctorId(1L);
-        requestDTO.setMedications("Paracetamol");
+        com.care.medi.dtos.request.PrescriptionItemRequestDTO itemDTO = new com.care.medi.dtos.request.PrescriptionItemRequestDTO();
+        itemDTO.setMedicationId(1L);
+        itemDTO.setDosageInstructions("Paracetamol");
+        requestDTO.setItems(java.util.Collections.singletonList(itemDTO));
 
         testAppointment = new Appointment();
         testAppointment.setId(1L);
         testAppointment.setStatus(AppointmentStatus.SCHEDULED);
         Patient patient = new Patient();
         patient.setId(1L);
+        patient.setFirstName("John");
+        patient.setLastName("Doe");
         testAppointment.setPatient(patient);
+
+        com.care.medi.entity.Doctor doctor = new com.care.medi.entity.Doctor();
+        doctor.setId(1L);
+        doctor.setFirstName("Dr.");
+        doctor.setLastName("Smith");
 
         testPrescription = new Prescription();
         testPrescription.setId(1L);
         testPrescription.setAppointment(testAppointment);
-        testPrescription.setMedications("Paracetamol");
+        testPrescription.setPatient(patient);
+        testPrescription.setDoctor(doctor);
+        com.care.medi.entity.Medication med = new com.care.medi.entity.Medication();
+        med.setId(1L);
+        med.setName("Paracetamol");
+        com.care.medi.entity.PrescriptionItem pItem = new com.care.medi.entity.PrescriptionItem();
+        pItem.setId(1L);
+        pItem.setMedication(med);
+        pItem.setPrescription(testPrescription);
+        testPrescription.getItems().add(pItem);
 
+        com.care.medi.dtos.response.PrescriptionItemResponseDTO resItem = com.care.medi.dtos.response.PrescriptionItemResponseDTO.builder().id(1L).medicationName("Paracetamol").build();
         responseDTO = PrescriptionResponseDTO.builder()
                 .id(1L)
-                .medications("Paracetamol")
+                .items(java.util.Collections.singletonList(resItem))
                 .build();
     }
 
@@ -85,7 +108,7 @@ class PrescriptionServiceImplTest {
         when(patientService.existsByIdAndHospitalId(1L, 1L)).thenReturn(true);
 
         // Mock the Page response manually since method returns Page<PrescriptionResponseDTO> instead of Page<Prescription>
-        Page<PrescriptionResponseDTO> pageResponse = new PageImpl<>(List.of(responseDTO));
+        Page<Prescription> pageResponse = new PageImpl<>(List.of(testPrescription));
         when(prescriptionRepository.findByPatientId(eq(1L), any(Pageable.class))).thenReturn(pageResponse);
 
         Page<PrescriptionResponseDTO> result = prescriptionService.getPrescriptionByPatientId(1L, 1L, 0, 10, "id");
@@ -115,7 +138,7 @@ class PrescriptionServiceImplTest {
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
-        assertEquals("Paracetamol", result.getContent().get(0).medications());
+        assertEquals("Paracetamol", result.getContent().get(0).items().get(0).medicationName());
         verify(appointmentService).existsByIdAndHospitalId(1L, 1L);
     }
 
@@ -131,6 +154,10 @@ class PrescriptionServiceImplTest {
     @Test
     @DisplayName("Should assign prescription to appointment")
     void testAssignPrescriptionToAppointment() {
+        com.care.medi.entity.Medication med = new com.care.medi.entity.Medication();
+        med.setId(1L);
+        med.setName("Paracetamol");
+        when(medicationRepository.findById(anyLong())).thenReturn(Optional.of(med));
         when(appointmentService.isAppointmentContextValid(1L, 1L, 1L, 1L)).thenReturn(true);
         when(appointmentRepository.findByIdAndStatusIn(eq(1L), anyList())).thenReturn(Optional.of(testAppointment));
         when(prescriptionRepository.save(any(Prescription.class))).thenReturn(testPrescription);
@@ -139,7 +166,7 @@ class PrescriptionServiceImplTest {
         PrescriptionResponseDTO result = prescriptionService.assignPrescriptionToAppointment(1L, requestDTO);
 
         assertNotNull(result);
-        assertEquals("Paracetamol", result.medications());
+        assertEquals("Paracetamol", result.items().get(0).medicationName());
         verify(appointmentService).isAppointmentContextValid(1L, 1L, 1L, 1L);
         verify(appointmentRepository).findByIdAndStatusIn(eq(1L), anyList());
         verify(prescriptionRepository).save(any(Prescription.class));
