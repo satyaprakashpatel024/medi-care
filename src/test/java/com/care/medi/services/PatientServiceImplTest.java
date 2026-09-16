@@ -1,12 +1,15 @@
 package com.care.medi.services;
 
+import com.care.medi.dtos.request.InsuranceRequestDTO;
 import com.care.medi.dtos.request.PatientRequestDTO;
 import com.care.medi.dtos.request.PatientUpdateRequestDTO;
+import com.care.medi.dtos.response.InsuranceResponseDTO;
 import com.care.medi.dtos.response.PatientListResponseDTO;
 import com.care.medi.dtos.response.PatientResponseDTO;
 import com.care.medi.entity.*;
 import com.care.medi.exception.DuplicateResourceException;
 import com.care.medi.exception.ResourceNotFoundException;
+import com.care.medi.repository.InsuranceRepository;
 import com.care.medi.repository.PatientRepository;
 import com.care.medi.repository.UsersRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +41,9 @@ class PatientServiceImplTest {
     @Mock
     private UsersRepository usersRepository;
     @Mock
-    private HospitalService hospitalService;
+    private InsuranceRepository insuranceRepository;
+    @Mock
+    private HospitalServiceImpl hospitalService;
     @InjectMocks
     private PatientServiceImpl patientService;
 
@@ -46,6 +51,7 @@ class PatientServiceImplTest {
     private Users testUser;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         testUser = new Users();
         testUser.setId(1L);
@@ -82,7 +88,8 @@ class PatientServiceImplTest {
     @DisplayName("Should throw exception when patient not found")
     void testGetPatientByIdAndHospitalId_NotFound() {
         when(patientRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> patientService.getPatientByIdAndHospitalId(1L, 1L));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> patientService.getPatientByIdAndHospitalId(1L, 1L));
+        assertNotNull(exception.getMessage());
     }
 
     @Test
@@ -123,7 +130,8 @@ class PatientServiceImplTest {
         PatientRequestDTO requestDTO = new PatientRequestDTO();
         requestDTO.setEmail("duplicate@test.com");
         when(usersRepository.existsByEmail("duplicate@test.com")).thenReturn(true);
-        assertThrows(DuplicateResourceException.class, () -> patientService.createPatientInHospital(1L, requestDTO));
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, () -> patientService.createPatientInHospital(1L, requestDTO));
+        assertNotNull(exception.getMessage());
     }
 
     @Test
@@ -147,7 +155,8 @@ class PatientServiceImplTest {
     void testUpdatePatientInHospital_NotFound() {
         PatientUpdateRequestDTO updateDTO = new PatientUpdateRequestDTO();
         when(patientRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> patientService.updatePatientInHospital(1L, 1L, updateDTO));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> patientService.updatePatientInHospital(1L, 1L, updateDTO));
+        assertNotNull(exception.getMessage());
     }
 
     @Test
@@ -156,6 +165,16 @@ class PatientServiceImplTest {
         when(patientRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testPatient));
         patientService.deletePatientFromHospital(1L, 1L);
         verify(patientRepository).delete(testPatient);
+    }
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when deleting non-existent patient")
+    void testDeletePatientFromHospital_NotFound() {
+        when(patientRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> patientService.deletePatientFromHospital(1L, 1L));
+        assertNotNull(exception.getMessage());
     }
 
     @Test
@@ -174,7 +193,8 @@ class PatientServiceImplTest {
     @DisplayName("Should throw exception when hospital not found")
     void testGetAllPatientsByHospital_HospitalNotFound() {
         when(hospitalService.existsById(1L)).thenReturn(false);
-        assertThrows(ResourceNotFoundException.class, () -> patientService.getAllPatientsByHospital(1L, 0, 10, "id"));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> patientService.getAllPatientsByHospital(1L, 0, 10, "id"));
+        assertNotNull(exception.getMessage());
     }
 
     @Test
@@ -183,5 +203,101 @@ class PatientServiceImplTest {
         when(patientRepository.existsByIdAndHospitalId(1L, 1L)).thenReturn(true);
         assertTrue(patientService.existsByIdAndHospitalId(1L, 1L));
         verify(patientRepository).existsByIdAndHospitalId(1L, 1L);
+    }
+
+    // ── assignInsurance ──────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("Should assign insurance to patient successfully")
+    void testAssignInsurance_Success() {
+        InsuranceRequestDTO insuranceRequest = new InsuranceRequestDTO();
+        insuranceRequest.setPolicyNumber("POL-NEW-001");
+        insuranceRequest.setProviderName("Provider A");
+        insuranceRequest.setCoverageAmount(50000.0);
+        insuranceRequest.setInsuranceStatus("ACTIVE");
+        insuranceRequest.setPolicyType("HEALTH");
+
+        when(patientRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testPatient));
+        when(insuranceRepository.existsByPolicyNumber("POL-NEW-001")).thenReturn(false);
+
+        Insurance savedInsurance = new Insurance();
+        savedInsurance.setId(1L);
+        savedInsurance.setPolicyNumber("POL-NEW-001");
+        savedInsurance.setProviderName("Provider A");
+        savedInsurance.setCoverageAmount(50000.0);
+        savedInsurance.setPatient(testPatient);
+        when(insuranceRepository.save(any(Insurance.class))).thenReturn(savedInsurance);
+
+        InsuranceResponseDTO result = patientService.assignInsurance(1L, 1L, insuranceRequest);
+
+        assertNotNull(result);
+        verify(insuranceRepository).save(any(Insurance.class));
+    }
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when assigning insurance to non-existent patient")
+    void testAssignInsurance_PatientNotFound() {
+        InsuranceRequestDTO insuranceRequest = new InsuranceRequestDTO();
+        insuranceRequest.setPolicyNumber("POL-001");
+        when(patientRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> patientService.assignInsurance(1L, 1L, insuranceRequest));
+        assertNotNull(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw DuplicateResourceException when policy number already exists")
+    void testAssignInsurance_DuplicatePolicy() {
+        InsuranceRequestDTO insuranceRequest = new InsuranceRequestDTO();
+        insuranceRequest.setPolicyNumber("POL-EXISTING");
+        when(patientRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testPatient));
+        when(insuranceRepository.existsByPolicyNumber("POL-EXISTING")).thenReturn(true);
+
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
+                () -> patientService.assignInsurance(1L, 1L, insuranceRequest));
+        assertNotNull(exception.getMessage());
+    }
+
+    // ── getInsuranceByPatientId ──────────────────────────────────────────────
+
+    @Test
+    @DisplayName("Should get insurance by patient ID successfully")
+    void testGetInsuranceByPatientId_Success() {
+        when(patientRepository.existsById(1L)).thenReturn(true);
+        Insurance insurance = new Insurance();
+        insurance.setId(1L);
+        insurance.setPolicyNumber("POL-001");
+        insurance.setProviderName("Provider");
+        insurance.setCoverageAmount(100000.0);
+        insurance.setPatient(testPatient);
+        when(insuranceRepository.findByPatientId(1L)).thenReturn(List.of(insurance));
+
+        List<InsuranceResponseDTO> result = patientService.getInsuranceByPatientId(1L, 1L);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when patient not found for insurance lookup")
+    void testGetInsuranceByPatientId_PatientNotFound() {
+        when(patientRepository.existsById(99L)).thenReturn(false);
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> patientService.getInsuranceByPatientId(99L, 1L));
+        assertNotNull(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when no insurance found for patient")
+    void testGetInsuranceByPatientId_NoInsuranceFound() {
+        when(patientRepository.existsById(1L)).thenReturn(true);
+        when(insuranceRepository.findByPatientId(1L)).thenReturn(List.of());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> patientService.getInsuranceByPatientId(1L, 1L));
+        assertNotNull(exception.getMessage());
     }
 }

@@ -12,14 +12,13 @@ import com.care.medi.security.JwtService;
 import com.care.medi.services.kafka.EmailNotificationProducer;
 import com.care.medi.utils.Helpers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -116,6 +115,89 @@ class AuthServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw InvalidCredentialsException when account is disabled")
+    void testLogin_DisabledException() {
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setEmail("test@example.com");
+        request.setPassword("password");
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new DisabledException("Account disabled"));
+
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
+        assertEquals("Account is disabled. Please contact support.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidCredentialsException when account is locked")
+    void testLogin_LockedException() {
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setEmail("test@example.com");
+        request.setPassword("password");
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new LockedException("Account locked"));
+
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
+        assertEquals("Account is locked. Please contact support.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidCredentialsException on generic AuthenticationException")
+    void testLogin_GenericAuthenticationException() {
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setEmail("test@example.com");
+        request.setPassword("password");
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new AuthenticationServiceException("Generic auth error"));
+
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
+        assertEquals("Invalid email or password", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should resolve hospitalId for DOCTOR role during login")
+    void testLogin_DoctorRole() {
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setEmail("doctor@example.com");
+        request.setPassword("password");
+
+        Users doctorUser = Users.builder().email("doctor@example.com").password("pass").role(Role.DOCTOR).isActive(true).build();
+        doctorUser.setId(2L);
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(doctorUser);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
+        when(doctorRepository.findHospitalIdByUserId(2L)).thenReturn(Optional.of(200L));
+        when(jwtService.generateToken(anyMap(), eq(doctorUser))).thenReturn("access_token");
+        when(jwtService.generateRefreshToken(anyMap(), eq(doctorUser))).thenReturn("refresh_token");
+
+        AuthService.AuthTokens tokens = authService.login(request);
+
+        assertEquals("DOCTOR", tokens.role());
+        verify(doctorRepository).findHospitalIdByUserId(2L);
+    }
+
+    @Test
+    @DisplayName("Should return empty hospitalId for SUPER_ADMIN role during login")
+    void testLogin_SuperAdminRole() {
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setEmail("admin@example.com");
+        request.setPassword("password");
+
+        Users adminUser = Users.builder().email("admin@example.com").password("pass").role(Role.SUPER_ADMIN).isActive(true).build();
+        adminUser.setId(3L);
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(adminUser);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
+        when(jwtService.generateToken(anyMap(), eq(adminUser))).thenReturn("access_token");
+        when(jwtService.generateRefreshToken(anyMap(), eq(adminUser))).thenReturn("refresh_token");
+
+        AuthService.AuthTokens tokens = authService.login(request);
+
+        assertEquals("SUPER_ADMIN", tokens.role());
+    }
+
+    @Test
     void testRefresh_Success() {
         RefreshTokenRequestDTO request = new RefreshTokenRequestDTO("refresh_token");
         when(jwtService.extractUsername("refresh_token")).thenReturn("test@example.com");
@@ -141,6 +223,28 @@ class AuthServiceTest {
 
         InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.refresh(request));
         assertEquals("Invalid or expired refresh token", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidCredentialsException when refresh token has null username")
+    void testRefresh_NullUsername() {
+        RefreshTokenRequestDTO request = new RefreshTokenRequestDTO("token_with_null_user");
+        when(jwtService.extractUsername("token_with_null_user")).thenReturn(null);
+
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.refresh(request));
+        assertEquals("Invalid refresh token payload", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidCredentialsException when refresh token is not valid")
+    void testRefresh_TokenNotValid() {
+        RefreshTokenRequestDTO request = new RefreshTokenRequestDTO("expired_token");
+        when(jwtService.extractUsername("expired_token")).thenReturn("test@example.com");
+        when(userDetailsService.loadUserByUsername("test@example.com")).thenReturn(testUser);
+        when(jwtService.isTokenValid("expired_token", testUser)).thenReturn(false);
+
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.refresh(request));
+        assertEquals("Refresh token is expired or invalid", exception.getMessage());
     }
 
     @Test
@@ -196,6 +300,34 @@ class AuthServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw InvalidRequestException when OTP not found during verify")
+    void testVerifyOtp_NotFound() {
+        VerifyOtpRequestDTO request = new VerifyOtpRequestDTO("test@example.com", "000000");
+        when(otpTableRepository.findByEmailAndOtp("test@example.com", "000000"))
+                .thenReturn(Optional.empty());
+
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> authService.verifyOtp(request));
+        assertEquals("Invalid or expired OTP", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidRequestException when OTP has null expiredAt during verify")
+    void testVerifyOtp_NullExpiredAt() {
+        VerifyOtpRequestDTO request = new VerifyOtpRequestDTO("test@example.com", "123456");
+        OtpTable otpTable = OtpTable.builder()
+                .email("test@example.com")
+                .otp("123456")
+                .expiredAt(null)
+                .build();
+
+        when(otpTableRepository.findByEmailAndOtp("test@example.com", "123456"))
+                .thenReturn(Optional.of(otpTable));
+
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> authService.verifyOtp(request));
+        assertEquals("OTP has expired. Please request a new one.", exception.getMessage());
+    }
+
+    @Test
     void testResetPassword_Success() {
         ResetPasswordRequestDTO request = new ResetPasswordRequestDTO("test@example.com", "123456", "newPassword123");
         OtpTable otpTable = OtpTable.builder()
@@ -215,6 +347,52 @@ class AuthServiceTest {
         verify(usersRepository).save(testUser);
         verify(otpTableRepository).deleteByEmail("test@example.com");
         verify(emailNotificationProducer).sendPasswordChangedNotification(eq(Helpers.getRecipientEmail("test@example.com")));
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidRequestException when OTP not found during reset password")
+    void testResetPassword_OtpNotFound() {
+        ResetPasswordRequestDTO request = new ResetPasswordRequestDTO("test@example.com", "000000", "newPass");
+        when(otpTableRepository.findByEmailAndOtp("test@example.com", "000000"))
+                .thenReturn(Optional.empty());
+
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> authService.resetPassword(request));
+        assertEquals("Invalid or expired OTP", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidRequestException when OTP is expired during reset password")
+    void testResetPassword_ExpiredOtp() {
+        ResetPasswordRequestDTO request = new ResetPasswordRequestDTO("test@example.com", "123456", "newPass");
+        OtpTable otpTable = OtpTable.builder()
+                .email("test@example.com")
+                .otp("123456")
+                .expiredAt(ZonedDateTime.now().minusMinutes(5))
+                .build();
+
+        when(otpTableRepository.findByEmailAndOtp("test@example.com", "123456"))
+                .thenReturn(Optional.of(otpTable));
+
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> authService.resetPassword(request));
+        assertEquals("OTP has expired. Please request a new one.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when user not found during reset password")
+    void testResetPassword_UserNotFound() {
+        ResetPasswordRequestDTO request = new ResetPasswordRequestDTO("test@example.com", "123456", "newPass");
+        OtpTable otpTable = OtpTable.builder()
+                .email("test@example.com")
+                .otp("123456")
+                .expiredAt(ZonedDateTime.now().plusMinutes(5))
+                .build();
+
+        when(otpTableRepository.findByEmailAndOtp("test@example.com", "123456"))
+                .thenReturn(Optional.of(otpTable));
+        when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> authService.resetPassword(request));
+        assertEquals("No account found with email: test@example.com", exception.getMessage());
     }
 
     @Test
@@ -249,5 +427,16 @@ class AuthServiceTest {
 
         InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> authService.updatePassword("test@example.com", request));
         assertEquals("Current password is incorrect", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when user not found during update password")
+    void testUpdatePassword_UserNotFound() {
+        UpdatePasswordRequestDTO request = new UpdatePasswordRequestDTO("oldPass", "newPass", "newPass");
+
+        when(usersRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> authService.updatePassword("unknown@example.com", request));
+        assertEquals("No account found with email: unknown@example.com", exception.getMessage());
     }
 }

@@ -5,6 +5,7 @@ import com.care.medi.dtos.request.MedicalRecordUpdateRequestDTO;
 import com.care.medi.dtos.response.MedicalRecordListResponseDTO;
 import com.care.medi.dtos.response.MedicalRecordResponseDTO;
 import com.care.medi.entity.*;
+import com.care.medi.exception.InvalidRequestException;
 import com.care.medi.exception.ResourceNotFoundException;
 import com.care.medi.repository.AppointmentRepository;
 import com.care.medi.repository.DoctorRepository;
@@ -12,9 +13,7 @@ import com.care.medi.repository.MedicalRecordRepository;
 import com.care.medi.repository.PatientRepository;
 import com.care.medi.utils.MedicalRecordMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +37,6 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     // CREATE
     // -------------------------------------------------------------------------
 
-    @SneakyThrows
     @Override
     @Transactional
     public MedicalRecordResponseDTO createRecord(Long hospitalId, MedicalRecordRequestDTO request) {
@@ -67,13 +65,13 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
             // One record per appointment — guard against duplicates
             if (medicalRecordRepository.existsByAppointmentIdAndHospitalId(
                     appointment.getId(), hospitalId)) {
-                throw new BadRequestException(
+                throw new InvalidRequestException(
                         "A medical record already exists for appointment ID %d.".formatted(request.getAppointmentId()));
             }
 
             // Validate appointment belongs to the same patient
             if (!appointment.getPatient().getId().equals(request.getPatientId())) {
-                throw new BadRequestException(
+                throw new InvalidRequestException(
                         "Appointment ID %d does not belong to patient ID %d.".formatted(request.getAppointmentId(), request.getPatientId()));
             }
 
@@ -153,7 +151,6 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
                 .map(medicalRecordMapper::toListResponseDTO);
     }
 
-    @SneakyThrows
     @Override
     @Transactional(readOnly = true)
     public Page<MedicalRecordListResponseDTO> getRecordsByHospital(
@@ -161,7 +158,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
             LocalDate from, LocalDate to, Pageable pageable) {
 
         if (from != null && to != null && from.isAfter(to)) {
-            throw new BadRequestException("'from' date must not be after 'to' date.");
+            throw new InvalidRequestException("'from' date must not be after 'to' date.");
         }
 
         return medicalRecordRepository
@@ -209,7 +206,6 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     // DELETE
     // -------------------------------------------------------------------------
 
-    @SneakyThrows
     @Override
     @Transactional
     public String deleteRecord(Long id, Long hospitalId) {
@@ -219,7 +215,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
         // Prevent deletion of records tied to an appointment — use ARCHIVED status instead
         if (record.getAppointment() != null) {
-            throw new BadRequestException(
+            throw new InvalidRequestException(
                     "Cannot delete a medical record that is linked to an appointment (appointment ID %d). Archive it instead by setting status to ARCHIVED.".formatted(record.getAppointment().getId()));
         }
 
