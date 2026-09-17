@@ -139,7 +139,7 @@ public class AppointmentController {
                 .buildAndExpand(appointment.appointmentId())
                 .toUri();
         return ResponseEntity.created(location)
-                .body(ApiResponse.success("Appointment created successfully", appointment, HttpStatus.CREATED));
+                .body(ApiResponse.success("Appointment booked successfully", appointment, HttpStatus.CREATED));
     }
 
     /**
@@ -261,15 +261,10 @@ public class AppointmentController {
     @GetMapping("/available-slots")
     @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<DoctorDaySlotsResponseDTO>> getAvailableSlots(
-            @RequestAttribute(value = "X-Hospital-Id", required = false) Long requestAttrHospitalId,
-            @RequestHeader(value = "X-Hospital-Id", required = false) Long requestHeaderHospitalId,
+            @RequestHeader(value = "X-Hospital-Id")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
             @RequestParam("doctorId") Long doctorId,
             @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-
-        Long hospitalId = requestAttrHospitalId != null ? requestAttrHospitalId : requestHeaderHospitalId;
-        if (hospitalId == null || hospitalId < 1) {
-            throw new com.care.medi.exception.InvalidRequestException("Hospital ID (X-Hospital-Id) is required and must be a positive number.");
-        }
 
         LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
         DoctorDaySlotsResponseDTO availableSlots = appointmentService.getAvailableSlots(hospitalId, doctorId, filterDate);

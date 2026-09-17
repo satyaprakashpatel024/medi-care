@@ -39,7 +39,6 @@ public class DepartmentController {
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DepartmentResponseDTO}
      */
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Page<DepartmentResponseDTO>>> getAllDepartments(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -76,7 +75,6 @@ public class DepartmentController {
      * @return a {@link ResponseEntity} wrapping the {@link DepartmentResponseDTO}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<DepartmentResponseDTO>> getDepartmentById(@PathVariable Long id) {
         DepartmentResponseDTO departmentResponse = departmentService.getDepartmentById(id);
         return ResponseEntity.ok(ApiResponse.success("Department found successfully", departmentResponse));

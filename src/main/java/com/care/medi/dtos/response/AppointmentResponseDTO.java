@@ -21,8 +21,7 @@ public record AppointmentResponseDTO(
         String appointmentDate,
         String appointmentTime,
         String status,
-        String treatment,
-        String notes,
+
         String updatedAt) implements java.io.Serializable {
 
 
@@ -38,8 +37,7 @@ public record AppointmentResponseDTO(
                 .appointmentDate(appointment.getAppointmentDate().format(Constants.HUMAN_DATE_FORMAT))
                 .appointmentTime(appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT))
                 .status(appointment.getStatus().name())
-                .treatment(appointment.getTreatment())
-                .notes(appointment.getNotes())
+
                 .updatedAt(appointment.getUpdatedAt().format(Constants.HUMAN_DATETIME_FORMAT))
                 .build();
     }
@@ -54,8 +52,7 @@ public record AppointmentResponseDTO(
                 .appointmentDate(appointment.getAppointmentDate().format(Constants.HUMAN_DATE_FORMAT))
                 .appointmentTime(appointment.getStartTime().format(Constants.HUMAN_TIME_FORMAT))
                 .status(appointment.getStatus().name())
-                .treatment(appointment.getTreatment())
-                .notes(appointment.getNotes())
+
                 .build();
     }
 

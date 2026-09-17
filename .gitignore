@@ -39,3 +39,4 @@ build/
 /repomix-output.xml
 /src/main/resources/certificates/**
 .DS_Store
+api_endpoints_report.md

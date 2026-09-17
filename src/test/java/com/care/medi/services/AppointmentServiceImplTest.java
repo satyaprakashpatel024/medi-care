@@ -118,7 +118,7 @@ class AppointmentServiceImplTest {
         appointmentRequestDTO = new AppointmentRequestDTO();
         appointmentRequestDTO.setDoctorId(1L);
         appointmentRequestDTO.setDepartmentId(1L);
-        appointmentRequestDTO.setAppointmentDate("2024-12-25");
+        appointmentRequestDTO.setAppointmentDate("2026-12-25");
         appointmentRequestDTO.setAppointmentTime("10:00 AM");
 
         PatientRequestDTO patientReq = new PatientRequestDTO();
@@ -285,8 +285,7 @@ class AppointmentServiceImplTest {
     void testUpdateAppointment_Success() {
         com.care.medi.dtos.request.AppointmentUpdateRequestDTO updateReq = new com.care.medi.dtos.request.AppointmentUpdateRequestDTO();
         updateReq.setStatus("COMPLETED");
-        updateReq.setTreatment("Treatment");
-        updateReq.setNotes("Notes");
+
         com.care.medi.dtos.request.PrescriptionRequestDTO pDto = new com.care.medi.dtos.request.PrescriptionRequestDTO();
         com.care.medi.dtos.request.PrescriptionItemRequestDTO item = new com.care.medi.dtos.request.PrescriptionItemRequestDTO();
         item.setMedicationId(1L);
@@ -320,7 +319,7 @@ class AppointmentServiceImplTest {
     @DisplayName("Should reschedule appointment successfully")
     void testRescheduleAppointment_Success() {
         AppointmentRescheduleDTO rescheduleReq = new AppointmentRescheduleDTO();
-        rescheduleReq.setAppointmentDate("2025-01-01");
+        rescheduleReq.setAppointmentDate("2026-11-01");
         rescheduleReq.setAppointmentTime("10:00 AM");
 
         when(appointmentRepository.findByIdAndHospitalId(1L, 1L)).thenReturn(Optional.of(testAppointment));

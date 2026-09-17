@@ -54,6 +54,8 @@ public class SecurityConfiguration {
                         )
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/hospitals/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/doctors/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/departments/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/appointments/**").permitAll()
                         .requestMatchers("/api/v1/appointments/**").authenticated()
                         .anyRequest().authenticated()

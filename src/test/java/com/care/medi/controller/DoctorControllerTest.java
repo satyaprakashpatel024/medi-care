@@ -89,7 +89,7 @@ public class DoctorControllerTest {
         when(doctorService.getDoctorByIdAndHospital(1L, 1L)).thenReturn(doctorResponseDTO);
 
         mockMvc.perform(get("/api/v1/doctors/1")
-                        .requestAttr("X-Hospital-Id", 1L))
+                        .header("X-Hospital-Id", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(1));
     }
@@ -101,7 +101,7 @@ public class DoctorControllerTest {
         when(doctorService.getAllActiveDoctorsByHospital(anyLong(), anyInt(), anyInt(), anyString())).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/doctors")
-                        .requestAttr("X-Hospital-Id", 1L))
+                        .header("X-Hospital-Id", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content[0].id").value(1));
     }
@@ -173,7 +173,7 @@ public class DoctorControllerTest {
         when(doctorService.getActiveDoctorsByDepartmentAndHospital(anyLong(), anyLong(), anyInt(), anyInt(), anyString())).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/doctors/department/1")
-                        .requestAttr("X-Hospital-Id", 1L))
+                        .header("X-Hospital-Id", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content[0].id").value(1));
     }
@@ -186,7 +186,7 @@ public class DoctorControllerTest {
 
         mockMvc.perform(get("/api/v1/doctors/speciality")
                         .param("speciality", "Cardiology")
-                        .requestAttr("X-Hospital-Id", 1L))
+                        .header("X-Hospital-Id", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content[0].id").value(1));
     }

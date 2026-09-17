@@ -108,7 +108,7 @@ public class ObjectLevelAuthorizationSecurityTest {
         when(userSecurity.isSelfDoctor(eq(2L), any())).thenReturn(false);
 
         mockMvc.perform(get("/api/v1/doctors/2")
-                        .requestAttr("X-Hospital-Id", 1L))
+                        .header("X-Hospital-Id", 1L))
                 .andExpect(status().isForbidden());
     }
 
@@ -121,7 +121,7 @@ public class ObjectLevelAuthorizationSecurityTest {
                 .thenReturn(DoctorResponseDTO.builder().id(1L).build());
 
         mockMvc.perform(get("/api/v1/doctors/1")
-                        .requestAttr("X-Hospital-Id", 1L))
+                        .header("X-Hospital-Id", 1L))
                 .andExpect(status().isOk());
     }
 
@@ -146,7 +146,7 @@ public class ObjectLevelAuthorizationSecurityTest {
                 .thenReturn(PatientResponseDTO.builder().id(2L).build());
 
         mockMvc.perform(get("/api/v1/doctors/2")
-                        .requestAttr("X-Hospital-Id", 1L))
+                        .header("X-Hospital-Id", 1L))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/v1/patients/2")

@@ -78,6 +78,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDate date = Helpers.parseAppointmentDate(request.getAppointmentDate(), errorMap);
         LocalTime time = Helpers.parseAppointmentTime(request.getAppointmentTime(), errorMap);
 
+        if (date != null) {
+            LocalDate today = LocalDate.now(Constants.ZONE_ID);
+            if (date.isBefore(today)) {
+                errorMap.put("appointmentDate", "Appointment date cannot be in the past");
+            } else if (time != null && date.isEqual(today) && time.isBefore(LocalTime.now(Constants.ZONE_ID))) {
+                errorMap.put("appointmentTime", "Appointment time cannot be in the past");
+            }
+        }
+
         // 3. Validate appointment slot using Doctor's configured slot duration
         int slotDuration = 15;
         if (request.getDoctorId() != null) {
@@ -180,8 +189,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // 2. Update Appointment fields
         appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
-        appointment.setTreatment(request.getTreatment());
-        appointment.setNotes(request.getNotes());
+
         appointment.setPrescription(prescription);
 
         return AppointmentResponseDTO.fromEntity(appointmentRepository.saveAndFlush(appointment));
@@ -465,6 +473,13 @@ public class AppointmentServiceImpl implements AppointmentService {
             if (rawDate == null || rawTime == null) {
                 errorMap.put("appointmentDateTime", "Both appointmentDate and appointmentTime are required for rescheduling.");
                 return null;
+            }
+
+            LocalDate today = LocalDate.now(Constants.ZONE_ID);
+            if (rawDate.isBefore(today)) {
+                errorMap.put("appointmentDate", "Appointment date cannot be in the past");
+            } else if (rawDate.isEqual(today) && rawTime.isBefore(LocalTime.now(Constants.ZONE_ID))) {
+                errorMap.put("appointmentTime", "Appointment time cannot be in the past");
             }
 
             DoctorSchedule doctorSchedule = doctorScheduleService.getDoctorScheduleEntityOrDefault(hospitalId, appointment.getDoctorId());

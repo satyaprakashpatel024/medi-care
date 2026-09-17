@@ -118,3 +118,6 @@ src/main/java/com/care/medi/
    `@Transactional(readOnly = true)` for read methods.
 5. **Backward Compatibility**: `EmailNotificationEvent` maintains an explicit 6-arg constructor for appointment
    notifications alongside builder and 8-arg constructors.
+6. **Database Schema**: Whenever entity classes are modified or added, you MUST update `V1__initial_schema.sql` directly
+   to reflect the changes. Do not create new migration files; keep `V1__initial_schema.sql` as the single source of
+   truth for the database schema so that anyone cloning the project has all the details in one file.

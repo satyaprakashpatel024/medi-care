@@ -78,10 +78,6 @@ public class Appointment extends BaseEntity {
 
     @Size(max = 500)
     @Column(length = 500)
-    private String treatment;
-
-    @Column(columnDefinition = "TEXT")
-    private String notes;
 
     // ── Bidirectional mappings ──────────────────────────────────────────────
 
@@ -103,6 +99,7 @@ public class Appointment extends BaseEntity {
         return Appointment.builder()
                 .patient(patientEntity)
                 .doctorId(doctor.getId())
+                .doctor(doctor)
                 .department(department)
                 .hospitalId(hospitalId)
                 .appointmentDate(date)
