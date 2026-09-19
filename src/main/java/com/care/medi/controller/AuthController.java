@@ -57,6 +57,7 @@ public class AuthController {
         AuthResponse authResponse = AuthResponse.builder()
                 .refreshToken(tokens.refreshToken())
                 .role(tokens.role())
+                .userId(tokens.userId())
                 .expiresIn(jwtService.getJwtExpiration())
                 .build();
 
@@ -86,6 +87,7 @@ public class AuthController {
         AuthResponse authResponse = AuthResponse.builder()
                 .refreshToken(tokens.refreshToken())
                 .role(tokens.role())
+                .userId(tokens.userId())
                 .expiresIn(jwtService.getJwtExpiration())
                 .build();
 

@@ -245,7 +245,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId, Long patientId, int page, int size, String sortBy) {
+    public Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId, Long userId, int page, int size, String sortBy) {
+        Long patientId = patientRepository.findIdByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + " for User ID " + userId));
+
         boolean b = patientRepository.existsById(patientId);
         if (!b) {
             throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
@@ -273,6 +276,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentRepository
                 .findByDoctorIdAndHospitalIdAndAppointmentDateBetween(doctorId, hospitalId, startOfDay, endOfDay, pageable)
                 .map(AppointmentListResponseDTO::fromEntity);
+    }
+
+    @Override
+    public Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndDoctorUserId(Long hospitalId, Long userId, int page, int size, String sortBy, LocalDate date) {
+        Long doctorId = doctorRepository.findIdByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.DOCTOR_NOT_FOUND + " for User ID " + userId));
+
+        return getAppointmentsByDoctorAndHospitalIdAndDate(doctorId, hospitalId, page, size, sortBy, date);
     }
 
     @Override

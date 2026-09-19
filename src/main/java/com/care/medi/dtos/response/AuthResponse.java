@@ -15,5 +15,6 @@ public class AuthResponse implements java.io.Serializable {
 
     private String refreshToken;
     private String role;
+    private Long userId;
     private Long expiresIn;
 }

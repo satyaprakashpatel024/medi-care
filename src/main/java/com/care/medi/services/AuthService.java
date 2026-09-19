@@ -81,7 +81,7 @@ public class AuthService {
         String accessToken = jwtService.generateToken(extraClaims, user);
         String refreshToken = jwtService.generateRefreshToken(extraClaims, user);
 
-        return new AuthTokens(accessToken, refreshToken, user.getRole().name());
+        return new AuthTokens(accessToken, refreshToken, user.getRole().name(), user.getId());
     }
 
     public AuthTokens refresh(RefreshTokenRequestDTO request) {
@@ -112,7 +112,7 @@ public class AuthService {
         String newAccessToken = jwtService.generateToken(extraClaims, user);
         String newRefreshToken = jwtService.generateRefreshToken(extraClaims, user);
 
-        return new AuthTokens(newAccessToken, newRefreshToken, user.getRole().name());
+        return new AuthTokens(newAccessToken, newRefreshToken, user.getRole().name(), user.getId());
     }
 
     private Optional<Long> resolveHospitalId(Users user) {
@@ -200,6 +200,6 @@ public class AuthService {
         log.info("Password successfully updated for user: {}", Helpers.maskEmail(email));
     }
 
-    public record AuthTokens(String accessToken, String refreshToken, String role) {
+    public record AuthTokens(String accessToken, String refreshToken, String role, Long userId) {
     }
 }

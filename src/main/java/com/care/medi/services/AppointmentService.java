@@ -44,6 +44,8 @@ public interface AppointmentService {
 
     Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndHospitalIdAndDate(Long doctorId, Long hospitalId, int page, int size, String sortBy, LocalDate date);
 
+    Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndDoctorUserId(Long hospitalId, Long userId, int page, int size, String sortBy, LocalDate date);
+
     Page<AppointmentResponseDTO> getAppointmentsByPatientAndDate(Long patientId, LocalDate date, int page, int size, String sortBy);
 
     Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);

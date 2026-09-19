@@ -23,6 +23,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.web.servlet.ModelAndView;
 
 @Slf4j
 @RestControllerAdvice
@@ -137,7 +138,10 @@ public class GlobalExceptionHandler {
     // -------------------------------------------------------------------------
 
     @ExceptionHandler({ResourceNotFoundException.class, NoResourceFoundException.class})
-    public ResponseEntity<ApiResponse<Void>> handleNotFound(Exception ex) {
+    public Object handleNotFound(Exception ex, HttpServletRequest request) {
+        if (request.getRequestURI() != null && !request.getRequestURI().startsWith("/api/")) {
+            return new ModelAndView("forward:/index.html");
+        }
         log.warn("Resource not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 ApiResponse.error(ex.getMessage(), "RESOURCE_NOT_FOUND", HttpStatus.NOT_FOUND)

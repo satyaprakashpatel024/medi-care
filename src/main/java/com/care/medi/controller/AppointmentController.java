@@ -211,24 +211,49 @@ public class AppointmentController {
      * Retrieves paginated appointments for a specific patient within a hospital.
      *
      * @param hospitalId the unique identifier of the hospital
-     * @param patientId  the unique identifier of the patient
+     * @param userId  the unique identifier of the user
      * @param page       the page index to retrieve
      * @param size       the number of records per page
      * @param sortBy     the field name by which to sort results
      * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentResponseDTO}
      */
     @GetMapping("/patient/{id}")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfUser(#userId, authentication))")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllAppointmentsByHospitalAndPatientId(
             @RequestAttribute(value = "X-Hospital-Id")
             @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long patientId,
+            @PathVariable("id") Long userId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "5") Integer size,
             @RequestParam(defaultValue = "id") String sortBy) {
-        Page<AppointmentResponseDTO> appointmentsByPatient = appointmentService.getAppointmentsByHospitalAndPatient(hospitalId, patientId, page, size, sortBy);
-        String msg = String.format("Successfully retrieved appointments for Patient ID : %d.", patientId);
+        Page<AppointmentResponseDTO> appointmentsByPatient = appointmentService.getAppointmentsByHospitalAndPatient(hospitalId, userId, page, size, sortBy);
+        String msg = String.format("Successfully retrieved appointments for User ID : %d.", userId);
         return ResponseEntity.ok(ApiResponse.success(msg, appointmentsByPatient));
+    }
+
+    /**
+     * Retrieves paginated appointments for a specific doctor within a hospital based on User ID.
+     */
+    @GetMapping("/doctor/{id}")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('DOCTOR') and @userSecurity.isSelfUser(#userId, authentication))")
+    public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByHospitalAndDoctorId(
+            @RequestAttribute(value = "X-Hospital-Id")
+            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+            @PathVariable("id") Long userId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "5") Integer size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        // Let's resolve the doctorId inside the controller for now, or inside a service method.
+        // The service already has getAppointmentsByDoctorAndHospitalIdAndDate which takes doctorId.
+        // We will call the service and let the service handle it, but wait, the service takes doctorId.
+        // Let's inject DoctorRepository into AppointmentController? No, it's better to update the service.
+        // For now I'll just change the method name so we can update the service.
+        LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
+        Page<AppointmentListResponseDTO> appointmentsByDoctor = appointmentService.getAppointmentsByHospitalAndDoctorUserId(hospitalId, userId, page, size, sortBy, filterDate);
+        String msg = String.format("Successfully retrieved appointments for Doctor User ID : %d.", userId);
+        return ResponseEntity.ok(ApiResponse.success(msg, appointmentsByDoctor));
     }
 
     /**

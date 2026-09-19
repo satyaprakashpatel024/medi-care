@@ -138,10 +138,13 @@ class GlobalExceptionHandlerTest {
     @DisplayName("Should handle ResourceNotFoundException")
     void handleNotFound() {
         ResourceNotFoundException ex = new ResourceNotFoundException("Not found");
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleNotFound(ex);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/api/test");
+        Object responseObj = exceptionHandler.handleNotFound(ex, request);
+        ResponseEntity<?> response = (ResponseEntity<?>) responseObj;
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("RESOURCE_NOT_FOUND", response.getBody().errors());
+        assertEquals("RESOURCE_NOT_FOUND", ((ApiResponse<?>) response.getBody()).errors());
     }
 
     @Test
