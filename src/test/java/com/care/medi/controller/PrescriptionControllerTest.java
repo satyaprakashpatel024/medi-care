@@ -1,6 +1,7 @@
 package com.care.medi.controller;
 
 
+import com.care.medi.dtos.request.PrescriptionItemRequestDTO;
 import com.care.medi.dtos.request.PrescriptionRequestDTO;
 import com.care.medi.dtos.response.PrescriptionResponseDTO;
 import com.care.medi.security.JwtAuthenticationFilter;
@@ -89,7 +90,7 @@ public class PrescriptionControllerTest {
     request.setPatientId(1L);
     request.setAppointmentId(1L);
     request.setDoctorId(1L);
-    com.care.medi.dtos.request.PrescriptionItemRequestDTO item = new com.care.medi.dtos.request.PrescriptionItemRequestDTO();
+    PrescriptionItemRequestDTO item = new PrescriptionItemRequestDTO();
     item.setMedicationId(1L);
     item.setDosageInstructions("500mg, 5 days, After meals");
     request.setItems(java.util.Collections.singletonList(item));

@@ -416,6 +416,7 @@ class AppointmentServiceImplTest {
   @Test
   @DisplayName("Should get appointments by hospital and patient")
   void testGetAppointmentsByHospitalAndPatient_Success() {
+    when(patientRepository.findIdByUserId(1L)).thenReturn(Optional.of(1L));
     when(patientRepository.existsById(1L)).thenReturn(true);
     when(appointmentRepository.findByHospitalIdAndPatientId(eq(1L), eq(1L), any(Pageable.class)))
       .thenReturn(new PageImpl<>(List.of(testAppointment)));
@@ -589,7 +590,7 @@ class AppointmentServiceImplTest {
   @Test
   @DisplayName("Should throw ResourceNotFoundException when patient not found in getAppointmentsByHospitalAndPatient")
   void testGetAppointmentsByHospitalAndPatient_PatientNotFound() {
-    when(patientRepository.existsById(99L)).thenReturn(false);
+    when(patientRepository.findIdByUserId(99L)).thenReturn(Optional.empty());
 
     ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
       () -> appointmentService.getAppointmentsByHospitalAndPatient(1L, 99L, 0, 10, "id"));

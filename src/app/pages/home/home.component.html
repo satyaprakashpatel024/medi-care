@@ -39,15 +39,18 @@
       </div>
 
       <!-- Dark/Light Mode -->
-      <select (change)="onThemeChange($event)" [value]="themeService.currentTheme()"
-              class="bg-white/10 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary-500">
-        <option value="system">System</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
+      <label>
+        <select (change)="onThemeChange($event)" [value]="themeService.currentTheme()"
+                class="bg-white/10 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary-500">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
 
-      <a class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-full font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-         routerLink="/login">
+      <a
+        class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-full font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+        routerLink="/login">
         Portal Login
         <lucide-icon [img]="ArrowRight" size="18"></lucide-icon>
       </a>
@@ -75,8 +78,9 @@
     </p>
 
     <div class="flex flex-col sm:flex-row gap-4 w-full justify-center max-w-md">
-      <a class="flex-1 bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-500 hover:to-secondary-500 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 flex justify-center items-center gap-2"
-         routerLink="/login">
+      <a
+        class="flex-1 bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-500 hover:to-secondary-500 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 flex justify-center items-center gap-2"
+        routerLink="/login">
         Access Portal
       </a>
     </div>

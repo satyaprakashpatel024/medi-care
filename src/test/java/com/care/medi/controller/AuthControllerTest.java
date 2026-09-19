@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
@@ -43,16 +44,20 @@ class AuthControllerTest {
     LoginRequestDTO request = new LoginRequestDTO();
     request.setEmail("test@example.com");
     request.setPassword("password");
-    AuthService.AuthTokens tokens = new AuthService.AuthTokens("access", "refresh", "PATIENT");
+    AuthService.AuthTokens tokens = new AuthService.AuthTokens("access", "refresh", "PATIENT", 1L);
     when(authService.login(request)).thenReturn(tokens);
     when(jwtService.getJwtExpiration()).thenReturn(3600000L);
 
     ResponseEntity<ApiResponse<AuthResponse>> response = authController.login(request, servletResponse);
 
-    assertEquals(200, response.getStatusCodeValue());
-    assertNotNull(response.getBody());
-    assertEquals("Login successful", response.getBody().message());
-    assertEquals("refresh", response.getBody().data().getRefreshToken());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    ApiResponse<AuthResponse> body = response.getBody();
+    assertNotNull(body);
+    AuthResponse data = body.data();
+    assertNotNull(data);
+    assertEquals("Login successful", body.message());
+    assertEquals("refresh", data.getRefreshToken());
+    assertEquals(1L, data.getUserId());
     verify(servletResponse).addHeader(eq("Set-Cookie"), anyString());
   }
 
@@ -60,16 +65,20 @@ class AuthControllerTest {
   void testRefresh() {
     RefreshTokenRequestDTO request = new RefreshTokenRequestDTO();
     request.setRefreshToken("oldRefresh");
-    AuthService.AuthTokens tokens = new AuthService.AuthTokens("access", "refresh", "PATIENT");
+    AuthService.AuthTokens tokens = new AuthService.AuthTokens("access", "refresh", "PATIENT", 1L);
     when(authService.refresh(request)).thenReturn(tokens);
     when(jwtService.getJwtExpiration()).thenReturn(3600000L);
 
     ResponseEntity<ApiResponse<AuthResponse>> response = authController.refresh(request, servletResponse);
 
-    assertEquals(200, response.getStatusCodeValue());
-    assertNotNull(response.getBody());
-    assertEquals("Token refreshed successfully", response.getBody().message());
-    assertEquals("refresh", response.getBody().data().getRefreshToken());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    ApiResponse<AuthResponse> body = response.getBody();
+    assertNotNull(body);
+    AuthResponse data = body.data();
+    assertNotNull(data);
+    assertEquals("Token refreshed successfully", body.message());
+    assertEquals("refresh", data.getRefreshToken());
+    assertEquals(1L, data.getUserId());
     verify(servletResponse).addHeader(eq("Set-Cookie"), anyString());
   }
 
@@ -77,8 +86,10 @@ class AuthControllerTest {
   void testLogout() {
     ResponseEntity<ApiResponse<Void>> response = authController.logout(servletResponse);
 
-    assertEquals(200, response.getStatusCodeValue());
-    assertEquals("Logout successful", response.getBody().message());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    ApiResponse<Void> body = response.getBody();
+    assertNotNull(body);
+    assertEquals("Logout successful", body.message());
     verify(servletResponse).addHeader(eq("Set-Cookie"), anyString());
   }
 
@@ -89,8 +100,10 @@ class AuthControllerTest {
 
     ResponseEntity<ApiResponse<Void>> response = authController.forgotPassword(request);
 
-    assertEquals(200, response.getStatusCodeValue());
-    assertEquals("OTP sent to your email successfully", response.getBody().message());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    ApiResponse<Void> body = response.getBody();
+    assertNotNull(body);
+    assertEquals("OTP sent to your email successfully", body.message());
     verify(authService).forgotPassword(request);
   }
 
@@ -102,8 +115,10 @@ class AuthControllerTest {
 
     ResponseEntity<ApiResponse<Void>> response = authController.verifyOtp(request);
 
-    assertEquals(200, response.getStatusCodeValue());
-    assertEquals("OTP verified successfully", response.getBody().message());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    ApiResponse<Void> body = response.getBody();
+    assertNotNull(body);
+    assertEquals("OTP verified successfully", body.message());
     verify(authService).verifyOtp(request);
   }
 
@@ -116,8 +131,10 @@ class AuthControllerTest {
 
     ResponseEntity<ApiResponse<Void>> response = authController.resetPassword(request);
 
-    assertEquals(200, response.getStatusCodeValue());
-    assertEquals("Password reset successfully", response.getBody().message());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    ApiResponse<Void> body = response.getBody();
+    assertNotNull(body);
+    assertEquals("Password reset successfully", body.message());
     verify(authService).resetPassword(request);
   }
 
@@ -131,8 +148,10 @@ class AuthControllerTest {
 
     ResponseEntity<ApiResponse<Void>> response = authController.updatePassword(request, authentication);
 
-    assertEquals(200, response.getStatusCodeValue());
-    assertEquals("Password updated successfully", response.getBody().message());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    ApiResponse<Void> body = response.getBody();
+    assertNotNull(body);
+    assertEquals("Password updated successfully", body.message());
     verify(authService).updatePassword("test@example.com", request);
   }
 }

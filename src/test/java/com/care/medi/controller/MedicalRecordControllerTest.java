@@ -49,7 +49,7 @@ public class MedicalRecordControllerTest {
   @MockitoBean
   private JwtService jwtService;
 
-  @org.springframework.test.context.bean.override.mockito.MockitoBean
+  @MockitoBean
   private UsersDetailsService usersDetailsService;
 
   @Autowired

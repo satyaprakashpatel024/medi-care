@@ -18,7 +18,8 @@
     <nav class="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">
 
       <!-- Common Links -->
-      <a [routerLinkActiveOptions]="{exact: true}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
+      <a [routerLinkActiveOptions]="{exact: true}"
+         class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
          routerLink="/dashboard"
          routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
         <lucide-icon [img]="LayoutDashboard" size="20"></lucide-icon>
@@ -28,9 +29,10 @@
       <!-- Admin Links -->
       <ng-container
         *ngIf="authService.currentUserRole() === 'ROLE_SUPER_ADMIN' || authService.currentUserRole() === 'ROLE_HOSPITAL_ADMIN'">
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
-           routerLink="/dashboard/hospitals"
-           routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
+        <a
+          class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
+          routerLink="/dashboard/hospitals"
+          routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
           <lucide-icon [img]="Settings" size="20"></lucide-icon>
           Hospitals
         </a>
@@ -38,13 +40,17 @@
 
       <!-- Doctor Links -->
       <ng-container *ngIf="authService.currentUserRole() === 'ROLE_DOCTOR'">
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300" routerLink="/dashboard/schedule"
-           routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
+        <a
+          class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
+          routerLink="/dashboard/schedule"
+          routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
           <lucide-icon [img]="Calendar" size="20"></lucide-icon>
           My Schedule
         </a>
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300" routerLink="/dashboard/patients"
-           routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
+        <a
+          class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
+          routerLink="/dashboard/patients"
+          routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
           <lucide-icon [img]="Users" size="20"></lucide-icon>
           My Patients
         </a>
@@ -52,14 +58,17 @@
 
       <!-- Patient Links -->
       <ng-container *ngIf="authService.currentUserRole() === 'ROLE_PATIENT'">
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
-           routerLink="/dashboard/appointments"
-           routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
+        <a
+          class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
+          routerLink="/dashboard/appointments"
+          routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
           <lucide-icon [img]="Calendar" size="20"></lucide-icon>
           Appointments
         </a>
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300" routerLink="/dashboard/records"
-           routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
+        <a
+          class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
+          routerLink="/dashboard/records"
+          routerLinkActive="bg-primary-500 text-white shadow-md shadow-primary-500/20">
           <lucide-icon [img]="FileText" size="20"></lucide-icon>
           Medical Records
         </a>

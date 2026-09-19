@@ -45,7 +45,8 @@
         <div
           class="flex items-center gap-2 bg-white/60 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
           <lucide-icon [img]="CalendarDays" class="text-slate-400" size="16"></lucide-icon>
-          <input (change)="applyDateRange()" [(ngModel)]="startDate" class="bg-transparent text-sm font-medium text-slate-700 dark:text-slate-300 outline-none w-[120px]"
+          <input (change)="applyDateRange()" [(ngModel)]="startDate"
+                 class="bg-transparent text-sm font-medium text-slate-700 dark:text-slate-300 outline-none w-[120px]"
                  placeholder="Start date"
                  type="date"/>
         </div>
@@ -53,7 +54,8 @@
         <div
           class="flex items-center gap-2 bg-white/60 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
           <lucide-icon [img]="CalendarDays" class="text-slate-400" size="16"></lucide-icon>
-          <input (change)="applyDateRange()" [(ngModel)]="endDate" class="bg-transparent text-sm font-medium text-slate-700 dark:text-slate-300 outline-none w-[120px]"
+          <input (change)="applyDateRange()" [(ngModel)]="endDate"
+                 class="bg-transparent text-sm font-medium text-slate-700 dark:text-slate-300 outline-none w-[120px]"
                  placeholder="End date"
                  type="date"/>
         </div>
