@@ -9,27 +9,27 @@ import java.util.stream.Collectors;
 
 @Builder
 public record HospitalDepartmentResponseDTO(
-        Long id,
-        Long headDoctorId,
-        Boolean active,
-        String headDoctorName,
-        String departmentName
+  Long id,
+  Long headDoctorId,
+  Boolean active,
+  String headDoctorName,
+  String departmentName
 ) implements java.io.Serializable {
 
-    public static HospitalDepartmentResponseDTO fromEntity(HospitalDepartment hd) {
-        return HospitalDepartmentResponseDTO.builder()
-                .id(hd.getId())
-                .departmentName(hd.getDepartment() != null ? hd.getDepartment().getName() : "Unknown")
-                .headDoctorId(hd.getHeadDoctor() != null ? hd.getHeadDoctor().getId() : null)
-                .headDoctorName(hd.getHeadDoctor() != null ? String.format("%s %s", hd.getHeadDoctor().getFirstName(), hd.getHeadDoctor().getLastName()) : "No Head Assigned")
-                .active(hd.isActive())
-                .build();
-    }
+  public static HospitalDepartmentResponseDTO fromEntity(HospitalDepartment hd) {
+    return HospitalDepartmentResponseDTO.builder()
+      .id(hd.getId())
+      .departmentName(hd.getDepartment() != null ? hd.getDepartment().getName() : "Unknown")
+      .headDoctorId(hd.getHeadDoctor() != null ? hd.getHeadDoctor().getId() : null)
+      .headDoctorName(hd.getHeadDoctor() != null ? String.format("%s %s", hd.getHeadDoctor().getFirstName(), hd.getHeadDoctor().getLastName()) : "No Head Assigned")
+      .active(hd.isActive())
+      .build();
+  }
 
 
-    public static Set<HospitalDepartmentResponseDTO> fromEntity(Set<HospitalDepartment> hospitalDepartments) {
-        return hospitalDepartments.stream()
-                .map(HospitalDepartmentResponseDTO::fromEntity)
-                .collect(Collectors.toSet());
-    }
+  public static Set<HospitalDepartmentResponseDTO> fromEntity(Set<HospitalDepartment> hospitalDepartments) {
+    return hospitalDepartments.stream()
+      .map(HospitalDepartmentResponseDTO::fromEntity)
+      .collect(Collectors.toSet());
+  }
 }

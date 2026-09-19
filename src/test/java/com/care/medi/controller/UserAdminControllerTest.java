@@ -33,98 +33,98 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class UserAdminControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private UserAdminService userAdminService;
+  @MockitoBean
+  private UserAdminService userAdminService;
 
-    @MockitoBean
-    @SuppressWarnings("unused")
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockitoBean
+  @SuppressWarnings("unused")
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockitoBean
-    @SuppressWarnings("unused")
-    private JwtService jwtService;
+  @MockitoBean
+  @SuppressWarnings("unused")
+  private JwtService jwtService;
 
-    @MockitoBean
-    @SuppressWarnings("unused")
-    private UsersDetailsService usersDetailsService;
+  @MockitoBean
+  @SuppressWarnings("unused")
+  private UsersDetailsService usersDetailsService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    private UserResponseDTO userResponseDTO;
+  private UserResponseDTO userResponseDTO;
 
-    @BeforeEach
-    @SuppressWarnings("unused")
-    void setUp() {
-        userResponseDTO = UserResponseDTO.builder()
-                .id(1L)
-                .email("admin@care.com")
-                .role(Role.SUPER_ADMIN)
-                .isActive(true)
-                .build();
-    }
+  @BeforeEach
+  @SuppressWarnings("unused")
+  void setUp() {
+    userResponseDTO = UserResponseDTO.builder()
+      .id(1L)
+      .email("admin@care.com")
+      .role(Role.SUPER_ADMIN)
+      .isActive(true)
+      .build();
+  }
 
-    @Test
-    @DisplayName("Should get all users paginated")
-    void testGetAllUsers() throws Exception {
-        Page<UserResponseDTO> page = new PageImpl<>(Collections.singletonList(userResponseDTO));
-        when(userAdminService.getAllUsers(anyInt(), anyInt(), anyString())).thenReturn(page);
+  @Test
+  @DisplayName("Should get all users paginated")
+  void testGetAllUsers() throws Exception {
+    Page<UserResponseDTO> page = new PageImpl<>(Collections.singletonList(userResponseDTO));
+    when(userAdminService.getAllUsers(anyInt(), anyInt(), anyString())).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/admin/users")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("sortBy", "id"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Users retrieved successfully"))
-                .andExpect(jsonPath("$.data.content[0].id").value(1))
-                .andExpect(jsonPath("$.data.content[0].email").value("admin@care.com"));
-    }
+    mockMvc.perform(get("/api/v1/admin/users")
+        .param("page", "0")
+        .param("size", "10")
+        .param("sortBy", "id"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value("Users retrieved successfully"))
+      .andExpect(jsonPath("$.data.content[0].id").value(1))
+      .andExpect(jsonPath("$.data.content[0].email").value("admin@care.com"));
+  }
 
-    @Test
-    @DisplayName("Should get user by ID")
-    void testGetUserById() throws Exception {
-        when(userAdminService.getUserById(1L)).thenReturn(userResponseDTO);
+  @Test
+  @DisplayName("Should get user by ID")
+  void testGetUserById() throws Exception {
+    when(userAdminService.getUserById(1L)).thenReturn(userResponseDTO);
 
-        mockMvc.perform(get("/api/v1/admin/users/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("User fetched successfully"))
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/admin/users/1"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value("User fetched successfully"))
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should update user role")
-    void testUpdateUserRole() throws Exception {
-        UserRoleUpdateRequestDTO request = UserRoleUpdateRequestDTO.builder()
-                .role(Role.SUPER_ADMIN)
-                .build();
+  @Test
+  @DisplayName("Should update user role")
+  void testUpdateUserRole() throws Exception {
+    UserRoleUpdateRequestDTO request = UserRoleUpdateRequestDTO.builder()
+      .role(Role.SUPER_ADMIN)
+      .build();
 
-        when(userAdminService.updateUserRole(eq(1L), eq(Role.SUPER_ADMIN))).thenReturn(userResponseDTO);
+    when(userAdminService.updateUserRole(eq(1L), eq(Role.SUPER_ADMIN))).thenReturn(userResponseDTO);
 
-        mockMvc.perform(put("/api/v1/admin/users/1/role")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.message").value("User role updated successfully"))
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(put("/api/v1/admin/users/1/role")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isAccepted())
+      .andExpect(jsonPath("$.message").value("User role updated successfully"))
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should update user status")
-    void testUpdateUserStatus() throws Exception {
-        UserStatusUpdateRequestDTO request = UserStatusUpdateRequestDTO.builder()
-                .isActive(true)
-                .build();
+  @Test
+  @DisplayName("Should update user status")
+  void testUpdateUserStatus() throws Exception {
+    UserStatusUpdateRequestDTO request = UserStatusUpdateRequestDTO.builder()
+      .isActive(true)
+      .build();
 
-        when(userAdminService.updateUserStatus(eq(1L), eq(true))).thenReturn(userResponseDTO);
+    when(userAdminService.updateUserStatus(eq(1L), eq(true))).thenReturn(userResponseDTO);
 
-        mockMvc.perform(patch("/api/v1/admin/users/1/status")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.message").value("User status updated successfully"))
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(patch("/api/v1/admin/users/1/status")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isAccepted())
+      .andExpect(jsonPath("$.message").value("User status updated successfully"))
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 }

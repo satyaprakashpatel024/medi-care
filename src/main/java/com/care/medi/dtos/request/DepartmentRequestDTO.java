@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DepartmentRequestDTO implements java.io.Serializable {
 
-    @NotNull(message = "Description is required.")
-    String description;
-    @NotBlank(message = "Department Name is required.")
-    @Size(max = 150)
-    private String name;
+  @NotNull(message = "Description is required.")
+  String description;
+  @NotBlank(message = "Department Name is required.")
+  @Size(max = 150)
+  private String name;
 
 }

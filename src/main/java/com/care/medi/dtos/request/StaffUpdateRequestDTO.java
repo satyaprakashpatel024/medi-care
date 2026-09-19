@@ -17,21 +17,21 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class StaffUpdateRequestDTO implements java.io.Serializable {
 
-    @Size(max = 100)
-    private String firstName;
-    @Size(max = 100)
-    private String lastName;
-    @Past
-    private LocalDate dateOfBirth;
-    @Pattern(regexp = "^(MALE|FEMALE|OTHER)$")
-    private String gender;
-    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
-            message = "Invalid phone number, Please provide valid Indian Phone number.")
-    private String phone;
-    @Positive(message = "Hospital ID must be a positive number.")
-    private Integer hospitalId;
-    @Size(max = 255)
-    private String emergencyContact;
-    @Pattern(regexp = "^(A_POS|B_POS|AB_POS|O_POS|A_NEG|B_NEG|AB_NEG|O_NEG)$")
-    private String bloodGroup;
+  @Size(max = 100)
+  private String firstName;
+  @Size(max = 100)
+  private String lastName;
+  @Past
+  private LocalDate dateOfBirth;
+  @Pattern(regexp = "^(MALE|FEMALE|OTHER)$")
+  private String gender;
+  @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+    message = "Invalid phone number, Please provide valid Indian Phone number.")
+  private String phone;
+  @Positive(message = "Hospital ID must be a positive number.")
+  private Integer hospitalId;
+  @Size(max = 255)
+  private String emergencyContact;
+  @Pattern(regexp = "^(A_POS|B_POS|AB_POS|O_POS|A_NEG|B_NEG|AB_NEG|O_NEG)$")
+  private String bloodGroup;
 }

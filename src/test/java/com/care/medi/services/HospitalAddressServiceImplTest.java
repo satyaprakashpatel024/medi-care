@@ -25,80 +25,80 @@ import static org.mockito.Mockito.*;
 @DisplayName("HospitalAddressService Unit Tests")
 class HospitalAddressServiceImplTest {
 
-    @Mock
-    private HospitalAddressRepository hospitalAddressRepository;
+  @Mock
+  private HospitalAddressRepository hospitalAddressRepository;
 
-    @Mock
-    private HospitalRepository hospitalRepository;
+  @Mock
+  private HospitalRepository hospitalRepository;
 
-    @InjectMocks
-    private HospitalAddressServiceImpl hospitalAddressService;
+  @InjectMocks
+  private HospitalAddressServiceImpl hospitalAddressService;
 
-    private Hospital testHospital;
-    private HospitalAddress testHospitalAddress;
-    private HospitalAddressRequestDTO requestDTO;
+  private Hospital testHospital;
+  private HospitalAddress testHospitalAddress;
+  private HospitalAddressRequestDTO requestDTO;
 
-    @BeforeEach
-    void setUp() {
-        testHospital = new Hospital();
-        testHospital.setId(1L);
+  @BeforeEach
+  void setUp() {
+    testHospital = new Hospital();
+    testHospital.setId(1L);
 
-        testHospitalAddress = new HospitalAddress();
-        testHospitalAddress.setId(1L);
-        testHospitalAddress.setHospitalId(1L);
-        testHospitalAddress.setAddressLine1("123 Med St");
-        testHospitalAddress.setCity("Metropolis");
+    testHospitalAddress = new HospitalAddress();
+    testHospitalAddress.setId(1L);
+    testHospitalAddress.setHospitalId(1L);
+    testHospitalAddress.setAddressLine1("123 Med St");
+    testHospitalAddress.setCity("Metropolis");
 
-        requestDTO = new HospitalAddressRequestDTO();
-        requestDTO.setAddressLine1("123 Med St");
-        requestDTO.setCity("Metropolis");
-    }
+    requestDTO = new HospitalAddressRequestDTO();
+    requestDTO.setAddressLine1("123 Med St");
+    requestDTO.setCity("Metropolis");
+  }
 
-    @Test
-    @DisplayName("Should get hospital address by ID")
-    void testGetHospitalAddressById() {
-        when(hospitalAddressRepository.findById(1L)).thenReturn(Optional.of(testHospitalAddress));
+  @Test
+  @DisplayName("Should get hospital address by ID")
+  void testGetHospitalAddressById() {
+    when(hospitalAddressRepository.findById(1L)).thenReturn(Optional.of(testHospitalAddress));
 
-        HospitalAddressResponseDTO response = hospitalAddressService.getHospitalAddressById(1L);
+    HospitalAddressResponseDTO response = hospitalAddressService.getHospitalAddressById(1L);
 
-        assertNotNull(response);
-        assertEquals(1L, response.id());
-        assertEquals("123 Med St", response.addressLine1());
-        assertEquals("Metropolis", response.city());
-        verify(hospitalAddressRepository).findById(1L);
-    }
+    assertNotNull(response);
+    assertEquals(1L, response.id());
+    assertEquals("123 Med St", response.addressLine1());
+    assertEquals("Metropolis", response.city());
+    verify(hospitalAddressRepository).findById(1L);
+  }
 
-    @Test
-    @DisplayName("Should throw ResourceNotFoundException for invalid ID")
-    void testGetHospitalAddressById_NotFound() {
-        when(hospitalAddressRepository.findById(1L)).thenReturn(Optional.empty());
+  @Test
+  @DisplayName("Should throw ResourceNotFoundException for invalid ID")
+  void testGetHospitalAddressById_NotFound() {
+    when(hospitalAddressRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> hospitalAddressService.getHospitalAddressById(1L));
-        verify(hospitalAddressRepository).findById(1L);
-    }
+    assertThrows(ResourceNotFoundException.class, () -> hospitalAddressService.getHospitalAddressById(1L));
+    verify(hospitalAddressRepository).findById(1L);
+  }
 
-    @Test
-    @DisplayName("Should create hospital address")
-    void testCreateHospitalAddress() {
-        when(hospitalRepository.findById(1L)).thenReturn(Optional.of(testHospital));
-        when(hospitalAddressRepository.save(any(HospitalAddress.class))).thenReturn(testHospitalAddress);
+  @Test
+  @DisplayName("Should create hospital address")
+  void testCreateHospitalAddress() {
+    when(hospitalRepository.findById(1L)).thenReturn(Optional.of(testHospital));
+    when(hospitalAddressRepository.save(any(HospitalAddress.class))).thenReturn(testHospitalAddress);
 
-        HospitalAddress response = hospitalAddressService.createHospitalAddress(1L, requestDTO);
+    HospitalAddress response = hospitalAddressService.createHospitalAddress(1L, requestDTO);
 
-        assertNotNull(response);
-        assertEquals(1L, response.getId());
-        assertEquals("123 Med St", response.getAddressLine1());
-        verify(hospitalRepository).findById(1L);
-        verify(hospitalAddressRepository).save(any(HospitalAddress.class));
-    }
+    assertNotNull(response);
+    assertEquals(1L, response.getId());
+    assertEquals("123 Med St", response.getAddressLine1());
+    verify(hospitalRepository).findById(1L);
+    verify(hospitalAddressRepository).save(any(HospitalAddress.class));
+  }
 
-    @Test
-    @DisplayName("Should throw ResourceNotFoundException when hospital not found")
-    void testCreateHospitalAddress_HospitalNotFound() {
-        when(hospitalRepository.findById(1L)).thenReturn(Optional.empty());
+  @Test
+  @DisplayName("Should throw ResourceNotFoundException when hospital not found")
+  void testCreateHospitalAddress_HospitalNotFound() {
+    when(hospitalRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> hospitalAddressService.createHospitalAddress(1L, requestDTO));
-        verify(hospitalRepository).findById(1L);
-        verify(hospitalAddressRepository, never()).save(any(HospitalAddress.class));
-    }
+    assertThrows(ResourceNotFoundException.class, () -> hospitalAddressService.createHospitalAddress(1L, requestDTO));
+    verify(hospitalRepository).findById(1L);
+    verify(hospitalAddressRepository, never()).save(any(HospitalAddress.class));
+  }
 }

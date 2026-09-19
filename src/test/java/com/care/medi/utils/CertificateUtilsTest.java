@@ -12,27 +12,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CertificateUtilsTest {
 
-    @Test
-    @DisplayName("Should create dummy temp certificate when classpath resource does not exist")
-    void testCopyToTempFileNonExistentResource() throws Exception {
-        String pathString = CertificateUtils.copyToTempFile("certs/non-existent.pem");
+  @Test
+  @DisplayName("Should create dummy temp certificate when classpath resource does not exist")
+  void testCopyToTempFileNonExistentResource() throws Exception {
+    String pathString = CertificateUtils.copyToTempFile("certs/non-existent.pem");
 
-        assertNotNull(pathString);
-        File tempFile = new File(pathString);
-        assertTrue(tempFile.exists());
+    assertNotNull(pathString);
+    File tempFile = new File(pathString);
+    assertTrue(tempFile.exists());
 
-        String content = Files.readString(Path.of(pathString));
-        assertTrue(content.contains("DUMMY_CERTIFICATE"));
-    }
+    String content = Files.readString(Path.of(pathString));
+    assertTrue(content.contains("DUMMY_CERTIFICATE"));
+  }
 
-    @Test
-    @DisplayName("Should copy existing classpath resource to temp file")
-    void testCopyToTempFileExistingResource() {
-        // application.properties exists on classpath during tests
-        String pathString = CertificateUtils.copyToTempFile("application.properties");
+  @Test
+  @DisplayName("Should copy existing classpath resource to temp file")
+  void testCopyToTempFileExistingResource() {
+    // application.properties exists on classpath during tests
+    String pathString = CertificateUtils.copyToTempFile("application.properties");
 
-        assertNotNull(pathString);
-        File tempFile = new File(pathString);
-        assertTrue(tempFile.exists());
-    }
+    assertNotNull(pathString);
+    File tempFile = new File(pathString);
+    assertTrue(tempFile.exists());
+  }
 }

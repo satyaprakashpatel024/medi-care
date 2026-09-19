@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import {Component, inject} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router, RouterModule} from '@angular/router';
+import {AuthService} from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,17 +12,15 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
+  isLoading = false;
+  errorMessage = '';
   private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
-
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required]
   });
-
-  isLoading = false;
-  errorMessage = '';
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   onSubmit() {
     if (this.loginForm.valid) {

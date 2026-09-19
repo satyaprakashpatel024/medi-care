@@ -17,38 +17,38 @@ import java.util.Optional;
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
-    @Override
-    @NonNull
-    @EntityGraph(attributePaths = {"user"})
-    Page<Patient> findAll(Pageable pageable);
+  @Override
+  @NonNull
+  @EntityGraph(attributePaths = {"user"})
+  Page<Patient> findAll(Pageable pageable);
 
-    @NonNull
-    @EntityGraph(attributePaths = {"user", "appointments", "appointments.doctor", "appointments.department"})
-    Optional<Patient> findByIdAndHospitalId(@NonNull Long id, @NonNull Long hospitalId);
+  @NonNull
+  @EntityGraph(attributePaths = {"user", "appointments", "appointments.doctor", "appointments.department"})
+  Optional<Patient> findByIdAndHospitalId(@NonNull Long id, @NonNull Long hospitalId);
 
-    @Query("SELECT new com.care.medi.dtos.response.PatientListResponseDTO(" +
-            "p.id, p.user.id, p.firstName, p.lastName, p.dateOfBirth, " +
-            "CAST(p.gender AS string), p.phone, p.emergencyContact, " +
-            "CAST(p.bloodGroup AS string), p.createdAt) " +
-            "FROM Patient p " +
-            "WHERE p.hospital.id = :hospitalId")
-    Page<PatientListResponseDTO> findAllByHospitalId(
-            @Param("hospitalId") Long hospitalId,
-            Pageable pageable
-    );
+  @Query("SELECT new com.care.medi.dtos.response.PatientListResponseDTO(" +
+    "p.id, p.user.id, p.firstName, p.lastName, p.dateOfBirth, " +
+    "CAST(p.gender AS string), p.phone, p.emergencyContact, " +
+    "CAST(p.bloodGroup AS string), p.createdAt) " +
+    "FROM Patient p " +
+    "WHERE p.hospital.id = :hospitalId")
+  Page<PatientListResponseDTO> findAllByHospitalId(
+    @Param("hospitalId") Long hospitalId,
+    Pageable pageable
+  );
 
-    void deleteByIdAndHospitalId(Long patientId, Long hospitalId);
+  void deleteByIdAndHospitalId(Long patientId, Long hospitalId);
 
-    boolean existsByIdAndHospitalId(Long id, Long hospitalId);
+  boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 
-    @Query("SELECT COUNT(p) > 0 FROM Patient p WHERE p.id = :id AND p.user.id = :userId")
-    boolean existsByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
+  @Query("SELECT COUNT(p) > 0 FROM Patient p WHERE p.id = :id AND p.user.id = :userId")
+  boolean existsByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 
-    @Query(value = "SELECT p.hospital_id FROM patients p WHERE p.user_id = :userId AND p.is_deleted = false", nativeQuery = true)
-    Optional<Long> findHospitalIdByUser(@Param("userId") Long userId);
+  @Query(value = "SELECT p.hospital_id FROM patients p WHERE p.user_id = :userId AND p.is_deleted = false", nativeQuery = true)
+  Optional<Long> findHospitalIdByUser(@Param("userId") Long userId);
 
-    @Query(value = "SELECT p.id FROM patients p WHERE p.user_id = :userId AND p.is_deleted = false", nativeQuery = true)
-    Optional<Long> findIdByUserId(@Param("userId") Long userId);
+  @Query(value = "SELECT p.id FROM patients p WHERE p.user_id = :userId AND p.is_deleted = false", nativeQuery = true)
+  Optional<Long> findIdByUserId(@Param("userId") Long userId);
 
-    long countByHospitalId(Long hospitalId);
+  long countByHospitalId(Long hospitalId);
 }

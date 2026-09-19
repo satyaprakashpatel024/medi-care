@@ -9,20 +9,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface HospitalService {
-    HospitalResponseDTO createHospital(HospitalRequestDTO request);
+  HospitalResponseDTO createHospital(HospitalRequestDTO request);
 
-    HospitalResponseDTO getHospitalById(Long id);
+  HospitalResponseDTO getHospitalById(Long id);
 
-    Page<HospitalListResponseDTO> getAllHospitals(int page, int size, String sortBy);
+  Page<HospitalListResponseDTO> getAllHospitals(int page, int size, String sortBy);
 
-    HospitalResponseDTO updateHospital(Long id, HospitalUpdateRequestDTO request);
+  HospitalResponseDTO updateHospital(Long id, HospitalUpdateRequestDTO request);
 
-    void assignDepartment(Long hospitalId, Long departmentId) throws BusinessException;
+  void assignDepartment(Long hospitalId, Long departmentId) throws BusinessException;
 
-    @Transactional
-    void removeDepartment(Long hospitalId, Long departmentId) throws BusinessException;
+  @Transactional
+  void removeDepartment(Long hospitalId, Long departmentId) throws BusinessException;
 
-    void deleteHospital(Long id);
+  void deleteHospital(Long id);
 
-    boolean existsById(Long id);
+  boolean existsById(Long id);
 }

@@ -22,40 +22,40 @@ import static org.mockito.Mockito.when;
 @DisplayName("UsersDetailsService Unit Tests")
 class UsersDetailsServiceTest {
 
-    @Mock
-    private UsersRepository usersRepository;
+  @Mock
+  private UsersRepository usersRepository;
 
-    @InjectMocks
-    private UsersDetailsService usersDetailsService;
+  @InjectMocks
+  private UsersDetailsService usersDetailsService;
 
-    private Users testUser;
+  private Users testUser;
 
-    @BeforeEach
-    void setUp() {
-        testUser = new Users();
-        testUser.setId(1L);
-        testUser.setEmail("test@example.com");
-        testUser.setPassword("password");
-    }
+  @BeforeEach
+  void setUp() {
+    testUser = new Users();
+    testUser.setId(1L);
+    testUser.setEmail("test@example.com");
+    testUser.setPassword("password");
+  }
 
-    @Test
-    @DisplayName("Should load user by username successfully")
-    void testLoadUserByUsername() {
-        when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+  @Test
+  @DisplayName("Should load user by username successfully")
+  void testLoadUserByUsername() {
+    when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
 
-        UserDetails userDetails = usersDetailsService.loadUserByUsername("test@example.com");
+    UserDetails userDetails = usersDetailsService.loadUserByUsername("test@example.com");
 
-        assertNotNull(userDetails);
-        assertEquals("test@example.com", userDetails.getUsername());
-        verify(usersRepository).findByEmail("test@example.com");
-    }
+    assertNotNull(userDetails);
+    assertEquals("test@example.com", userDetails.getUsername());
+    verify(usersRepository).findByEmail("test@example.com");
+  }
 
-    @Test
-    @DisplayName("Should throw UsernameNotFoundException for invalid username")
-    void testLoadUserByUsername_NotFound() {
-        when(usersRepository.findByEmail("invalid@example.com")).thenReturn(Optional.empty());
+  @Test
+  @DisplayName("Should throw UsernameNotFoundException for invalid username")
+  void testLoadUserByUsername_NotFound() {
+    when(usersRepository.findByEmail("invalid@example.com")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> usersDetailsService.loadUserByUsername("invalid@example.com"));
-        verify(usersRepository).findByEmail("invalid@example.com");
-    }
+    assertThrows(UsernameNotFoundException.class, () -> usersDetailsService.loadUserByUsername("invalid@example.com"));
+    verify(usersRepository).findByEmail("invalid@example.com");
+  }
 }

@@ -3,10 +3,11 @@
     <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Doctor Dashboard</h2>
     <p class="text-slate-500 dark:text-slate-400">Manage your appointments and patient records</p>
   </div>
-  
+
   <!-- Stats Overview -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <div class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl">
+    <div
+      class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl">
       <p class="text-slate-500 text-sm font-medium">Total Appointments</p>
       <p class="text-3xl font-bold text-slate-800 dark:text-slate-100">{{totalAppointments}}</p>
     </div>
@@ -14,35 +15,40 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- Upcoming Appointments -->
-    <div class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl">
+    <div
+      class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl">
       <h3 class="text-lg font-bold mb-4 text-primary-600 dark:text-primary-400">Today's Appointments</h3>
-      
+
       <div *ngIf="loading" class="text-slate-500">Loading appointments...</div>
-      
+
       <div *ngIf="!loading && appointments.length === 0" class="text-slate-500">
         No appointments found.
       </div>
 
       <ul class="space-y-3">
-        <li *ngFor="let apt of appointments" class="p-3 bg-white/50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50 flex justify-between items-center">
+        <li *ngFor="let apt of appointments"
+            class="p-3 bg-white/50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50 flex justify-between items-center">
           <div>
             <p class="font-bold">{{apt.patientName || 'Unknown Patient'}}</p>
             <p class="text-sm text-slate-500">{{apt.treatment || apt.status}}</p>
           </div>
-          <div class="text-sm font-medium bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full text-right">
+          <div
+            class="text-sm font-medium bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full text-right">
             <div>{{apt.appointmentDate | date:'shortDate'}}</div>
             <div>{{apt.appointmentTime}}</div>
           </div>
         </li>
       </ul>
     </div>
-    
+
     <!-- Recent Patients -->
-    <div class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl">
+    <div
+      class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl">
       <h3 class="text-lg font-bold mb-4 text-secondary-600 dark:text-secondary-400">Recent Patients</h3>
       <p class="text-sm text-slate-500">Quick access to recent medical records.</p>
       <div class="mt-4 flex gap-2">
-        <button class="bg-secondary-600 hover:bg-secondary-500 text-white px-4 py-2 rounded-lg font-medium shadow-md transition-colors">
+        <button
+          class="bg-secondary-600 hover:bg-secondary-500 text-white px-4 py-2 rounded-lg font-medium shadow-md transition-colors">
           View Records
         </button>
       </div>

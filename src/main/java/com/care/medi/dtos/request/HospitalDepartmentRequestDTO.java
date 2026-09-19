@@ -10,14 +10,14 @@ import lombok.Data;
 @Data
 public class HospitalDepartmentRequestDTO implements java.io.Serializable {
 
-    @NotNull(message = "Head Doctor ID is required.")
-    Long headDoctorId;
+  @NotNull(message = "Head Doctor ID is required.")
+  Long headDoctorId;
 
-    @NotNull(message = "Active is required.")
-    @Builder.Default
-    Boolean active = true;
+  @NotNull(message = "Active is required.")
+  @Builder.Default
+  Boolean active = true;
 
-    @NotNull(message = "Department ID is required.")
-    Long departmentId;
+  @NotNull(message = "Department ID is required.")
+  Long departmentId;
 
 }

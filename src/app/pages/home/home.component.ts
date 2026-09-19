@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { ThemeService, Theme, ColorTheme } from '../../core/services/theme.service';
-import { LucideAngularModule, HeartPulse, ShieldCheck, Clock, ArrowRight } from 'lucide-angular';
+import {Component, inject} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterLink} from '@angular/router';
+import {ColorTheme, Theme, ThemeService} from '../../core/services/theme.service';
+import {ArrowRight, Clock, HeartPulse, LucideAngularModule, ShieldCheck} from 'lucide-angular';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +12,7 @@ import { LucideAngularModule, HeartPulse, ShieldCheck, Clock, ArrowRight } from 
 })
 export class HomeComponent {
   themeService = inject(ThemeService);
-  
+
   // Expose icons to template
   readonly HeartPulse = HeartPulse;
   readonly ShieldCheck = ShieldCheck;

@@ -9,10 +9,10 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class MediCareApplicationTests {
 
-    @Test
-    @DisplayName("Should load Spring application context successfully")
-    void contextLoads() {
-        // Sanity check to verify context initialization
-    }
+  @Test
+  @DisplayName("Should load Spring application context successfully")
+  void contextLoads() {
+    // Sanity check to verify context initialization
+  }
 }
 

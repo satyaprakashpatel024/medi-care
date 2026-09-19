@@ -1,5 +1,5 @@
-import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
+import {Routes} from '@angular/router';
+import {authGuard} from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -7,8 +7,8 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
     pathMatch: 'full'
   },
-  { 
-    path: 'login', 
+  {
+    path: 'login',
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
   },
   {

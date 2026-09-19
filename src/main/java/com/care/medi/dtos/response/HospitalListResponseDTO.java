@@ -7,17 +7,17 @@ import java.util.Set;
 
 @Builder
 public record HospitalListResponseDTO(
-        Long id,
-        String name,
-        String phone,
-        Set<HospitalAddressResponseDTO> address
+  Long id,
+  String name,
+  String phone,
+  Set<HospitalAddressResponseDTO> address
 ) implements java.io.Serializable {
-    public static HospitalListResponseDTO fromEntity(Hospital hospital) {
-        return HospitalListResponseDTO.builder()
-                .id(hospital.getId())
-                .name(hospital.getName())
-                .phone(hospital.getPhone())
-                .address(HospitalAddressResponseDTO.fromEntity(hospital.getAddresses()))
-                .build();
-    }
+  public static HospitalListResponseDTO fromEntity(Hospital hospital) {
+    return HospitalListResponseDTO.builder()
+      .id(hospital.getId())
+      .name(hospital.getName())
+      .phone(hospital.getPhone())
+      .address(HospitalAddressResponseDTO.fromEntity(hospital.getAddresses()))
+      .build();
+  }
 }

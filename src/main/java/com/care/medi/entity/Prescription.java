@@ -17,8 +17,8 @@ import java.time.ZonedDateTime;
 @Schema(hidden = true)
 @Entity
 @Table(name = "prescriptions", indexes = {
-        @Index(name = "idx_prescription_patient_id", columnList = "patient_id"),
-        @Index(name = "idx_prescription_doctor_id", columnList = "doctor_id"),
+  @Index(name = "idx_prescription_patient_id", columnList = "patient_id"),
+  @Index(name = "idx_prescription_doctor_id", columnList = "doctor_id"),
 })
 @Getter
 @Setter
@@ -29,37 +29,38 @@ import java.time.ZonedDateTime;
 @SQLRestriction("is_deleted = false")
 public class Prescription extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_prescription_patient"))
-    @NotNull(message = "Patient is required")
-    private Patient patient;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_prescription_patient"))
+  @NotNull(message = "Patient is required")
+  private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false, foreignKey = @ForeignKey(name = "fk_prescription_doctor"))
-    @NotNull(message = "Doctor is required")
-    private Doctor doctor;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "doctor_id", nullable = false, foreignKey = @ForeignKey(name = "fk_prescription_doctor"))
+  @NotNull(message = "Doctor is required")
+  private Doctor doctor;
 
-    @Column(columnDefinition = "TEXT")
-    private String notes;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id", nullable = true, foreignKey = @ForeignKey(name = "fk_prescription_appointment"))
-    private Appointment appointment;
+  @Column(columnDefinition = "TEXT")
+  private String notes;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "appointment_id", nullable = true, foreignKey = @ForeignKey(name = "fk_prescription_appointment"))
+  private Appointment appointment;
 
 
-    // ── Bidirectional mapping ───────────────────────────────────────────────
+  // ── Bidirectional mapping ───────────────────────────────────────────────
 
-    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true)
-    @lombok.Builder.Default
-    private java.util.List<PrescriptionItem> items = new java.util.ArrayList<>();
-    // ── Helper methods ───────────────────────────────────────────────────────
-    public static Prescription toEntity(Appointment appointment, PrescriptionRequestDTO pDto) {
-        return Prescription.builder()
-                .doctor(appointment.getDoctor())
-                .patient(appointment.getPatient())
-                .appointment(appointment)
-                .createdAt(ZonedDateTime.now())
-                .notes(pDto.getNotes())
-                .build();
-    }
+  @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true)
+  @lombok.Builder.Default
+  private java.util.List<PrescriptionItem> items = new java.util.ArrayList<>();
+
+  // ── Helper methods ───────────────────────────────────────────────────────
+  public static Prescription toEntity(Appointment appointment, PrescriptionRequestDTO pDto) {
+    return Prescription.builder()
+      .doctor(appointment.getDoctor())
+      .patient(appointment.getPatient())
+      .appointment(appointment)
+      .createdAt(ZonedDateTime.now())
+      .notes(pDto.getNotes())
+      .build();
+  }
 
 }

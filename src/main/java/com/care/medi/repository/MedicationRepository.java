@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface MedicationRepository extends JpaRepository<Medication, Long> {
-    List<Medication> findByStockQuantityLessThanEqual(Integer threshold);
+  List<Medication> findByStockQuantityLessThanEqual(Integer threshold);
 }

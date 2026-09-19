@@ -35,265 +35,265 @@ import java.time.LocalDate;
 @Validated
 public class AppointmentController {
 
-    private final AppointmentServiceImpl appointmentService;
+  private final AppointmentServiceImpl appointmentService;
 
-    /**
-     * Retrieves appointment details by appointment ID and hospital ID.
-     *
-     * @param hospitalId the unique identifier of the hospital extracted from the request attribute
-     * @param id         the unique identifier of the appointment
-     * @return a {@link ResponseEntity} wrapping an {@link ApiResponse} with the {@link AppointmentResponseDTO}
-     */
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or @userSecurity.isAppointmentOwnerOrDoctor(#id, authentication)")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long id) {
-        AppointmentResponseDTO appointmentById = appointmentService.getAppointmentByIdAndHospital(id, hospitalId);
-        String msg = String.format("Successfully retrieved appointments for Appointment ID : %d.", id);
-        return ResponseEntity.ok(ApiResponse.success(msg, appointmentById));
-    }
+  /**
+   * Retrieves appointment details by appointment ID and hospital ID.
+   *
+   * @param hospitalId the unique identifier of the hospital extracted from the request attribute
+   * @param id         the unique identifier of the appointment
+   * @return a {@link ResponseEntity} wrapping an {@link ApiResponse} with the {@link AppointmentResponseDTO}
+   */
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or @userSecurity.isAppointmentOwnerOrDoctor(#id, authentication)")
+  public ResponseEntity<ApiResponse<AppointmentResponseDTO>> getAppointmentById(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long id) {
+    AppointmentResponseDTO appointmentById = appointmentService.getAppointmentByIdAndHospital(id, hospitalId);
+    String msg = String.format("Successfully retrieved appointments for Appointment ID : %d.", id);
+    return ResponseEntity.ok(ApiResponse.success(msg, appointmentById));
+  }
 
-    /**
-     * Retrieves a paginated list of appointment summaries for a hospital on a specific date.
-     * Defaults to the current date if not specified.
-     *
-     * @param hospitalId the unique identifier of the hospital
-     * @param page       the page index to retrieve
-     * @param size       the number of records per page
-     * @param sortBy     the field name by which to sort results
-     * @param date       the optional filter date (ISO format)
-     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentSummaryResponseDTO}
-     */
-    @GetMapping("/hospital")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST')")
-    public ResponseEntity<ApiResponse<Page<AppointmentSummaryResponseDTO>>> getAllAppointmentsByHospitalAndDate(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "5") Integer size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+  /**
+   * Retrieves a paginated list of appointment summaries for a hospital on a specific date.
+   * Defaults to the current date if not specified.
+   *
+   * @param hospitalId the unique identifier of the hospital
+   * @param page       the page index to retrieve
+   * @param size       the number of records per page
+   * @param sortBy     the field name by which to sort results
+   * @param date       the optional filter date (ISO format)
+   * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentSummaryResponseDTO}
+   */
+  @GetMapping("/hospital")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST')")
+  public ResponseEntity<ApiResponse<Page<AppointmentSummaryResponseDTO>>> getAllAppointmentsByHospitalAndDate(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @RequestParam(defaultValue = "0") Integer page,
+    @RequestParam(defaultValue = "5") Integer size,
+    @RequestParam(defaultValue = "id") String sortBy,
+    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
-        Page<AppointmentSummaryResponseDTO> allAppointments = appointmentService.getAllAppointmentsByHospitalAndDate(hospitalId, page, size, sortBy, filterDate);
-        String msg = String.format("Successfully retrieved %s appointments for Hospital ID %d on %s.",
-                allAppointments.getTotalElements(), hospitalId, filterDate.format(Constants.SHORT_DATE_FORMAT));
-        return ResponseEntity.ok(ApiResponse.success(msg, allAppointments));
-    }
+    LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
+    Page<AppointmentSummaryResponseDTO> allAppointments = appointmentService.getAllAppointmentsByHospitalAndDate(hospitalId, page, size, sortBy, filterDate);
+    String msg = String.format("Successfully retrieved %s appointments for Hospital ID %d on %s.",
+      allAppointments.getTotalElements(), hospitalId, filterDate.format(Constants.SHORT_DATE_FORMAT));
+    return ResponseEntity.ok(ApiResponse.success(msg, allAppointments));
+  }
 
-    /**
-     * Retrieves paginated appointments filtered by hospital ID, appointment status, and optional date.
-     *
-     * @param hospitalId the unique identifier of the hospital
-     * @param status     the status filter for the appointments
-     * @param page       the page index to retrieve
-     * @param size       the number of records per page
-     * @param sortBy     the field name by which to sort results
-     * @param date       the optional filter date (ISO format)
-     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentListResponseDTO}
-     */
-    @GetMapping("/status")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST')")
-    public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAppointmentByHospitalAndStatusAndDate(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @RequestParam("status") AppointmentStatus status,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "5") Integer size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
-    ) {
-        LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
+  /**
+   * Retrieves paginated appointments filtered by hospital ID, appointment status, and optional date.
+   *
+   * @param hospitalId the unique identifier of the hospital
+   * @param status     the status filter for the appointments
+   * @param page       the page index to retrieve
+   * @param size       the number of records per page
+   * @param sortBy     the field name by which to sort results
+   * @param date       the optional filter date (ISO format)
+   * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentListResponseDTO}
+   */
+  @GetMapping("/status")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST')")
+  public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAppointmentByHospitalAndStatusAndDate(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @RequestParam("status") AppointmentStatus status,
+    @RequestParam(defaultValue = "0") Integer page,
+    @RequestParam(defaultValue = "5") Integer size,
+    @RequestParam(defaultValue = "id") String sortBy,
+    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+  ) {
+    LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
 
-        Page<AppointmentListResponseDTO> appointmentPage = appointmentService
-                .getAppointmentsByHospitalAndStatusAndDate(hospitalId, status, page, size, sortBy, filterDate);
+    Page<AppointmentListResponseDTO> appointmentPage = appointmentService
+      .getAppointmentsByHospitalAndStatusAndDate(hospitalId, status, page, size, sortBy, filterDate);
 
-        String msg = String.format("Found %d %s appointments for %s.",
-                appointmentPage.getNumberOfElements(),
-                status.name().toLowerCase(),
-                filterDate.format(Constants.SHORT_DATE_FORMAT));
+    String msg = String.format("Found %d %s appointments for %s.",
+      appointmentPage.getNumberOfElements(),
+      status.name().toLowerCase(),
+      filterDate.format(Constants.SHORT_DATE_FORMAT));
 
-        return ResponseEntity.ok(ApiResponse.success(msg, appointmentPage));
-    }
+    return ResponseEntity.ok(ApiResponse.success(msg, appointmentPage));
+  }
 
-    /**
-     * Books a new appointment within a hospital.
-     *
-     * @param hospitalId the unique identifier of the hospital passed via the request header
-     * @param request    the appointment booking details
-     * @return a {@link ResponseEntity} containing a 201 Created status, a Location header, and the created {@link AppointmentResponseDTO}
-     */
-    @PostMapping
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAnAppointment(
-            @RequestHeader(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @RequestBody @Valid AppointmentRequestDTO request
-    ) {
-        AppointmentResponseDTO appointment = appointmentService.createAppointment(hospitalId, request);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(appointment.appointmentId())
-                .toUri();
-        return ResponseEntity.created(location)
-                .body(ApiResponse.success("Appointment booked successfully", appointment, HttpStatus.CREATED));
-    }
+  /**
+   * Books a new appointment within a hospital.
+   *
+   * @param hospitalId the unique identifier of the hospital passed via the request header
+   * @param request    the appointment booking details
+   * @return a {@link ResponseEntity} containing a 201 Created status, a Location header, and the created {@link AppointmentResponseDTO}
+   */
+  @PostMapping
+  @PreAuthorize("permitAll()")
+  public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAnAppointment(
+    @RequestHeader(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @RequestBody @Valid AppointmentRequestDTO request
+  ) {
+    AppointmentResponseDTO appointment = appointmentService.createAppointment(hospitalId, request);
+    URI location = ServletUriComponentsBuilder
+      .fromCurrentRequest()
+      .path("/{id}")
+      .buildAndExpand(appointment.appointmentId())
+      .toUri();
+    return ResponseEntity.created(location)
+      .body(ApiResponse.success("Appointment booked successfully", appointment, HttpStatus.CREATED));
+  }
 
-    /**
-     * Reschedules an existing appointment to a new date and time.
-     *
-     * @param hospitalId the unique identifier of the hospital
-     * @param id         the unique identifier of the appointment
-     * @param request    the rescheduling details
-     * @return a {@link ResponseEntity} containing the updated {@link AppointmentResponseDTO}
-     */
-    @PatchMapping("/{id}/reschedule")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST')")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long id,
-            @RequestBody @Valid AppointmentRescheduleDTO request
-    ) {
-        AppointmentResponseDTO response = appointmentService.rescheduleAppointment(id, request, hospitalId);
-        String msg = String.format("Successfully rescheduled appointment for Appointment ID : %d.", id);
-        return ResponseEntity.accepted().body(
-                ApiResponse.success(msg, response, HttpStatus.ACCEPTED)
-        );
-    }
+  /**
+   * Reschedules an existing appointment to a new date and time.
+   *
+   * @param hospitalId the unique identifier of the hospital
+   * @param id         the unique identifier of the appointment
+   * @param request    the rescheduling details
+   * @return a {@link ResponseEntity} containing the updated {@link AppointmentResponseDTO}
+   */
+  @PatchMapping("/{id}/reschedule")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST')")
+  public ResponseEntity<ApiResponse<AppointmentResponseDTO>> rescheduleAppointment(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long id,
+    @RequestBody @Valid AppointmentRescheduleDTO request
+  ) {
+    AppointmentResponseDTO response = appointmentService.rescheduleAppointment(id, request, hospitalId);
+    String msg = String.format("Successfully rescheduled appointment for Appointment ID : %d.", id);
+    return ResponseEntity.accepted().body(
+      ApiResponse.success(msg, response, HttpStatus.ACCEPTED)
+    );
+  }
 
-    /**
-     * Updates an existing appointment's details.
-     *
-     * @param hospitalId the unique identifier of the hospital
-     * @param id         the unique identifier of the appointment
-     * @param request    the updated appointment information
-     * @return a {@link ResponseEntity} containing the modified {@link AppointmentResponseDTO}
-     */
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF') or (hasRole('DOCTOR') and @userSecurity.isAppointmentDoctor(#id, authentication))")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateAppointment(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long id,
-            @RequestBody @Valid AppointmentUpdateRequestDTO request
-    ) {
-        String msg = String.format("Successfully updated appointment for Appointment ID : %d.", id);
-        return ResponseEntity.accepted().body(
-                ApiResponse.success(msg, appointmentService.updateAppointment(id, hospitalId, request), HttpStatus.ACCEPTED)
-        );
-    }
+  /**
+   * Updates an existing appointment's details.
+   *
+   * @param hospitalId the unique identifier of the hospital
+   * @param id         the unique identifier of the appointment
+   * @param request    the updated appointment information
+   * @return a {@link ResponseEntity} containing the modified {@link AppointmentResponseDTO}
+   */
+  @PutMapping("/{id}")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF') or (hasRole('DOCTOR') and @userSecurity.isAppointmentDoctor(#id, authentication))")
+  public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateAppointment(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long id,
+    @RequestBody @Valid AppointmentUpdateRequestDTO request
+  ) {
+    String msg = String.format("Successfully updated appointment for Appointment ID : %d.", id);
+    return ResponseEntity.accepted().body(
+      ApiResponse.success(msg, appointmentService.updateAppointment(id, hospitalId, request), HttpStatus.ACCEPTED)
+    );
+  }
 
-    /**
-     * Cancels an existing appointment.
-     *
-     * @param hospitalId the unique identifier of the hospital
-     * @param id         the unique identifier of the appointment to cancel
-     * @return a {@link ResponseEntity} containing the updated {@link AppointmentResponseDTO}
-     */
-    @PatchMapping("/{id}/cancel")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or @userSecurity.isAppointmentOwnerOrDoctor(#id, authentication)")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long id) {
+  /**
+   * Cancels an existing appointment.
+   *
+   * @param hospitalId the unique identifier of the hospital
+   * @param id         the unique identifier of the appointment to cancel
+   * @return a {@link ResponseEntity} containing the updated {@link AppointmentResponseDTO}
+   */
+  @PatchMapping("/{id}/cancel")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or @userSecurity.isAppointmentOwnerOrDoctor(#id, authentication)")
+  public ResponseEntity<ApiResponse<AppointmentResponseDTO>> cancelAppointment(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long id) {
 
-        appointmentService.cancelAppointment(id, hospitalId);
-        return ResponseEntity.accepted().body(
-                ApiResponse.success("Appointment cancelled successfully", appointmentService.getAppointmentByIdAndHospital(id, hospitalId), HttpStatus.ACCEPTED)
-        );
-    }
+    appointmentService.cancelAppointment(id, hospitalId);
+    return ResponseEntity.accepted().body(
+      ApiResponse.success("Appointment cancelled successfully", appointmentService.getAppointmentByIdAndHospital(id, hospitalId), HttpStatus.ACCEPTED)
+    );
+  }
 
-    /**
-     * Retrieves paginated appointments for a specific patient within a hospital.
-     *
-     * @param hospitalId the unique identifier of the hospital
-     * @param userId  the unique identifier of the user
-     * @param page       the page index to retrieve
-     * @param size       the number of records per page
-     * @param sortBy     the field name by which to sort results
-     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentResponseDTO}
-     */
-    @GetMapping("/patient/{id}")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfUser(#userId, authentication))")
-    public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllAppointmentsByHospitalAndPatientId(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long userId,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "5") Integer size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        Page<AppointmentResponseDTO> appointmentsByPatient = appointmentService.getAppointmentsByHospitalAndPatient(hospitalId, userId, page, size, sortBy);
-        String msg = String.format("Successfully retrieved appointments for User ID : %d.", userId);
-        return ResponseEntity.ok(ApiResponse.success(msg, appointmentsByPatient));
-    }
+  /**
+   * Retrieves paginated appointments for a specific patient within a hospital.
+   *
+   * @param hospitalId the unique identifier of the hospital
+   * @param userId     the unique identifier of the user
+   * @param page       the page index to retrieve
+   * @param size       the number of records per page
+   * @param sortBy     the field name by which to sort results
+   * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link AppointmentResponseDTO}
+   */
+  @GetMapping("/patient/{id}")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfUser(#userId, authentication))")
+  public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAllAppointmentsByHospitalAndPatientId(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long userId,
+    @RequestParam(defaultValue = "0") Integer page,
+    @RequestParam(defaultValue = "5") Integer size,
+    @RequestParam(defaultValue = "id") String sortBy) {
+    Page<AppointmentResponseDTO> appointmentsByPatient = appointmentService.getAppointmentsByHospitalAndPatient(hospitalId, userId, page, size, sortBy);
+    String msg = String.format("Successfully retrieved appointments for User ID : %d.", userId);
+    return ResponseEntity.ok(ApiResponse.success(msg, appointmentsByPatient));
+  }
 
-    /**
-     * Retrieves paginated appointments for a specific doctor within a hospital based on User ID.
-     */
-    @GetMapping("/doctor/{id}")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('DOCTOR') and @userSecurity.isSelfUser(#userId, authentication))")
-    public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByHospitalAndDoctorId(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long userId,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "5") Integer size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+  /**
+   * Retrieves paginated appointments for a specific doctor within a hospital based on User ID.
+   */
+  @GetMapping("/doctor/{id}")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('DOCTOR') and @userSecurity.isSelfUser(#userId, authentication))")
+  public ResponseEntity<ApiResponse<Page<AppointmentListResponseDTO>>> getAllAppointmentsByHospitalAndDoctorId(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long userId,
+    @RequestParam(defaultValue = "0") Integer page,
+    @RequestParam(defaultValue = "5") Integer size,
+    @RequestParam(defaultValue = "id") String sortBy,
+    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        // Let's resolve the doctorId inside the controller for now, or inside a service method.
-        // The service already has getAppointmentsByDoctorAndHospitalIdAndDate which takes doctorId.
-        // We will call the service and let the service handle it, but wait, the service takes doctorId.
-        // Let's inject DoctorRepository into AppointmentController? No, it's better to update the service.
-        // For now I'll just change the method name so we can update the service.
-        LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
-        Page<AppointmentListResponseDTO> appointmentsByDoctor = appointmentService.getAppointmentsByHospitalAndDoctorUserId(hospitalId, userId, page, size, sortBy, filterDate);
-        String msg = String.format("Successfully retrieved appointments for Doctor User ID : %d.", userId);
-        return ResponseEntity.ok(ApiResponse.success(msg, appointmentsByDoctor));
-    }
+    // Let's resolve the doctorId inside the controller for now, or inside a service method.
+    // The service already has getAppointmentsByDoctorAndHospitalIdAndDate which takes doctorId.
+    // We will call the service and let the service handle it, but wait, the service takes doctorId.
+    // Let's inject DoctorRepository into AppointmentController? No, it's better to update the service.
+    // For now I'll just change the method name so we can update the service.
+    LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
+    Page<AppointmentListResponseDTO> appointmentsByDoctor = appointmentService.getAppointmentsByHospitalAndDoctorUserId(hospitalId, userId, page, size, sortBy, filterDate);
+    String msg = String.format("Successfully retrieved appointments for Doctor User ID : %d.", userId);
+    return ResponseEntity.ok(ApiResponse.success(msg, appointmentsByDoctor));
+  }
 
-    /**
-     * Permanently deletes an appointment by its ID and hospital ID.
-     *
-     * @param hospitalId the unique identifier of the hospital
-     * @param id         the unique identifier of the appointment to delete
-     * @return a {@link ResponseEntity} indicating the outcome of the deletion
-     */
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
-    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> deleteAppointment(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long id) {
-        appointmentService.deleteAppointment(id, hospitalId);
-        return ResponseEntity.accepted().body(
-                ApiResponse.success("Appointment deleted successfully", null, HttpStatus.ACCEPTED)
-        );
-    }
+  /**
+   * Permanently deletes an appointment by its ID and hospital ID.
+   *
+   * @param hospitalId the unique identifier of the hospital
+   * @param id         the unique identifier of the appointment to delete
+   * @return a {@link ResponseEntity} indicating the outcome of the deletion
+   */
+  @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
+  public ResponseEntity<ApiResponse<AppointmentResponseDTO>> deleteAppointment(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long id) {
+    appointmentService.deleteAppointment(id, hospitalId);
+    return ResponseEntity.accepted().body(
+      ApiResponse.success("Appointment deleted successfully", null, HttpStatus.ACCEPTED)
+    );
+  }
 
-    /**
-     * Retrieves available time slots for a doctor on a specific date.
-     *
-     * @param hospitalId the unique identifier of the hospital passed via the request attribute or header
-     * @param doctorId   the unique identifier of the doctor
-     * @param date       the date for which to retrieve available slots (ISO format)
-     * @return a {@link ResponseEntity} wrapping an {@link ApiResponse} with {@link DoctorDaySlotsResponseDTO}
-     */
-    @GetMapping("/available-slots")
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<ApiResponse<DoctorDaySlotsResponseDTO>> getAvailableSlots(
-            @RequestHeader(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @RequestParam("doctorId") Long doctorId,
-            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+  /**
+   * Retrieves available time slots for a doctor on a specific date.
+   *
+   * @param hospitalId the unique identifier of the hospital passed via the request attribute or header
+   * @param doctorId   the unique identifier of the doctor
+   * @param date       the date for which to retrieve available slots (ISO format)
+   * @return a {@link ResponseEntity} wrapping an {@link ApiResponse} with {@link DoctorDaySlotsResponseDTO}
+   */
+  @GetMapping("/available-slots")
+  @PreAuthorize("permitAll()")
+  public ResponseEntity<ApiResponse<DoctorDaySlotsResponseDTO>> getAvailableSlots(
+    @RequestHeader(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @RequestParam("doctorId") Long doctorId,
+    @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
-        DoctorDaySlotsResponseDTO availableSlots = appointmentService.getAvailableSlots(hospitalId, doctorId, filterDate);
-        String msg = String.format("Successfully retrieved available slots for Doctor ID %d on %s.", doctorId, filterDate);
-        return ResponseEntity.ok(ApiResponse.success(msg, availableSlots));
-    }
+    LocalDate filterDate = (date != null) ? date : LocalDate.now(Constants.ZONE_ID);
+    DoctorDaySlotsResponseDTO availableSlots = appointmentService.getAvailableSlots(hospitalId, doctorId, filterDate);
+    String msg = String.format("Successfully retrieved available slots for Doctor ID %d on %s.", doctorId, filterDate);
+    return ResponseEntity.ok(ApiResponse.success(msg, availableSlots));
+  }
 }

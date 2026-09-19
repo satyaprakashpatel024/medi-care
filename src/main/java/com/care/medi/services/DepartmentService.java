@@ -8,11 +8,11 @@ import org.springframework.data.domain.Page;
 
 public interface DepartmentService {
 
-    Page<DepartmentResponseDTO> getAllDepartments(int page, int size, String sortBy);
+  Page<DepartmentResponseDTO> getAllDepartments(int page, int size, String sortBy);
 
-    DepartmentResponseDTO createDepartment(@Valid DepartmentRequestDTO departmentRequestDTO);
+  DepartmentResponseDTO createDepartment(@Valid DepartmentRequestDTO departmentRequestDTO);
 
-    DepartmentResponseDTO getDepartmentById(Long id);
+  DepartmentResponseDTO getDepartmentById(Long id);
 
-    DepartmentResponseDTO updateDepartment(Long id, @Valid DepartmentRequestDTO request);
+  DepartmentResponseDTO updateDepartment(Long id, @Valid DepartmentRequestDTO request);
 }

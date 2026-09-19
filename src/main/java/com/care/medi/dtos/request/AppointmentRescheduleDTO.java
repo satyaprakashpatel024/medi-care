@@ -14,13 +14,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AppointmentRescheduleDTO implements java.io.Serializable {
 
-    @NotNull(message = "Appointment date is required.")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private String appointmentDate;
-    @NotNull(message = "Appointment time is required.")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
-    private String appointmentTime;
-    @NotNull(message = "Status is required.")
-    @Pattern(regexp = "^(SCHEDULED|CANCELLED|NO_SHOW)$")
-    private String status;
+  @NotNull(message = "Appointment date is required.")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+  private String appointmentDate;
+  @NotNull(message = "Appointment time is required.")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
+  private String appointmentTime;
+  @NotNull(message = "Status is required.")
+  @Pattern(regexp = "^(SCHEDULED|CANCELLED|NO_SHOW)$")
+  private String status;
 }

@@ -13,38 +13,38 @@ import java.time.ZonedDateTime;
 public class MedicalRecordResponseDTO implements java.io.Serializable {
 
 
-    private Long id;
+  private Long id;
 
-    // Patient summary
-    private Long patientId;
-    private String patientName;
-    private String patientBloodGroup;
-    private LocalDate patientDateOfBirth;
+  // Patient summary
+  private Long patientId;
+  private String patientName;
+  private String patientBloodGroup;
+  private LocalDate patientDateOfBirth;
 
-    // Doctor summary
-    private Long doctorId;
-    private String doctorName;
-    private String doctorSpeciality;
-    private Long departmentId;
-    private String departmentName;
+  // Doctor summary
+  private Long doctorId;
+  private String doctorName;
+  private String doctorSpeciality;
+  private Long departmentId;
+  private String departmentName;
 
-    // Appointment link (null when not linked)
-    private Long appointmentId;
-    private String appointmentDate;
+  // Appointment link (null when not linked)
+  private Long appointmentId;
+  private String appointmentDate;
 
-    // Hospital context
-    private Long hospitalId;
-    private String hospitalName;
+  // Hospital context
+  private Long hospitalId;
+  private String hospitalName;
 
-    // Clinical content
-    private String diagnosis;
-    private String symptoms;
-    private String treatmentPlan;
-    private String followUpNotes;
+  // Clinical content
+  private String diagnosis;
+  private String symptoms;
+  private String treatmentPlan;
+  private String followUpNotes;
 
-    private LocalDate recordDate;
-    private String status;
+  private LocalDate recordDate;
+  private String status;
 
-    private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
+  private ZonedDateTime createdAt;
+  private ZonedDateTime updatedAt;
 }

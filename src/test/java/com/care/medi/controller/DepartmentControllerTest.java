@@ -31,81 +31,81 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class DepartmentControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private DepartmentService departmentService;
+  @MockitoBean
+  private DepartmentService departmentService;
 
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockitoBean
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockitoBean
-    private JwtService jwtService;
+  @MockitoBean
+  private JwtService jwtService;
 
-    @MockitoBean
-    private UsersDetailsService usersDetailsService;
+  @MockitoBean
+  private UsersDetailsService usersDetailsService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    private DepartmentResponseDTO departmentResponseDTO;
+  private DepartmentResponseDTO departmentResponseDTO;
 
-    @BeforeEach
-    void setUp() {
-        departmentResponseDTO = DepartmentResponseDTO.builder().id(1L).name("Cardiology").build();
-    }
+  @BeforeEach
+  void setUp() {
+    departmentResponseDTO = DepartmentResponseDTO.builder().id(1L).name("Cardiology").build();
+  }
 
-    @Test
-    @DisplayName("Should get all departments")
-    void testGetAllDepartments() throws Exception {
-        Page<DepartmentResponseDTO> page = new PageImpl<>(Collections.singletonList(departmentResponseDTO));
-        when(departmentService.getAllDepartments(anyInt(), anyInt(), anyString())).thenReturn(page);
+  @Test
+  @DisplayName("Should get all departments")
+  void testGetAllDepartments() throws Exception {
+    Page<DepartmentResponseDTO> page = new PageImpl<>(Collections.singletonList(departmentResponseDTO));
+    when(departmentService.getAllDepartments(anyInt(), anyInt(), anyString())).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/departments"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/departments"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.content[0].id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should create department")
-    void testCreateDepartment() throws Exception {
-        DepartmentRequestDTO request = new DepartmentRequestDTO();
-        request.setName("Cardiology");
-        request.setDescription("Department of Cardiology");
+  @Test
+  @DisplayName("Should create department")
+  void testCreateDepartment() throws Exception {
+    DepartmentRequestDTO request = new DepartmentRequestDTO();
+    request.setName("Cardiology");
+    request.setDescription("Department of Cardiology");
 
-        when(departmentService.createDepartment(any(DepartmentRequestDTO.class))).thenReturn(departmentResponseDTO);
+    when(departmentService.createDepartment(any(DepartmentRequestDTO.class))).thenReturn(departmentResponseDTO);
 
-        mockMvc.perform(post("/api/v1/departments")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(post("/api/v1/departments")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get department by id")
-    void testGetDepartmentById() throws Exception {
-        when(departmentService.getDepartmentById(1L)).thenReturn(departmentResponseDTO);
+  @Test
+  @DisplayName("Should get department by id")
+  void testGetDepartmentById() throws Exception {
+    when(departmentService.getDepartmentById(1L)).thenReturn(departmentResponseDTO);
 
-        mockMvc.perform(get("/api/v1/departments/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/departments/1"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should update department")
-    void testUpdateDepartment() throws Exception {
-        DepartmentRequestDTO request = new DepartmentRequestDTO();
-        request.setName("Cardiology");
-        request.setDescription("Department of Cardiology");
+  @Test
+  @DisplayName("Should update department")
+  void testUpdateDepartment() throws Exception {
+    DepartmentRequestDTO request = new DepartmentRequestDTO();
+    request.setName("Cardiology");
+    request.setDescription("Department of Cardiology");
 
-        when(departmentService.updateDepartment(eq(1L), any(DepartmentRequestDTO.class))).thenReturn(departmentResponseDTO);
+    when(departmentService.updateDepartment(eq(1L), any(DepartmentRequestDTO.class))).thenReturn(departmentResponseDTO);
 
-        mockMvc.perform(put("/api/v1/departments/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(put("/api/v1/departments/1")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isAccepted())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 }

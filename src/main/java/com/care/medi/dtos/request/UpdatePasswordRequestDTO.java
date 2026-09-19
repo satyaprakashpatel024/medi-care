@@ -14,13 +14,13 @@ import lombok.NoArgsConstructor;
 public class UpdatePasswordRequestDTO implements java.io.Serializable {
 
 
-    @NotBlank(message = "Current password is required")
-    private String currentPassword;
+  @NotBlank(message = "Current password is required")
+  private String currentPassword;
 
-    @NotBlank(message = "New password is required")
-    @Size(min = 8, max = 100, message = "New password must be between 8 and 100 characters")
-    private String newPassword;
+  @NotBlank(message = "New password is required")
+  @Size(min = 8, max = 100, message = "New password must be between 8 and 100 characters")
+  private String newPassword;
 
-    @NotBlank(message = "Password confirmation is required")
-    private String confirmPassword;
+  @NotBlank(message = "Password confirmation is required")
+  private String confirmPassword;
 }

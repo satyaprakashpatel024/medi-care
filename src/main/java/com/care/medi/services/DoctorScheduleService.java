@@ -6,9 +6,9 @@ import com.care.medi.entity.DoctorSchedule;
 
 public interface DoctorScheduleService {
 
-    DoctorScheduleResponseDTO createOrUpdateSchedule(Long hospitalId, Long doctorId, DoctorScheduleRequestDTO request);
+  DoctorScheduleResponseDTO createOrUpdateSchedule(Long hospitalId, Long doctorId, DoctorScheduleRequestDTO request);
 
-    DoctorScheduleResponseDTO getScheduleByDoctorAndHospital(Long hospitalId, Long doctorId);
+  DoctorScheduleResponseDTO getScheduleByDoctorAndHospital(Long hospitalId, Long doctorId);
 
-    DoctorSchedule getDoctorScheduleEntityOrDefault(Long hospitalId, Long doctorId);
+  DoctorSchedule getDoctorScheduleEntityOrDefault(Long hospitalId, Long doctorId);
 }

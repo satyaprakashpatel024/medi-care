@@ -37,159 +37,159 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class MedicalRecordControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private MedicalRecordService medicalRecordService;
+  @MockitoBean
+  private MedicalRecordService medicalRecordService;
 
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockitoBean
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockitoBean
-    private JwtService jwtService;
+  @MockitoBean
+  private JwtService jwtService;
 
-    @org.springframework.test.context.bean.override.mockito.MockitoBean
-    private UsersDetailsService usersDetailsService;
+  @org.springframework.test.context.bean.override.mockito.MockitoBean
+  private UsersDetailsService usersDetailsService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    private MedicalRecordResponseDTO recordResponseDTO;
-    private MedicalRecordListResponseDTO recordListResponseDTO;
+  private MedicalRecordResponseDTO recordResponseDTO;
+  private MedicalRecordListResponseDTO recordListResponseDTO;
 
-    @BeforeEach
-    void setUp() {
-        recordResponseDTO = MedicalRecordResponseDTO.builder().id(1L).build();
-        recordListResponseDTO = MedicalRecordListResponseDTO.builder().id(1L).build();
-    }
+  @BeforeEach
+  void setUp() {
+    recordResponseDTO = MedicalRecordResponseDTO.builder().id(1L).build();
+    recordListResponseDTO = MedicalRecordListResponseDTO.builder().id(1L).build();
+  }
 
-    @Test
-    @DisplayName("Should create a medical record")
-    void testCreateRecord() throws Exception {
-        MedicalRecordRequestDTO request = new MedicalRecordRequestDTO();
-        request.setPatientId(1L);
-        request.setDoctorId(1L);
-        request.setDiagnosis("Acute upper respiratory infection");
-        request.setRecordDate(java.time.LocalDate.of(2024, 6, 15));
+  @Test
+  @DisplayName("Should create a medical record")
+  void testCreateRecord() throws Exception {
+    MedicalRecordRequestDTO request = new MedicalRecordRequestDTO();
+    request.setPatientId(1L);
+    request.setDoctorId(1L);
+    request.setDiagnosis("Acute upper respiratory infection");
+    request.setRecordDate(java.time.LocalDate.of(2024, 6, 15));
 
-        when(medicalRecordService.createRecord(eq(1L), any(MedicalRecordRequestDTO.class))).thenReturn(recordResponseDTO);
+    when(medicalRecordService.createRecord(eq(1L), any(MedicalRecordRequestDTO.class))).thenReturn(recordResponseDTO);
 
-        mockMvc.perform(post("/api/v1/medical-records")
-                        .requestAttr("X-Hospital-Id", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(post("/api/v1/medical-records")
+        .requestAttr("X-Hospital-Id", 1L)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get a record by id")
-    void testGetRecordById() throws Exception {
-        when(medicalRecordService.getRecordById(1L, 1L)).thenReturn(recordResponseDTO);
+  @Test
+  @DisplayName("Should get a record by id")
+  void testGetRecordById() throws Exception {
+    when(medicalRecordService.getRecordById(1L, 1L)).thenReturn(recordResponseDTO);
 
-        mockMvc.perform(get("/api/v1/medical-records/1")
-                        .requestAttr("X-Hospital-Id", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/medical-records/1")
+        .requestAttr("X-Hospital-Id", 1L))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get a record by appointment id")
-    void testGetRecordByAppointmentId() throws Exception {
-        when(medicalRecordService.getRecordByAppointmentId(1L, 1L)).thenReturn(recordResponseDTO);
+  @Test
+  @DisplayName("Should get a record by appointment id")
+  void testGetRecordByAppointmentId() throws Exception {
+    when(medicalRecordService.getRecordByAppointmentId(1L, 1L)).thenReturn(recordResponseDTO);
 
-        mockMvc.perform(get("/api/v1/medical-records/appointment/1")
-                        .requestAttr("X-Hospital-Id", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/medical-records/appointment/1")
+        .requestAttr("X-Hospital-Id", 1L))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get records by patient")
-    void testGetRecordsByPatient() throws Exception {
-        Page<MedicalRecordListResponseDTO> page = new PageImpl<>(Collections.singletonList(recordListResponseDTO));
-        when(medicalRecordService.getRecordsByPatient(eq(1L), eq(1L), any(Pageable.class))).thenReturn(page);
+  @Test
+  @DisplayName("Should get records by patient")
+  void testGetRecordsByPatient() throws Exception {
+    Page<MedicalRecordListResponseDTO> page = new PageImpl<>(Collections.singletonList(recordListResponseDTO));
+    when(medicalRecordService.getRecordsByPatient(eq(1L), eq(1L), any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/medical-records/patient/1")
-                        .requestAttr("X-Hospital-Id", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/medical-records/patient/1")
+        .requestAttr("X-Hospital-Id", 1L))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.content[0].id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get active records by patient")
-    void testGetActiveRecordsByPatient() throws Exception {
-        Page<MedicalRecordListResponseDTO> page = new PageImpl<>(Collections.singletonList(recordListResponseDTO));
-        when(medicalRecordService.getActiveRecordsByPatient(eq(1L), eq(1L), any(Pageable.class))).thenReturn(page);
+  @Test
+  @DisplayName("Should get active records by patient")
+  void testGetActiveRecordsByPatient() throws Exception {
+    Page<MedicalRecordListResponseDTO> page = new PageImpl<>(Collections.singletonList(recordListResponseDTO));
+    when(medicalRecordService.getActiveRecordsByPatient(eq(1L), eq(1L), any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/medical-records/patient/1/active")
-                        .requestAttr("X-Hospital-Id", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/medical-records/patient/1/active")
+        .requestAttr("X-Hospital-Id", 1L))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.content[0].id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get latest record by patient")
-    void testGetLatestRecordByPatient() throws Exception {
-        when(medicalRecordService.getLatestRecordByPatient(1L, 1L)).thenReturn(recordResponseDTO);
+  @Test
+  @DisplayName("Should get latest record by patient")
+  void testGetLatestRecordByPatient() throws Exception {
+    when(medicalRecordService.getLatestRecordByPatient(1L, 1L)).thenReturn(recordResponseDTO);
 
-        mockMvc.perform(get("/api/v1/medical-records/patient/1/latest")
-                        .requestAttr("X-Hospital-Id", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/medical-records/patient/1/latest")
+        .requestAttr("X-Hospital-Id", 1L))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get records by doctor")
-    void testGetRecordsByDoctor() throws Exception {
-        Page<MedicalRecordListResponseDTO> page = new PageImpl<>(Collections.singletonList(recordListResponseDTO));
-        when(medicalRecordService.getRecordsByDoctor(eq(1L), eq(1L), any(Pageable.class))).thenReturn(page);
+  @Test
+  @DisplayName("Should get records by doctor")
+  void testGetRecordsByDoctor() throws Exception {
+    Page<MedicalRecordListResponseDTO> page = new PageImpl<>(Collections.singletonList(recordListResponseDTO));
+    when(medicalRecordService.getRecordsByDoctor(eq(1L), eq(1L), any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/medical-records/doctor/1")
-                        .requestAttr("X-Hospital-Id", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/medical-records/doctor/1")
+        .requestAttr("X-Hospital-Id", 1L))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.content[0].id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get records by hospital")
-    void testGetRecordsByHospital() throws Exception {
-        Page<MedicalRecordListResponseDTO> page = new PageImpl<>(Collections.singletonList(recordListResponseDTO));
-        when(medicalRecordService.getRecordsByHospital(eq(1L), any(RecordStatus.class), any(LocalDate.class), any(LocalDate.class), any(Pageable.class))).thenReturn(page);
+  @Test
+  @DisplayName("Should get records by hospital")
+  void testGetRecordsByHospital() throws Exception {
+    Page<MedicalRecordListResponseDTO> page = new PageImpl<>(Collections.singletonList(recordListResponseDTO));
+    when(medicalRecordService.getRecordsByHospital(eq(1L), any(RecordStatus.class), any(LocalDate.class), any(LocalDate.class), any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/medical-records/hospital")
-                        .requestAttr("X-Hospital-Id", 1L)
-                        .param("status", "ACTIVE")
-                        .param("from", "2024-01-01")
-                        .param("to", "2024-12-31"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/medical-records/hospital")
+        .requestAttr("X-Hospital-Id", 1L)
+        .param("status", "ACTIVE")
+        .param("from", "2024-01-01")
+        .param("to", "2024-12-31"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.content[0].id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should update medical record")
-    void testUpdateRecord() throws Exception {
-        MedicalRecordUpdateRequestDTO request = new MedicalRecordUpdateRequestDTO();
+  @Test
+  @DisplayName("Should update medical record")
+  void testUpdateRecord() throws Exception {
+    MedicalRecordUpdateRequestDTO request = new MedicalRecordUpdateRequestDTO();
 
-        when(medicalRecordService.updateRecord(eq(1L), eq(1L), any(MedicalRecordUpdateRequestDTO.class))).thenReturn(recordResponseDTO);
+    when(medicalRecordService.updateRecord(eq(1L), eq(1L), any(MedicalRecordUpdateRequestDTO.class))).thenReturn(recordResponseDTO);
 
-        mockMvc.perform(put("/api/v1/medical-records/1")
-                        .requestAttr("X-Hospital-Id", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(put("/api/v1/medical-records/1")
+        .requestAttr("X-Hospital-Id", 1L)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should delete medical record")
-    void testDeleteRecord() throws Exception {
-        when(medicalRecordService.deleteRecord(1L, 1L)).thenReturn("Success");
+  @Test
+  @DisplayName("Should delete medical record")
+  void testDeleteRecord() throws Exception {
+    when(medicalRecordService.deleteRecord(1L, 1L)).thenReturn("Success");
 
-        mockMvc.perform(delete("/api/v1/medical-records/1")
-                        .requestAttr("X-Hospital-Id", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Success"));
-    }
+    mockMvc.perform(delete("/api/v1/medical-records/1")
+        .requestAttr("X-Hospital-Id", 1L))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value("Success"));
+  }
 }

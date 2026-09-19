@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PrescriptionItemRequestDTO implements java.io.Serializable {
 
-    @NotNull(message = "Medication ID is required.")
-    private Long medicationId;
+  @NotNull(message = "Medication ID is required.")
+  private Long medicationId;
 
-    @NotBlank(message = "Dosage instructions are required.")
-    private String dosageInstructions;
+  @NotBlank(message = "Dosage instructions are required.")
+  private String dosageInstructions;
 
-    private String notes;
+  private String notes;
 }

@@ -32,96 +32,96 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    public final JwtAuthenticationFilter jwtAuthFilter;
-    private final RateLimitingFilter rateLimitingFilter;
-    private final CorrelationIdFilter correlationIdFilter;
-    private final UsersDetailsService userDetailsService;
+  public final JwtAuthenticationFilter jwtAuthFilter;
+  private final RateLimitingFilter rateLimitingFilter;
+  private final CorrelationIdFilter correlationIdFilter;
+  private final UsersDetailsService userDetailsService;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> {
-                })
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/auth/**",
-                                "/api/v1/health/**",
-                                "/actuator/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html",
-                                "/api-docs/**",
-                                "/",
-                                "/index.html",
-                                "/*.js",
-                                "/*.css",
-                                "/*.ico",
-                                "/assets/**",
-                                "/media/**",
-                                "/error"
-                        )
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/hospitals/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/doctors/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/departments/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/appointments/**").permitAll()
-                        .requestMatchers("/api/v1/appointments/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(correlationIdFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.cors(cors -> {
+      })
+      .csrf(AbstractHttpConfigurer::disable)
+      .authorizeHttpRequests(auth -> auth
+        .requestMatchers(
+          "/api/v1/auth/**",
+          "/api/v1/health/**",
+          "/actuator/**",
+          "/swagger-ui/**",
+          "/v3/api-docs/**",
+          "/swagger-ui.html",
+          "/api-docs/**",
+          "/",
+          "/index.html",
+          "/*.js",
+          "/*.css",
+          "/*.ico",
+          "/assets/**",
+          "/media/**",
+          "/error"
+        )
+        .permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/v1/hospitals/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/v1/doctors/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/v1/departments/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/v1/appointments/**").permitAll()
+        .requestMatchers("/api/v1/appointments/**").authenticated()
+        .anyRequest().authenticated()
+      )
+      .sessionManagement(session -> session
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      )
+      .authenticationProvider(authenticationProvider())
+      .addFilterBefore(correlationIdFilter, UsernamePasswordAuthenticationFilter.class)
+      .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+      .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+  }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
+  @Bean
+  public AuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+    authProvider.setPasswordEncoder(passwordEncoder());
+    return authProvider;
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    return config.getAuthenticationManager();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    /**
-     * Role hierarchy: higher roles inherit all permissions of lower roles.
-     * SUPER_ADMIN > HOSPITAL_ADMIN > DOCTOR = STAFF = RECEPTIONIST > PATIENT > GUEST
-     */
-    @Bean
-    public RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.fromHierarchy("""
-                ROLE_SUPER_ADMIN > ROLE_HOSPITAL_ADMIN
-                ROLE_HOSPITAL_ADMIN > ROLE_DOCTOR
-                ROLE_HOSPITAL_ADMIN > ROLE_STAFF
-                ROLE_HOSPITAL_ADMIN > ROLE_RECEPTIONIST
-                ROLE_DOCTOR > ROLE_PATIENT
-                ROLE_STAFF > ROLE_PATIENT
-                ROLE_RECEPTIONIST > ROLE_PATIENT
-                ROLE_PATIENT > ROLE_GUEST
-                """);
-    }
+  /**
+   * Role hierarchy: higher roles inherit all permissions of lower roles.
+   * SUPER_ADMIN > HOSPITAL_ADMIN > DOCTOR = STAFF = RECEPTIONIST > PATIENT > GUEST
+   */
+  @Bean
+  public RoleHierarchy roleHierarchy() {
+    return RoleHierarchyImpl.fromHierarchy("""
+      ROLE_SUPER_ADMIN > ROLE_HOSPITAL_ADMIN
+      ROLE_HOSPITAL_ADMIN > ROLE_DOCTOR
+      ROLE_HOSPITAL_ADMIN > ROLE_STAFF
+      ROLE_HOSPITAL_ADMIN > ROLE_RECEPTIONIST
+      ROLE_DOCTOR > ROLE_PATIENT
+      ROLE_STAFF > ROLE_PATIENT
+      ROLE_RECEPTIONIST > ROLE_PATIENT
+      ROLE_PATIENT > ROLE_GUEST
+      """);
+  }
 
-    /**
-     * Wire the role hierarchy into @PreAuthorize SpEL expressions
-     * so that higher roles automatically inherit lower role permissions.
-     */
-    @Bean
-    public MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
-        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-        handler.setRoleHierarchy(roleHierarchy);
-        return handler;
-    }
+  /**
+   * Wire the role hierarchy into @PreAuthorize SpEL expressions
+   * so that higher roles automatically inherit lower role permissions.
+   */
+  @Bean
+  public MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
+    DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+    handler.setRoleHierarchy(roleHierarchy);
+    return handler;
+  }
 }

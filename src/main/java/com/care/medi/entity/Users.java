@@ -19,12 +19,12 @@ import java.util.List;
 
 @Entity
 @Table(name = "users",
-        indexes = {
-                @Index(name = "idx_users_email", columnList = "email"),
-        },
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_users_email", columnNames = "email")
-        }
+  indexes = {
+    @Index(name = "idx_users_email", columnList = "email"),
+  },
+  uniqueConstraints = {
+    @UniqueConstraint(name = "uk_users_email", columnNames = "email")
+  }
 )
 @Schema(hidden = true)
 @Getter
@@ -36,80 +36,80 @@ import java.util.List;
 @SQLRestriction("is_deleted = false")
 public class Users extends BaseEntity implements UserDetails {
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    @Size(max = 255)
-    @Column(nullable = false)
-    private String email;
+  @NotBlank(message = "Email is required")
+  @Email(message = "Invalid email format")
+  @Size(max = 255)
+  @Column(nullable = false)
+  private String email;
 
-    @NotBlank(message = "Password is required")
-    @Column(name = "password_hash", nullable = false)
-    private String password;
+  @NotBlank(message = "Password is required")
+  @Column(name = "password_hash", nullable = false)
+  private String password;
 
-    @NotNull(message = "Role is required")
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    @Builder.Default
-    private Role role = Role.GUEST;
+  @NotNull(message = "Role is required")
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  @Builder.Default
+  private Role role = Role.GUEST;
 
-    @NotNull
-    @Column(name = "is_active", nullable = false)
-    @Builder.Default
-    private Boolean isActive = true;
+  @NotNull
+  @Column(name = "is_active", nullable = false)
+  @Builder.Default
+  private Boolean isActive = true;
 
-    @Column(name = "last_login", columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime lastLogin;
+  @Column(name = "last_login", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+  private OffsetDateTime lastLogin;
 
-    public static Users toEntity(String email, String password, Role role) {
-        return Users.builder()
-                .email(email)
-                .password(password)
-                .role(role)
-                .isActive(true)
-                .build();
-    }
+  public static Users toEntity(String email, String password, Role role) {
+    return Users.builder()
+      .email(email)
+      .password(password)
+      .role(role)
+      .isActive(true)
+      .build();
+  }
 
-    /**
-     * Logic-based constraints:
-     * This ensures that when a user is first created, lastLogin is null
-     * until their first successful authentication.
-     */
-    public void markLogin() {
-        this.lastLogin = OffsetDateTime.now();
-    }
+  /**
+   * Logic-based constraints:
+   * This ensures that when a user is first created, lastLogin is null
+   * until their first successful authentication.
+   */
+  public void markLogin() {
+    this.lastLogin = OffsetDateTime.now();
+  }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+  }
 
-    @Override
-    public String getUsername() {
-        return email;
-    }
+  @Override
+  public String getUsername() {
+    return email;
+  }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+  @Override
+  public String getPassword() {
+    return password;
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+  @Override
+  public boolean isEnabled() {
+    return true;
+  }
 }

@@ -1,11 +1,19 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { AppointmentService, Appointment } from '../../../core/services/appointment.service';
-import { AuthService } from '../../../core/services/auth.service';
+import {ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {Appointment, AppointmentService} from '../../../core/services/appointment.service';
+import {AuthService} from '../../../core/services/auth.service';
 import {
-  LucideAngularModule, UserRound, CalendarDays, CalendarClock,
-  CalendarX2, Clock, History, X, Stethoscope, FileText
+  CalendarClock,
+  CalendarDays,
+  CalendarX2,
+  Clock,
+  FileText,
+  History,
+  LucideAngularModule,
+  Stethoscope,
+  UserRound,
+  X
 } from 'lucide-angular';
 
 @Component({
@@ -15,10 +23,6 @@ import {
   templateUrl: './patient-dashboard.component.html'
 })
 export class PatientDashboardComponent implements OnInit {
-  private appointmentService = inject(AppointmentService);
-  private authService = inject(AuthService);
-  private cdr = inject(ChangeDetectorRef);
-
   // Lucide icons
   readonly UserRound = UserRound;
   readonly CalendarDays = CalendarDays;
@@ -29,18 +33,18 @@ export class PatientDashboardComponent implements OnInit {
   readonly X = X;
   readonly Stethoscope = Stethoscope;
   readonly FileText = FileText;
-
   appointments: Appointment[] = [];
   filteredAppointments: Appointment[] = [];
   loading = true;
-
   // Filter state
   activeFilter: 'all' | 'upcoming' | 'past' = 'all';
   startDate = '';
   endDate = '';
-
   // Modal state
   selectedAppointment: Appointment | null = null;
+  private appointmentService = inject(AppointmentService);
+  private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit() {
     const userId = this.authService.currentUserId();

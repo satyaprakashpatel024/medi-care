@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PrescriptionUpdateRequestDTO implements java.io.Serializable {
 
-    private String medications;
-    private String dosageInstructions;
-    private String notes;
+  private String medications;
+  private String dosageInstructions;
+  private String notes;
 }

@@ -35,73 +35,73 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class PharmacyControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private PharmacyService pharmacyService;
+  @MockitoBean
+  private PharmacyService pharmacyService;
 
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockitoBean
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockitoBean
-    private JwtService jwtService;
+  @MockitoBean
+  private JwtService jwtService;
 
-    @MockitoBean
-    private UsersDetailsService usersDetailsService;
+  @MockitoBean
+  private UsersDetailsService usersDetailsService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    private MedicationRequestDTO medReq;
-    private DispenseRequestDTO dispReq;
+  private MedicationRequestDTO medReq;
+  private DispenseRequestDTO dispReq;
 
-    @BeforeEach
-    void setUp() {
-        medReq = new MedicationRequestDTO();
-        medReq.setName("Aspirin");
-        medReq.setUnitPrice(10.0);
-        medReq.setStockQuantity(100);
-        medReq.setReorderLevel(10);
+  @BeforeEach
+  void setUp() {
+    medReq = new MedicationRequestDTO();
+    medReq.setName("Aspirin");
+    medReq.setUnitPrice(10.0);
+    medReq.setStockQuantity(100);
+    medReq.setReorderLevel(10);
 
-        DispenseItemRequestDTO item = new DispenseItemRequestDTO();
-        item.setMedicationId(1L);
-        item.setQuantity(5);
+    DispenseItemRequestDTO item = new DispenseItemRequestDTO();
+    item.setMedicationId(1L);
+    item.setQuantity(5);
 
-        dispReq = new DispenseRequestDTO();
-        dispReq.setPatientId(1L);
-        dispReq.setDispensedById(1L);
-        dispReq.setPaymentStatus(PaymentStatus.PAID);
-        dispReq.setItems(Collections.singletonList(item));
-    }
+    dispReq = new DispenseRequestDTO();
+    dispReq.setPatientId(1L);
+    dispReq.setDispensedById(1L);
+    dispReq.setPaymentStatus(PaymentStatus.PAID);
+    dispReq.setItems(Collections.singletonList(item));
+  }
 
-    @Test
-    void addMedication() throws Exception {
-        MedicationResponseDTO res = MedicationResponseDTO.builder().id(1L).name("Aspirin").build();
-        when(pharmacyService.addMedication(any())).thenReturn(res);
+  @Test
+  void addMedication() throws Exception {
+    MedicationResponseDTO res = MedicationResponseDTO.builder().id(1L).name("Aspirin").build();
+    when(pharmacyService.addMedication(any())).thenReturn(res);
 
-        mockMvc.perform(post("/api/v1/pharmacy/medications")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(medReq)))
-                .andExpect(status().isCreated());
-    }
+    mockMvc.perform(post("/api/v1/pharmacy/medications")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(medReq)))
+      .andExpect(status().isCreated());
+  }
 
-    @Test
-    void dispenseMedications() throws Exception {
-        DispenseResponseDTO res = DispenseResponseDTO.builder().id(1L).totalAmount(50.0).build();
-        when(pharmacyService.dispenseMedications(any())).thenReturn(res);
+  @Test
+  void dispenseMedications() throws Exception {
+    DispenseResponseDTO res = DispenseResponseDTO.builder().id(1L).totalAmount(50.0).build();
+    when(pharmacyService.dispenseMedications(any())).thenReturn(res);
 
-        mockMvc.perform(post("/api/v1/pharmacy/dispense")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dispReq)))
-                .andExpect(status().isCreated());
-    }
+    mockMvc.perform(post("/api/v1/pharmacy/dispense")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(dispReq)))
+      .andExpect(status().isCreated());
+  }
 
-    @Test
-    void getAllMedications() throws Exception {
-        Page<MedicationResponseDTO> page = new PageImpl<>(Collections.emptyList());
-        when(pharmacyService.getAllMedications(anyInt(), anyInt(), any())).thenReturn(page);
-        mockMvc.perform(get("/api/v1/pharmacy/medications"))
-                .andExpect(status().isOk());
-    }
+  @Test
+  void getAllMedications() throws Exception {
+    Page<MedicationResponseDTO> page = new PageImpl<>(Collections.emptyList());
+    when(pharmacyService.getAllMedications(anyInt(), anyInt(), any())).thenReturn(page);
+    mockMvc.perform(get("/api/v1/pharmacy/medications"))
+      .andExpect(status().isOk());
+  }
 }

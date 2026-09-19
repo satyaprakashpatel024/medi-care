@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../core/services/auth.service';
-import { ThemeService, Theme, ColorTheme } from '../core/services/theme.service';
-import { LucideAngularModule, LayoutDashboard, Calendar, Users, FileText, Settings, LogOut } from 'lucide-angular';
+import {Component, inject} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {AuthService} from '../core/services/auth.service';
+import {ColorTheme, Theme, ThemeService} from '../core/services/theme.service';
+import {Calendar, FileText, LayoutDashboard, LogOut, LucideAngularModule, Settings, Users} from 'lucide-angular';
 
 @Component({
   selector: 'app-layout',

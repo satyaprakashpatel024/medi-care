@@ -11,13 +11,13 @@ import java.util.TimeZone;
 @EnableCaching
 public class MediCareApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(MediCareApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(MediCareApplication.class, args);
+  }
 
-    @PostConstruct
-    public void init() {
-        // Force the entire application to use IST
-        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
-    }
+  @PostConstruct
+  public void init() {
+    // Force the entire application to use IST
+    TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
+  }
 }

@@ -22,89 +22,89 @@ import static org.mockito.Mockito.when;
 @DisplayName("InsuranceService Unit Tests")
 class InsuranceServiceImplTest {
 
-    @Mock
-    private InsuranceRepository insuranceRepository;
+  @Mock
+  private InsuranceRepository insuranceRepository;
 
-    @InjectMocks
-    private InsuranceServiceImpl insuranceService;
+  @InjectMocks
+  private InsuranceServiceImpl insuranceService;
 
-    private Insurance testInsurance;
-    private InsuranceRequestDTO insuranceRequestDTO;
+  private Insurance testInsurance;
+  private InsuranceRequestDTO insuranceRequestDTO;
 
-    @BeforeEach
-    void setUp() {
-        testInsurance = new Insurance();
-        testInsurance.setId(1L);
-        testInsurance.setPolicyNumber("POL-12345");
-        testInsurance.setProviderName("Test Insurance Provider");
-        testInsurance.setCoverageAmount(100000.0);
+  @BeforeEach
+  void setUp() {
+    testInsurance = new Insurance();
+    testInsurance.setId(1L);
+    testInsurance.setPolicyNumber("POL-12345");
+    testInsurance.setProviderName("Test Insurance Provider");
+    testInsurance.setCoverageAmount(100000.0);
 
-        insuranceRequestDTO = new InsuranceRequestDTO();
-        insuranceRequestDTO.setPolicyNumber("POL-12345");
-        insuranceRequestDTO.setProviderName("Test Insurance Provider");
-        insuranceRequestDTO.setCoverageAmount(100000.0);
-    }
+    insuranceRequestDTO = new InsuranceRequestDTO();
+    insuranceRequestDTO.setPolicyNumber("POL-12345");
+    insuranceRequestDTO.setProviderName("Test Insurance Provider");
+    insuranceRequestDTO.setCoverageAmount(100000.0);
+  }
 
-    @Test
-    @DisplayName("Should get insurance by policy number successfully")
-    void testGetInsuranceByPolicyNumber_Success() {
-        when(insuranceRepository.findByPolicyNumber("POL-12345"))
-                .thenReturn(Optional.of(testInsurance));
+  @Test
+  @DisplayName("Should get insurance by policy number successfully")
+  void testGetInsuranceByPolicyNumber_Success() {
+    when(insuranceRepository.findByPolicyNumber("POL-12345"))
+      .thenReturn(Optional.of(testInsurance));
 
-        InsuranceResponseDTO result = insuranceService.getInsuranceByPolicyNumber("POL-12345");
+    InsuranceResponseDTO result = insuranceService.getInsuranceByPolicyNumber("POL-12345");
 
-        assertNotNull(result);
-        verify(insuranceRepository).findByPolicyNumber("POL-12345");
-    }
+    assertNotNull(result);
+    verify(insuranceRepository).findByPolicyNumber("POL-12345");
+  }
 
-    @Test
-    @DisplayName("Should return null when insurance not found by policy number")
-    void testGetInsuranceByPolicyNumber_NotFound() {
-        when(insuranceRepository.findByPolicyNumber("INVALID-POL"))
-                .thenReturn(Optional.empty());
+  @Test
+  @DisplayName("Should return null when insurance not found by policy number")
+  void testGetInsuranceByPolicyNumber_NotFound() {
+    when(insuranceRepository.findByPolicyNumber("INVALID-POL"))
+      .thenReturn(Optional.empty());
 
-        InsuranceResponseDTO result = insuranceService.getInsuranceByPolicyNumber("INVALID-POL");
+    InsuranceResponseDTO result = insuranceService.getInsuranceByPolicyNumber("INVALID-POL");
 
-        assertNull(result);
-        verify(insuranceRepository).findByPolicyNumber("INVALID-POL");
-    }
+    assertNull(result);
+    verify(insuranceRepository).findByPolicyNumber("INVALID-POL");
+  }
 
-    @Test
-    @DisplayName("Should create insurance - currently returns null")
-    void testCreateInsurance() {
-        InsuranceResponseDTO result = insuranceService.createInsurance(insuranceRequestDTO);
+  @Test
+  @DisplayName("Should create insurance - currently returns null")
+  void testCreateInsurance() {
+    InsuranceResponseDTO result = insuranceService.createInsurance(insuranceRequestDTO);
 
-        assertNull(result);
-    }
+    assertNull(result);
+  }
 
-    @Test
-    @DisplayName("Should update insurance - currently returns null")
-    void testUpdateInsurance() {
-        InsuranceResponseDTO result = insuranceService.updateInsurance(1L, insuranceRequestDTO);
+  @Test
+  @DisplayName("Should update insurance - currently returns null")
+  void testUpdateInsurance() {
+    InsuranceResponseDTO result = insuranceService.updateInsurance(1L, insuranceRequestDTO);
 
-        assertNull(result);
-    }
+    assertNull(result);
+  }
 
-    @Test
-    @DisplayName("Should get insurance by hospital ID - currently returns null")
-    void testGetInsuranceByHospitalId() {
-        InsuranceResponseDTO result = insuranceService.getInsuranceByHospitalId(1L);
+  @Test
+  @DisplayName("Should get insurance by hospital ID - currently returns null")
+  void testGetInsuranceByHospitalId() {
+    InsuranceResponseDTO result = insuranceService.getInsuranceByHospitalId(1L);
 
-        assertNull(result);
-    }
+    assertNull(result);
+  }
 
-    @Test
-    @DisplayName("Should get insurance by user ID - currently returns null")
-    void testGetInsuranceByUserId() {
-        InsuranceResponseDTO result = insuranceService.getInsuranceByUserId(1L);
+  @Test
+  @DisplayName("Should get insurance by user ID - currently returns null")
+  void testGetInsuranceByUserId() {
+    InsuranceResponseDTO result = insuranceService.getInsuranceByUserId(1L);
 
-        assertNull(result);
-    }
+    assertNull(result);
+  }
 
-    @Test
-    @DisplayName("Should throw NotImplementedException when deleting insurance")
-    void testDeleteInsurance_ThrowsException() {
-        assertThrows(org.apache.commons.lang3.NotImplementedException.class,
-                () -> insuranceService.deleteInsurance(1L));
-    }
+  @Test
+  @DisplayName("Should throw NotImplementedException when deleting insurance")
+  void testDeleteInsurance_ThrowsException() {
+    assertThrows(org.apache.commons.lang3.NotImplementedException.class,
+      () -> insuranceService.deleteInsurance(1L));
+  }
 }

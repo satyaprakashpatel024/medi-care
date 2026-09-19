@@ -23,30 +23,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class HealthControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private BCryptPasswordEncoder passwordEncoder;
+  @MockitoBean
+  private BCryptPasswordEncoder passwordEncoder;
 
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockitoBean
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockitoBean
-    private JwtService jwtService;
+  @MockitoBean
+  private JwtService jwtService;
 
-    @MockitoBean
-    private UsersDetailsService usersDetailsService;
+  @MockitoBean
+  private UsersDetailsService usersDetailsService;
 
-    @Test
-    @DisplayName("Should return health status response successfully")
-    void testHealth() throws Exception {
-        when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$dummyHashValue");
+  @Test
+  @DisplayName("Should return health status response successfully")
+  void testHealth() throws Exception {
+    when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$dummyHashValue");
 
-        mockMvc.perform(get("/api/v1/health")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Server is Healthy and running."))
-                .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.containsString("Server is Healthy and running.")));
-    }
+    mockMvc.perform(get("/api/v1/health")
+        .contentType(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value("Server is Healthy and running."))
+      .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.containsString("Server is Healthy and running.")));
+  }
 }

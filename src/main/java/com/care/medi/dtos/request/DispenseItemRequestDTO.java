@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DispenseItemRequestDTO implements java.io.Serializable {
 
-    @NotNull(message = "Medication ID is required.")
-    private Long medicationId;
+  @NotNull(message = "Medication ID is required.")
+  private Long medicationId;
 
-    @Positive(message = "Quantity must be positive.")
-    private Integer quantity;
+  @Positive(message = "Quantity must be positive.")
+  private Integer quantity;
 }

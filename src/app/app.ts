@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { ThemeService } from './core/services/theme.service';
-import { ToastContainerComponent } from './shared/toast-container/toast-container.component';
+import {Component, inject} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import {ThemeService} from './core/services/theme.service';
+import {ToastContainerComponent} from './shared/toast-container/toast-container.component';
 
 @Component({
   selector: 'app-root',

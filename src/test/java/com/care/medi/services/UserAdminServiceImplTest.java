@@ -28,105 +28,105 @@ import static org.mockito.Mockito.when;
 @DisplayName("UserAdminService Unit Tests")
 class UserAdminServiceImplTest {
 
-    @Mock
-    private UsersRepository usersRepository;
+  @Mock
+  private UsersRepository usersRepository;
 
-    @InjectMocks
-    private UserAdminServiceImpl userAdminService;
+  @InjectMocks
+  private UserAdminServiceImpl userAdminService;
 
-    private Users testUser;
+  private Users testUser;
 
-    @SuppressWarnings("unused")
-    @BeforeEach
-    void setUp() {
-        testUser = new Users();
-        testUser.setId(1L);
-        testUser.setEmail("admin@test.com");
-        testUser.setRole(Role.SUPER_ADMIN);
-        testUser.setIsActive(true);
-    }
+  @SuppressWarnings("unused")
+  @BeforeEach
+  void setUp() {
+    testUser = new Users();
+    testUser.setId(1L);
+    testUser.setEmail("admin@test.com");
+    testUser.setRole(Role.SUPER_ADMIN);
+    testUser.setIsActive(true);
+  }
 
-    @Test
-    @DisplayName("Should get all users with pagination")
-    void testGetAllUsers() {
-        Page<Users> page = new PageImpl<>(List.of(testUser));
-        when(usersRepository.findAll(any(Pageable.class))).thenReturn(page);
+  @Test
+  @DisplayName("Should get all users with pagination")
+  void testGetAllUsers() {
+    Page<Users> page = new PageImpl<>(List.of(testUser));
+    when(usersRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        Page<UserResponseDTO> response = userAdminService.getAllUsers(0, 10, "id");
+    Page<UserResponseDTO> response = userAdminService.getAllUsers(0, 10, "id");
 
-        assertNotNull(response);
-        assertEquals(1, response.getTotalElements());
-        assertEquals("admin@test.com", response.getContent().getFirst().email());
-        verify(usersRepository).findAll(any(Pageable.class));
-    }
+    assertNotNull(response);
+    assertEquals(1, response.getTotalElements());
+    assertEquals("admin@test.com", response.getContent().getFirst().email());
+    verify(usersRepository).findAll(any(Pageable.class));
+  }
 
-    @Test
-    @DisplayName("Should get user by ID")
-    void testGetUserById() {
-        when(usersRepository.findById(1L)).thenReturn(Optional.of(testUser));
+  @Test
+  @DisplayName("Should get user by ID")
+  void testGetUserById() {
+    when(usersRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        UserResponseDTO response = userAdminService.getUserById(1L);
+    UserResponseDTO response = userAdminService.getUserById(1L);
 
-        assertNotNull(response);
-        assertEquals("admin@test.com", response.email());
-        verify(usersRepository).findById(1L);
-    }
+    assertNotNull(response);
+    assertEquals("admin@test.com", response.email());
+    verify(usersRepository).findById(1L);
+  }
 
-    @Test
-    @DisplayName("Should throw ResourceNotFoundException for invalid ID")
-    void testGetUserById_NotFound() {
-        when(usersRepository.findById(1L)).thenReturn(Optional.empty());
+  @Test
+  @DisplayName("Should throw ResourceNotFoundException for invalid ID")
+  void testGetUserById_NotFound() {
+    when(usersRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> userAdminService.getUserById(1L));
-        assertEquals("User not found with ID: 1", exception.getMessage());
-    }
+    ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+      () -> userAdminService.getUserById(1L));
+    assertEquals("User not found with ID: 1", exception.getMessage());
+  }
 
-    @Test
-    @DisplayName("Should update user role")
-    void testUpdateUserRole() {
-        when(usersRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(usersRepository.save(any(Users.class))).thenReturn(testUser);
+  @Test
+  @DisplayName("Should update user role")
+  void testUpdateUserRole() {
+    when(usersRepository.findById(1L)).thenReturn(Optional.of(testUser));
+    when(usersRepository.save(any(Users.class))).thenReturn(testUser);
 
-        UserResponseDTO response = userAdminService.updateUserRole(1L, Role.DOCTOR);
+    UserResponseDTO response = userAdminService.updateUserRole(1L, Role.DOCTOR);
 
-        assertNotNull(response);
-        assertEquals(Role.DOCTOR, response.role());
-        verify(usersRepository).findById(1L);
-        verify(usersRepository).save(testUser);
-    }
+    assertNotNull(response);
+    assertEquals(Role.DOCTOR, response.role());
+    verify(usersRepository).findById(1L);
+    verify(usersRepository).save(testUser);
+  }
 
-    @Test
-    @DisplayName("Should throw ResourceNotFoundException when updating role for invalid ID")
-    void testUpdateUserRole_NotFound() {
-        when(usersRepository.findById(1L)).thenReturn(Optional.empty());
+  @Test
+  @DisplayName("Should throw ResourceNotFoundException when updating role for invalid ID")
+  void testUpdateUserRole_NotFound() {
+    when(usersRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> userAdminService.updateUserRole(1L, Role.DOCTOR));
-        assertEquals("User not found with ID: 1", exception.getMessage());
-    }
+    ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+      () -> userAdminService.updateUserRole(1L, Role.DOCTOR));
+    assertEquals("User not found with ID: 1", exception.getMessage());
+  }
 
-    @Test
-    @DisplayName("Should update user status")
-    void testUpdateUserStatus() {
-        when(usersRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(usersRepository.save(any(Users.class))).thenReturn(testUser);
+  @Test
+  @DisplayName("Should update user status")
+  void testUpdateUserStatus() {
+    when(usersRepository.findById(1L)).thenReturn(Optional.of(testUser));
+    when(usersRepository.save(any(Users.class))).thenReturn(testUser);
 
-        UserResponseDTO response = userAdminService.updateUserStatus(1L, false);
+    UserResponseDTO response = userAdminService.updateUserStatus(1L, false);
 
-        assertNotNull(response);
-        assertFalse(response.isActive());
-        verify(usersRepository).findById(1L);
-        verify(usersRepository).save(testUser);
-    }
+    assertNotNull(response);
+    assertFalse(response.isActive());
+    verify(usersRepository).findById(1L);
+    verify(usersRepository).save(testUser);
+  }
 
-    @Test
-    @DisplayName("Should throw ResourceNotFoundException when updating status for invalid ID")
-    void testUpdateUserStatus_NotFound() {
-        when(usersRepository.findById(1L)).thenReturn(Optional.empty());
+  @Test
+  @DisplayName("Should throw ResourceNotFoundException when updating status for invalid ID")
+  void testUpdateUserStatus_NotFound() {
+    when(usersRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> userAdminService.updateUserStatus(1L, false));
-        assertEquals("User not found with ID: 1", exception.getMessage());
-    }
+    ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+      () -> userAdminService.updateUserStatus(1L, false));
+    assertEquals("User not found with ID: 1", exception.getMessage());
+  }
 }

@@ -6,15 +6,15 @@ import com.care.medi.dtos.response.StaffResponseDTO;
 import org.springframework.data.domain.Page;
 
 public interface StaffService {
-    StaffResponseDTO createStaff(Long hospitalId, StaffRequestDTO request);
+  StaffResponseDTO createStaff(Long hospitalId, StaffRequestDTO request);
 
-    Page<StaffResponseDTO> getAllStaff(int page, int size, String sortBy);
+  Page<StaffResponseDTO> getAllStaff(int page, int size, String sortBy);
 
-    Page<StaffResponseDTO> getStaffByHospital(Long hospitalId, int page, int size, String sortBy);
+  Page<StaffResponseDTO> getStaffByHospital(Long hospitalId, int page, int size, String sortBy);
 
-    StaffResponseDTO getStaffById(Long id);
+  StaffResponseDTO getStaffById(Long id);
 
-    StaffResponseDTO updateStaff(Long id, StaffUpdateRequestDTO request);
+  StaffResponseDTO updateStaff(Long id, StaffUpdateRequestDTO request);
 
-    void deleteStaff(Long id);
+  void deleteStaff(Long id);
 }

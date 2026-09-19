@@ -10,15 +10,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class CorsWebConfig implements WebMvcConfigurer {
 
-    @Value("${app.cors.allowed-origins:http://localhost:4200,http://localhost:5173,http://localhost:3000}")
-    private String[] allowedOrigins;
+  @Value("${app.cors.allowed-origins:http://localhost:4200,http://localhost:5173,http://localhost:3000}")
+  private String[] allowedOrigins;
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Apply to all endpoints
-                .allowedOrigins(allowedOrigins)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .allowedHeaders("*")
-                .allowCredentials(true);
-    }
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/**") // Apply to all endpoints
+      .allowedOrigins(allowedOrigins)
+      .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+      .allowedHeaders("*")
+      .allowCredentials(true);
+  }
 }

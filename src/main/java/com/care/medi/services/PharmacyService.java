@@ -9,15 +9,15 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface PharmacyService {
-    MedicationResponseDTO addMedication(MedicationRequestDTO request);
+  MedicationResponseDTO addMedication(MedicationRequestDTO request);
 
-    MedicationResponseDTO updateMedication(Long id, MedicationRequestDTO request);
+  MedicationResponseDTO updateMedication(Long id, MedicationRequestDTO request);
 
-    Page<MedicationResponseDTO> getAllMedications(int page, int size, String sortBy);
+  Page<MedicationResponseDTO> getAllMedications(int page, int size, String sortBy);
 
-    List<MedicationResponseDTO> getLowStockMedications(Integer threshold);
+  List<MedicationResponseDTO> getLowStockMedications(Integer threshold);
 
-    DispenseResponseDTO dispenseMedications(DispenseRequestDTO request);
+  DispenseResponseDTO dispenseMedications(DispenseRequestDTO request);
 
-    Page<DispenseResponseDTO> getPatientDispenseHistory(Long patientId, int page, int size, String sortBy);
+  Page<DispenseResponseDTO> getPatientDispenseHistory(Long patientId, int page, int size, String sortBy);
 }

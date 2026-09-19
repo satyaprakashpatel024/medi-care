@@ -30,164 +30,164 @@ import static org.mockito.Mockito.when;
 
 class GlobalExceptionHandlerTest {
 
-    private GlobalExceptionHandler exceptionHandler;
+  private GlobalExceptionHandler exceptionHandler;
 
-    @BeforeEach
-    void setUp() {
-        exceptionHandler = new GlobalExceptionHandler();
-    }
+  @BeforeEach
+  void setUp() {
+    exceptionHandler = new GlobalExceptionHandler();
+  }
 
-    @Test
-    @DisplayName("Should handle AccessDeniedException")
-    void handleAccessDenied() {
-        AccessDeniedException ex = new AccessDeniedException("Access Denied");
-        ResponseEntity<ApiResponse<String>> response = exceptionHandler.handleAccessDenied(ex);
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("FORBIDDEN", response.getBody().errors());
-    }
+  @Test
+  @DisplayName("Should handle AccessDeniedException")
+  void handleAccessDenied() {
+    AccessDeniedException ex = new AccessDeniedException("Access Denied");
+    ResponseEntity<ApiResponse<String>> response = exceptionHandler.handleAccessDenied(ex);
+    assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("FORBIDDEN", response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle AuthenticationException")
-    void handleAuthenticationException() {
-        InvalidCredentialsException ex = new InvalidCredentialsException("Invalid creds");
-        ResponseEntity<ApiResponse<String>> response = exceptionHandler.handleAuthenticationException(ex);
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("UNAUTHORIZED", response.getBody().errors());
-    }
+  @Test
+  @DisplayName("Should handle AuthenticationException")
+  void handleAuthenticationException() {
+    InvalidCredentialsException ex = new InvalidCredentialsException("Invalid creds");
+    ResponseEntity<ApiResponse<String>> response = exceptionHandler.handleAuthenticationException(ex);
+    assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("UNAUTHORIZED", response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle MethodArgumentNotValidException")
-    void handleValidationErrors() {
-        BindingResult bindingResult = mock(BindingResult.class);
-        when(bindingResult.getFieldErrors()).thenReturn(Collections.singletonList(new FieldError("object", "field", "message")));
+  @Test
+  @DisplayName("Should handle MethodArgumentNotValidException")
+  void handleValidationErrors() {
+    BindingResult bindingResult = mock(BindingResult.class);
+    when(bindingResult.getFieldErrors()).thenReturn(Collections.singletonList(new FieldError("object", "field", "message")));
 
-        MethodParameter methodParameter = mock(MethodParameter.class);
-        MethodArgumentNotValidException ex = new MethodArgumentNotValidException(methodParameter, bindingResult);
+    MethodParameter methodParameter = mock(MethodParameter.class);
+    MethodArgumentNotValidException ex = new MethodArgumentNotValidException(methodParameter, bindingResult);
 
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleValidationErrors(ex);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertNotNull(response.getBody().errors());
-    }
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleValidationErrors(ex);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertNotNull(response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle ConstraintViolationException")
-    void handleConstraintViolation() {
-        ConstraintViolation<?> violation = mock(ConstraintViolation.class);
-        jakarta.validation.Path propertyPath = mock(jakarta.validation.Path.class);
-        when(propertyPath.toString()).thenReturn("field");
-        when(violation.getPropertyPath()).thenReturn(propertyPath);
-        when(violation.getMessage()).thenReturn("must not be null");
+  @Test
+  @DisplayName("Should handle ConstraintViolationException")
+  void handleConstraintViolation() {
+    ConstraintViolation<?> violation = mock(ConstraintViolation.class);
+    jakarta.validation.Path propertyPath = mock(jakarta.validation.Path.class);
+    when(propertyPath.toString()).thenReturn("field");
+    when(violation.getPropertyPath()).thenReturn(propertyPath);
+    when(violation.getMessage()).thenReturn("must not be null");
 
-        Set<ConstraintViolation<?>> violations = Collections.singleton(violation);
-        ConstraintViolationException ex = new ConstraintViolationException("Violation", violations);
+    Set<ConstraintViolation<?>> violations = Collections.singleton(violation);
+    ConstraintViolationException ex = new ConstraintViolationException("Violation", violations);
 
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleConstraintViolation(ex);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(Collections.singletonMap("field", "must not be null"), response.getBody().errors());
-    }
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleConstraintViolation(ex);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(Collections.singletonMap("field", "must not be null"), response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle MethodArgumentTypeMismatchException")
-    void handleTypeMismatch() {
-        MethodArgumentTypeMismatchException ex = mock(MethodArgumentTypeMismatchException.class);
-        when(ex.getRequiredType()).thenReturn((Class) String.class);
-        when(ex.getValue()).thenReturn("val");
-        when(ex.getName()).thenReturn("param");
+  @Test
+  @DisplayName("Should handle MethodArgumentTypeMismatchException")
+  void handleTypeMismatch() {
+    MethodArgumentTypeMismatchException ex = mock(MethodArgumentTypeMismatchException.class);
+    when(ex.getRequiredType()).thenReturn((Class) String.class);
+    when(ex.getValue()).thenReturn("val");
+    when(ex.getName()).thenReturn("param");
 
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleTypeMismatch(ex);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("INVALID_PARAMETER_TYPE", response.getBody().errors());
-    }
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleTypeMismatch(ex);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("INVALID_PARAMETER_TYPE", response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle HttpMessageNotReadableException")
-    void handleMalformedJson() {
-        HttpMessageNotReadableException ex = new HttpMessageNotReadableException("Malformed");
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleMalformedJson(ex);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("MALFORMED_REQUEST_BODY", response.getBody().errors());
-    }
+  @Test
+  @DisplayName("Should handle HttpMessageNotReadableException")
+  void handleMalformedJson() {
+    HttpMessageNotReadableException ex = new HttpMessageNotReadableException("Malformed");
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleMalformedJson(ex);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("MALFORMED_REQUEST_BODY", response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle MissingServletRequestParameterException")
-    void handleMissingParams() {
-        MissingServletRequestParameterException ex = new MissingServletRequestParameterException("param", "type");
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleMissingParams(ex);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("MISSING_QUERY_PARAMETER", response.getBody().errors());
-    }
+  @Test
+  @DisplayName("Should handle MissingServletRequestParameterException")
+  void handleMissingParams() {
+    MissingServletRequestParameterException ex = new MissingServletRequestParameterException("param", "type");
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleMissingParams(ex);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("MISSING_QUERY_PARAMETER", response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle HttpRequestMethodNotSupportedException")
-    void handleMethodNotSupported() {
-        HttpRequestMethodNotSupportedException ex = new HttpRequestMethodNotSupportedException("POST");
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleMethodNotSupported(ex);
-        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("METHOD_NOT_ALLOWED", response.getBody().errors());
-    }
+  @Test
+  @DisplayName("Should handle HttpRequestMethodNotSupportedException")
+  void handleMethodNotSupported() {
+    HttpRequestMethodNotSupportedException ex = new HttpRequestMethodNotSupportedException("POST");
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleMethodNotSupported(ex);
+    assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("METHOD_NOT_ALLOWED", response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle ResourceNotFoundException")
-    void handleNotFound() {
-        ResourceNotFoundException ex = new ResourceNotFoundException("Not found");
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn("/api/test");
-        Object responseObj = exceptionHandler.handleNotFound(ex, request);
-        ResponseEntity<?> response = (ResponseEntity<?>) responseObj;
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("RESOURCE_NOT_FOUND", ((ApiResponse<?>) response.getBody()).errors());
-    }
+  @Test
+  @DisplayName("Should handle ResourceNotFoundException")
+  void handleNotFound() {
+    ResourceNotFoundException ex = new ResourceNotFoundException("Not found");
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getRequestURI()).thenReturn("/api/test");
+    Object responseObj = exceptionHandler.handleNotFound(ex, request);
+    ResponseEntity<?> response = (ResponseEntity<?>) responseObj;
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("RESOURCE_NOT_FOUND", ((ApiResponse<?>) response.getBody()).errors());
+  }
 
-    @Test
-    @DisplayName("Should handle DuplicateResourceException")
-    void handleDuplicateResource() {
-        DuplicateResourceException ex = new DuplicateResourceException("Duplicate");
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleDuplicateResource(ex);
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("DUPLICATE_RESOURCE", response.getBody().errors());
-    }
+  @Test
+  @DisplayName("Should handle DuplicateResourceException")
+  void handleDuplicateResource() {
+    DuplicateResourceException ex = new DuplicateResourceException("Duplicate");
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleDuplicateResource(ex);
+    assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("DUPLICATE_RESOURCE", response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle InvalidRequestException")
-    void handleBadRequest() {
-        InvalidRequestException ex = new InvalidRequestException("Bad request");
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleBadRequest(ex);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("BAD_REQUEST", response.getBody().errors());
-    }
+  @Test
+  @DisplayName("Should handle InvalidRequestException")
+  void handleBadRequest() {
+    InvalidRequestException ex = new InvalidRequestException("Bad request");
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleBadRequest(ex);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("BAD_REQUEST", response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle ResourceValidationException")
-    void handleCustomValidationException() {
-        Map<String, String> errors = Collections.singletonMap("field", "error");
-        ResourceValidationException ex = new ResourceValidationException(errors);
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleCustomValidationException(ex);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(errors, response.getBody().errors());
-    }
+  @Test
+  @DisplayName("Should handle ResourceValidationException")
+  void handleCustomValidationException() {
+    Map<String, String> errors = Collections.singletonMap("field", "error");
+    ResourceValidationException ex = new ResourceValidationException(errors);
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleCustomValidationException(ex);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(errors, response.getBody().errors());
+  }
 
-    @Test
-    @DisplayName("Should handle generic Exception")
-    void handleGenericException() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn("/api/test");
-        Exception ex = new Exception("Generic error");
+  @Test
+  @DisplayName("Should handle generic Exception")
+  void handleGenericException() throws Exception {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getRequestURI()).thenReturn("/api/test");
+    Exception ex = new Exception("Generic error");
 
-        ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleGenericException(request, ex);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("INTERNAL_SERVER_ERROR", response.getBody().errors());
-    }
+    ResponseEntity<ApiResponse<Void>> response = exceptionHandler.handleGenericException(request, ex);
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("INTERNAL_SERVER_ERROR", response.getBody().errors());
+  }
 }

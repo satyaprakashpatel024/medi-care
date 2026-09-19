@@ -5,9 +5,9 @@ import com.care.medi.dtos.response.HospitalStatsResponseDTO;
 import com.care.medi.dtos.response.SystemKpiResponseDTO;
 
 public interface AdminAnalyticsService {
-    SystemKpiResponseDTO getSystemKpis();
+  SystemKpiResponseDTO getSystemKpis();
 
-    HospitalStatsResponseDTO getHospitalStats(Long hospitalId);
+  HospitalStatsResponseDTO getHospitalStats(Long hospitalId);
 
-    AppointmentAnalyticsResponseDTO getAppointmentAnalytics(Long hospitalId);
+  AppointmentAnalyticsResponseDTO getAppointmentAnalytics(Long hospitalId);
 }

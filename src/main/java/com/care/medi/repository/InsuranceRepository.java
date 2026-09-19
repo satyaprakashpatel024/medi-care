@@ -14,16 +14,16 @@ import java.util.Optional;
 @Repository
 public interface InsuranceRepository extends JpaRepository<Insurance, Long> {
 
-    @Override
-    @NonNull
-    Page<Insurance> findAll(@NonNull Pageable pageable);
+  @Override
+  @NonNull
+  Page<Insurance> findAll(@NonNull Pageable pageable);
 
-    List<Insurance> findByPatientId(Long patientId);
+  List<Insurance> findByPatientId(Long patientId);
 
-    Optional<Insurance> findByPolicyNumber(@NotBlank(message = "Policy number is required") String policyNumber);
+  Optional<Insurance> findByPolicyNumber(@NotBlank(message = "Policy number is required") String policyNumber);
 
-    boolean existsByPolicyNumber(@NotBlank(message = "Policy number is required") String policyNumber);
+  boolean existsByPolicyNumber(@NotBlank(message = "Policy number is required") String policyNumber);
 
-    @org.springframework.data.jpa.repository.Query("SELECT COUNT(i) > 0 FROM Insurance i WHERE i.policyNumber = :policyNumber AND i.patient.user.id = :userId")
-    boolean existsByPolicyNumberAndPatientUserId(@org.springframework.data.repository.query.Param("policyNumber") String policyNumber, @org.springframework.data.repository.query.Param("userId") Long userId);
+  @org.springframework.data.jpa.repository.Query("SELECT COUNT(i) > 0 FROM Insurance i WHERE i.policyNumber = :policyNumber AND i.patient.user.id = :userId")
+  boolean existsByPolicyNumberAndPatientUserId(@org.springframework.data.repository.query.Param("policyNumber") String policyNumber, @org.springframework.data.repository.query.Param("userId") Long userId);
 }

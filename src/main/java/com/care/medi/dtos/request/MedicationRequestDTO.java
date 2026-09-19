@@ -15,23 +15,23 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class MedicationRequestDTO implements java.io.Serializable {
 
-    @NotBlank(message = "Medication name is required")
-    private String name;
+  @NotBlank(message = "Medication name is required")
+  private String name;
 
-    private String manufacturer;
+  private String manufacturer;
 
-    private String dosageForm;
+  private String dosageForm;
 
-    @PositiveOrZero(message = "Unit price must be positive or zero")
-    private Double unitPrice;
+  @PositiveOrZero(message = "Unit price must be positive or zero")
+  private Double unitPrice;
 
-    @PositiveOrZero(message = "Stock quantity must be positive or zero")
-    private Integer stockQuantity;
+  @PositiveOrZero(message = "Stock quantity must be positive or zero")
+  private Integer stockQuantity;
 
-    @PositiveOrZero(message = "Reorder level must be positive or zero")
-    private Integer reorderLevel;
+  @PositiveOrZero(message = "Reorder level must be positive or zero")
+  private Integer reorderLevel;
 
-    private LocalDate expiryDate;
+  private LocalDate expiryDate;
 
-    private String batchNumber;
+  private String batchNumber;
 }

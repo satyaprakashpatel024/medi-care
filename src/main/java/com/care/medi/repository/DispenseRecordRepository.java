@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DispenseRecordRepository extends JpaRepository<DispenseRecord, Long> {
-    Page<DispenseRecord> findByPatientId(Long patientId, Pageable pageable);
+  Page<DispenseRecord> findByPatientId(Long patientId, Pageable pageable);
 }

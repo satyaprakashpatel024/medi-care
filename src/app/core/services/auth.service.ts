@@ -1,8 +1,8 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
-import { ToastService } from './toast.service';
+import {inject, Injectable, signal} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
+import {Observable, tap} from 'rxjs';
+import {ToastService} from './toast.service';
 
 export interface LoginRequest {
   email: string;
@@ -20,13 +20,12 @@ export interface AuthResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
-  private toast = inject(ToastService);
-
   // Use a signal to hold the user's role/auth status
   currentUserRole = signal<string | null>(null);
   currentUserId = signal<number | null>(null);
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private toast = inject(ToastService);
 
   constructor() {
     // Re-hydrate state from local storage on startup
@@ -73,15 +72,15 @@ export class AuthService {
     });
   }
 
+  isAuthenticated(): boolean {
+    return this.currentUserRole() !== null;
+  }
+
   private clearAuth() {
     this.currentUserRole.set(null);
     this.currentUserId.set(null);
     localStorage.removeItem('medicare-role');
     localStorage.removeItem('medicare-userId');
     this.router.navigate(['/login']);
-  }
-
-  isAuthenticated(): boolean {
-    return this.currentUserRole() !== null;
   }
 }

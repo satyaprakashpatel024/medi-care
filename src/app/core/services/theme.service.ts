@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import {Injectable, signal} from '@angular/core';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type ColorTheme = 'ocean' | 'rose' | 'sapphire' | 'sky' | 'emerald' | 'violet' | 'sunset';
@@ -10,33 +10,29 @@ export interface ColorThemeOption {
 }
 
 export const COLOR_THEMES: ColorThemeOption[] = [
-  { id: 'ocean',    label: 'Ocean',    swatch: '#06b6d4' },
-  { id: 'rose',     label: 'Rose',     swatch: '#f43f5e' },
-  { id: 'sapphire', label: 'Sapphire', swatch: '#6366f1' },
-  { id: 'sky',      label: 'Sky',      swatch: '#0ea5e9' },
-  { id: 'emerald',  label: 'Emerald',  swatch: '#10b981' },
-  { id: 'violet',   label: 'Violet',   swatch: '#8b5cf6' },
-  { id: 'sunset',   label: 'Sunset',   swatch: '#f97316' },
+  {id: 'ocean', label: 'Ocean', swatch: '#06b6d4'},
+  {id: 'rose', label: 'Rose', swatch: '#f43f5e'},
+  {id: 'sapphire', label: 'Sapphire', swatch: '#6366f1'},
+  {id: 'sky', label: 'Sky', swatch: '#0ea5e9'},
+  {id: 'emerald', label: 'Emerald', swatch: '#10b981'},
+  {id: 'violet', label: 'Violet', swatch: '#8b5cf6'},
+  {id: 'sunset', label: 'Sunset', swatch: '#f97316'},
 ];
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
-  private readonly THEME_KEY = 'medicare-theme';
-  private readonly COLOR_THEME_KEY = 'medicare-color-theme';
-
   // Signal to store current theme preference
   currentTheme = signal<Theme>('system');
-
   // Signal to store resolved theme (always 'light' or 'dark')
   resolvedTheme = signal<'light' | 'dark'>('light');
-
   // Signal for color theme
   currentColorTheme = signal<ColorTheme>('ocean');
-
   // Available color themes
   readonly colorThemes = COLOR_THEMES;
+  private readonly THEME_KEY = 'medicare-theme';
+  private readonly COLOR_THEME_KEY = 'medicare-color-theme';
 
   constructor() {
     this.initTheme();
@@ -48,6 +44,18 @@ export class ThemeService {
         this.applyTheme('system');
       }
     });
+  }
+
+  setTheme(theme: Theme) {
+    this.currentTheme.set(theme);
+    localStorage.setItem(this.THEME_KEY, theme);
+    this.applyTheme(theme);
+  }
+
+  setColorTheme(colorTheme: ColorTheme) {
+    this.currentColorTheme.set(colorTheme);
+    localStorage.setItem(this.COLOR_THEME_KEY, colorTheme);
+    document.documentElement.setAttribute('data-color-theme', colorTheme);
   }
 
   private initTheme() {
@@ -69,21 +77,9 @@ export class ThemeService {
     }
   }
 
-  setTheme(theme: Theme) {
-    this.currentTheme.set(theme);
-    localStorage.setItem(this.THEME_KEY, theme);
-    this.applyTheme(theme);
-  }
-
-  setColorTheme(colorTheme: ColorTheme) {
-    this.currentColorTheme.set(colorTheme);
-    localStorage.setItem(this.COLOR_THEME_KEY, colorTheme);
-    document.documentElement.setAttribute('data-color-theme', colorTheme);
-  }
-
   private applyTheme(theme: Theme) {
     const isDark = theme === 'dark' ||
-                  (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
     this.resolvedTheme.set(isDark ? 'dark' : 'light');
 

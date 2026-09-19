@@ -18,8 +18,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "dispense_records", indexes = {
-        @Index(name = "idx_dispense_patient_id", columnList = "patient_id"),
-        @Index(name = "idx_dispense_prescription_id", columnList = "prescription_id")
+  @Index(name = "idx_dispense_patient_id", columnList = "patient_id"),
+  @Index(name = "idx_dispense_prescription_id", columnList = "prescription_id")
 })
 @Schema(hidden = true)
 @Getter
@@ -31,38 +31,38 @@ import java.util.List;
 @SQLRestriction("is_deleted = false")
 public class DispenseRecord extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_dispense_patient"))
-    @NotNull(message = "Patient is required")
-    private Patient patient;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_dispense_patient"))
+  @NotNull(message = "Patient is required")
+  private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "prescription_id", nullable = true, foreignKey = @ForeignKey(name = "fk_dispense_prescription"))
-    private Prescription prescription;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "prescription_id", nullable = true, foreignKey = @ForeignKey(name = "fk_dispense_prescription"))
+  private Prescription prescription;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dispensed_by_id", nullable = false, foreignKey = @ForeignKey(name = "fk_dispense_staff"))
-    @NotNull(message = "Dispenser (Staff) is required")
-    private Staff dispensedBy;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "dispensed_by_id", nullable = false, foreignKey = @ForeignKey(name = "fk_dispense_staff"))
+  @NotNull(message = "Dispenser (Staff) is required")
+  private Staff dispensedBy;
 
-    @PositiveOrZero(message = "Total amount must be positive or zero")
-    @Column(name = "total_amount", nullable = false)
-    private Double totalAmount;
+  @PositiveOrZero(message = "Total amount must be positive or zero")
+  @Column(name = "total_amount", nullable = false)
+  private Double totalAmount;
 
-    @NotNull(message = "Dispense status is required")
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
-    private DispenseStatus dispenseStatus;
+  @NotNull(message = "Dispense status is required")
+  @Enumerated(EnumType.STRING)
+  @Column(length = 20, nullable = false)
+  private DispenseStatus dispenseStatus;
 
-    @NotNull(message = "Payment status is required")
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status", length = 20, nullable = false)
-    private PaymentStatus paymentStatus;
+  @NotNull(message = "Payment status is required")
+  @Enumerated(EnumType.STRING)
+  @Column(name = "payment_status", length = 20, nullable = false)
+  private PaymentStatus paymentStatus;
 
-    @Column(name = "dispense_date", nullable = false)
-    private ZonedDateTime dispenseDate;
+  @Column(name = "dispense_date", nullable = false)
+  private ZonedDateTime dispenseDate;
 
-    @OneToMany(mappedBy = "dispenseRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-    @lombok.Builder.Default
-    private List<DispenseItem> items = new ArrayList<>();
+  @OneToMany(mappedBy = "dispenseRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+  @lombok.Builder.Default
+  private List<DispenseItem> items = new ArrayList<>();
 }

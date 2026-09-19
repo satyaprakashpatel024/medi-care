@@ -16,17 +16,17 @@ import java.util.List;
 @AllArgsConstructor
 public class DispenseRequestDTO implements java.io.Serializable {
 
-    @NotNull(message = "Patient ID is required.")
-    private Long patientId;
+  @NotNull(message = "Patient ID is required.")
+  private Long patientId;
 
-    private Long prescriptionId; // Optional, might be an OTC dispense
+  private Long prescriptionId; // Optional, might be an OTC dispense
 
-    @NotNull(message = "Dispensed By (Staff ID) is required.")
-    private Long dispensedById;
+  @NotNull(message = "Dispensed By (Staff ID) is required.")
+  private Long dispensedById;
 
-    @NotNull(message = "Payment status is required.")
-    private PaymentStatus paymentStatus; // e.g. PAID, PENDING
+  @NotNull(message = "Payment status is required.")
+  private PaymentStatus paymentStatus; // e.g. PAID, PENDING
 
-    @NotEmpty(message = "At least one item must be dispensed.")
-    private List<DispenseItemRequestDTO> items;
+  @NotEmpty(message = "At least one item must be dispensed.")
+  private List<DispenseItemRequestDTO> items;
 }

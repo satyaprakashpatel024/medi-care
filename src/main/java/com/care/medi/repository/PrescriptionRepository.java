@@ -11,9 +11,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PrescriptionRepository extends JpaRepository<Prescription, Long> {
 
-    @EntityGraph(attributePaths = {"doctor", "patient"})
-    Page<Prescription> findByPatientId(Long patientId, Pageable pageable);
+  @EntityGraph(attributePaths = {"doctor", "patient"})
+  Page<Prescription> findByPatientId(Long patientId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"doctor", "patient"})
-    Page<Prescription> findByAppointmentId(Long appointmentId, Pageable pageable);
+  @EntityGraph(attributePaths = {"doctor", "patient"})
+  Page<Prescription> findByAppointmentId(Long appointmentId, Pageable pageable);
 }

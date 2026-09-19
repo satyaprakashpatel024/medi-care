@@ -28,31 +28,31 @@ import java.time.LocalDate;
 @SQLRestriction("is_deleted = false")
 public class Medication extends BaseEntity {
 
-    @NotBlank(message = "Medication name is required")
-    @Column(nullable = false)
-    private String name;
+  @NotBlank(message = "Medication name is required")
+  @Column(nullable = false)
+  private String name;
 
-    @Column(length = 255)
-    private String manufacturer;
+  @Column(length = 255)
+  private String manufacturer;
 
-    @Column(name = "dosage_form", length = 50)
-    private String dosageForm;
+  @Column(name = "dosage_form", length = 50)
+  private String dosageForm;
 
-    @PositiveOrZero(message = "Unit price must be positive or zero")
-    @Column(name = "unit_price", nullable = false)
-    private Double unitPrice;
+  @PositiveOrZero(message = "Unit price must be positive or zero")
+  @Column(name = "unit_price", nullable = false)
+  private Double unitPrice;
 
-    @PositiveOrZero(message = "Stock quantity must be positive or zero")
-    @Column(name = "stock_quantity", nullable = false)
-    private Integer stockQuantity;
+  @PositiveOrZero(message = "Stock quantity must be positive or zero")
+  @Column(name = "stock_quantity", nullable = false)
+  private Integer stockQuantity;
 
-    @PositiveOrZero(message = "Reorder level must be positive or zero")
-    @Column(name = "reorder_level", nullable = false)
-    private Integer reorderLevel;
+  @PositiveOrZero(message = "Reorder level must be positive or zero")
+  @Column(name = "reorder_level", nullable = false)
+  private Integer reorderLevel;
 
-    @Column(name = "expiry_date")
-    private LocalDate expiryDate;
+  @Column(name = "expiry_date")
+  private LocalDate expiryDate;
 
-    @Column(name = "batch_number", length = 100)
-    private String batchNumber;
+  @Column(name = "batch_number", length = 100)
+  private String batchNumber;
 }

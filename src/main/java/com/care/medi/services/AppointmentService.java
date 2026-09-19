@@ -16,41 +16,41 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface AppointmentService {
-    boolean isAppointmentContextValid(Long appointmentId, Long hospitalId, Long doctorId, Long patientId);
+  boolean isAppointmentContextValid(Long appointmentId, Long hospitalId, Long doctorId, Long patientId);
 
-    boolean existsByIdAndDoctorIdAndHospitalId(Long appointmentId, Long doctorId, Long hospitalId);
+  boolean existsByIdAndDoctorIdAndHospitalId(Long appointmentId, Long doctorId, Long hospitalId);
 
-    Page<AppointmentSummaryResponseDTO> getAllAppointmentsByHospitalAndDate(Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date);
+  Page<AppointmentSummaryResponseDTO> getAllAppointmentsByHospitalAndDate(Long hospitalId, Integer page, Integer size, String sortBy, LocalDate date);
 
-    AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request);
+  AppointmentResponseDTO createAppointment(Long hospitalId, AppointmentRequestDTO request);
 
-    AppointmentResponseDTO getAppointmentByIdAndHospital(Long id, Long hospitalId);
+  AppointmentResponseDTO getAppointmentByIdAndHospital(Long id, Long hospitalId);
 
-    @Transactional
-    AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request, Long hospitalId);
+  @Transactional
+  AppointmentResponseDTO rescheduleAppointment(Long id, AppointmentRescheduleDTO request, Long hospitalId);
 
-    boolean existsByIdAndHospitalId(Long id, Long hospitalId);
+  boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 
-    @Transactional
-    AppointmentResponseDTO updateAppointment(Long id, Long hospitalId, AppointmentUpdateRequestDTO request);
+  @Transactional
+  AppointmentResponseDTO updateAppointment(Long id, Long hospitalId, AppointmentUpdateRequestDTO request);
 
-    void cancelAppointment(Long id, Long hospitalId);
+  void cancelAppointment(Long id, Long hospitalId);
 
-    void deleteAppointment(Long id, Long hospitalId);
+  void deleteAppointment(Long id, Long hospitalId);
 
-    Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId, Long patientId, int page, int size, String sortBy);
+  Page<AppointmentResponseDTO> getAppointmentsByHospitalAndPatient(Long hospitalId, Long patientId, int page, int size, String sortBy);
 
-    Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, AppointmentStatus status, int page, int size, String sortBy, LocalDate date);
+  Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndStatusAndDate(Long hospitalId, AppointmentStatus status, int page, int size, String sortBy, LocalDate date);
 
-    Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndHospitalIdAndDate(Long doctorId, Long hospitalId, int page, int size, String sortBy, LocalDate date);
+  Page<AppointmentListResponseDTO> getAppointmentsByDoctorAndHospitalIdAndDate(Long doctorId, Long hospitalId, int page, int size, String sortBy, LocalDate date);
 
-    Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndDoctorUserId(Long hospitalId, Long userId, int page, int size, String sortBy, LocalDate date);
+  Page<AppointmentListResponseDTO> getAppointmentsByHospitalAndDoctorUserId(Long hospitalId, Long userId, int page, int size, String sortBy, LocalDate date);
 
-    Page<AppointmentResponseDTO> getAppointmentsByPatientAndDate(Long patientId, LocalDate date, int page, int size, String sortBy);
+  Page<AppointmentResponseDTO> getAppointmentsByPatientAndDate(Long patientId, LocalDate date, int page, int size, String sortBy);
 
-    Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);
+  Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);
 
-    AppointmentResponseDTO updateAppointmentStatus(Long id, AppointmentStatus status);
+  AppointmentResponseDTO updateAppointmentStatus(Long id, AppointmentStatus status);
 
-    com.care.medi.dtos.response.DoctorDaySlotsResponseDTO getAvailableSlots(Long hospitalId, Long doctorId, LocalDate date);
+  com.care.medi.dtos.response.DoctorDaySlotsResponseDTO getAvailableSlots(Long hospitalId, Long doctorId, LocalDate date);
 }

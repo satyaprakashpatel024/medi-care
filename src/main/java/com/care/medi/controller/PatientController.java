@@ -29,137 +29,137 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PatientController {
 
-    private final PatientServiceImpl patientService;
+  private final PatientServiceImpl patientService;
 
-    /**
-     * Retrieves a paginated list of registered patients belonging to a hospital.
-     *
-     * @param hospitalId the hospital identifier extracted from request attributes
-     * @param page       the page index to retrieve
-     * @param size       the number of records per page
-     * @param sortBy     the field name by which to sort results
-     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link PatientListResponseDTO}
-     */
-    @GetMapping
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST')")
-    public ResponseEntity<ApiResponse<Page<PatientListResponseDTO>>> getAllPatientsByHospital(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "5") Integer size,
-            @RequestParam(defaultValue = "id") String sortBy
-    ) {
-        String msg = String.format("Successfully retrieved patients details for Hospital ID : %d.", hospitalId);
-        return ResponseEntity.ok(
-                ApiResponse.success(msg, patientService.getAllPatientsByHospital(hospitalId, page, size, sortBy))
-        );
-    }
+  /**
+   * Retrieves a paginated list of registered patients belonging to a hospital.
+   *
+   * @param hospitalId the hospital identifier extracted from request attributes
+   * @param page       the page index to retrieve
+   * @param size       the number of records per page
+   * @param sortBy     the field name by which to sort results
+   * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link PatientListResponseDTO}
+   */
+  @GetMapping
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST')")
+  public ResponseEntity<ApiResponse<Page<PatientListResponseDTO>>> getAllPatientsByHospital(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @RequestParam(defaultValue = "0") Integer page,
+    @RequestParam(defaultValue = "5") Integer size,
+    @RequestParam(defaultValue = "id") String sortBy
+  ) {
+    String msg = String.format("Successfully retrieved patients details for Hospital ID : %d.", hospitalId);
+    return ResponseEntity.ok(
+      ApiResponse.success(msg, patientService.getAllPatientsByHospital(hospitalId, page, size, sortBy))
+    );
+  }
 
-    /**
-     * Retrieves patient profile information by patient ID and hospital ID.
-     *
-     * @param hospitalId the hospital identifier
-     * @param patientId  the unique identifier of the patient
-     * @return a {@link ResponseEntity} wrapping the {@link PatientResponseDTO}
-     */
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
-    public ResponseEntity<ApiResponse<PatientResponseDTO>> getPatientByIdAndHospital(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") long hospitalId,
-            @PathVariable("id") Long patientId
-    ) {
-        PatientResponseDTO patientById = patientService.getPatientByIdAndHospitalId(hospitalId, patientId);
-        String msg = String.format("Successfully retrieved patient details for id : %d.", patientId);
-        return ResponseEntity.ok(ApiResponse.success(msg, patientById));
-    }
+  /**
+   * Retrieves patient profile information by patient ID and hospital ID.
+   *
+   * @param hospitalId the hospital identifier
+   * @param patientId  the unique identifier of the patient
+   * @return a {@link ResponseEntity} wrapping the {@link PatientResponseDTO}
+   */
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
+  public ResponseEntity<ApiResponse<PatientResponseDTO>> getPatientByIdAndHospital(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") long hospitalId,
+    @PathVariable("id") Long patientId
+  ) {
+    PatientResponseDTO patientById = patientService.getPatientByIdAndHospitalId(hospitalId, patientId);
+    String msg = String.format("Successfully retrieved patient details for id : %d.", patientId);
+    return ResponseEntity.ok(ApiResponse.success(msg, patientById));
+  }
 
-    /**
-     * Registers a new patient within the specified hospital.
-     *
-     * @param hospitalId the hospital identifier
-     * @param request    the patient creation payload
-     * @return a {@link ResponseEntity} with status 201 Created and the created {@link PatientResponseDTO}
-     */
-    @PostMapping
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST')")
-    public ResponseEntity<ApiResponse<PatientResponseDTO>> savePatientInHospital(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @RequestBody @Valid PatientRequestDTO request
-    ) {
-        PatientResponseDTO patient = patientService.createPatientInHospital(hospitalId, request);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(patient.id())
-                .toUri();
-        return ResponseEntity
-                .created(location)
-                .body(ApiResponse.success("Patient created successfully.", patient, HttpStatus.CREATED));
-    }
+  /**
+   * Registers a new patient within the specified hospital.
+   *
+   * @param hospitalId the hospital identifier
+   * @param request    the patient creation payload
+   * @return a {@link ResponseEntity} with status 201 Created and the created {@link PatientResponseDTO}
+   */
+  @PostMapping
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST')")
+  public ResponseEntity<ApiResponse<PatientResponseDTO>> savePatientInHospital(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @RequestBody @Valid PatientRequestDTO request
+  ) {
+    PatientResponseDTO patient = patientService.createPatientInHospital(hospitalId, request);
+    URI location = ServletUriComponentsBuilder
+      .fromCurrentRequest()
+      .path("/{id}")
+      .buildAndExpand(patient.id())
+      .toUri();
+    return ResponseEntity
+      .created(location)
+      .body(ApiResponse.success("Patient created successfully.", patient, HttpStatus.CREATED));
+  }
 
-    /**
-     * Updates an existing patient's details within a hospital.
-     *
-     * @param hospitalId the hospital identifier
-     * @param id         the unique identifier of the patient to update
-     * @param request    the updated patient details payload
-     * @return a {@link ResponseEntity} wrapping the modified {@link PatientResponseDTO}
-     */
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#id, authentication))")
-    public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long id,
-            @RequestBody @Valid PatientUpdateRequestDTO request
-    ) {
-        PatientResponseDTO patientResponseDTO = patientService.updatePatientInHospital(id, hospitalId, request);
-        String msg = String.format("Successfully updated patient details for id : %d.", id);
-        return ResponseEntity.accepted().body(
-                ApiResponse.success(msg, patientResponseDTO, HttpStatus.ACCEPTED)
-        );
-    }
+  /**
+   * Updates an existing patient's details within a hospital.
+   *
+   * @param hospitalId the hospital identifier
+   * @param id         the unique identifier of the patient to update
+   * @param request    the updated patient details payload
+   * @return a {@link ResponseEntity} wrapping the modified {@link PatientResponseDTO}
+   */
+  @PutMapping("/{id}")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#id, authentication))")
+  public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long id,
+    @RequestBody @Valid PatientUpdateRequestDTO request
+  ) {
+    PatientResponseDTO patientResponseDTO = patientService.updatePatientInHospital(id, hospitalId, request);
+    String msg = String.format("Successfully updated patient details for id : %d.", id);
+    return ResponseEntity.accepted().body(
+      ApiResponse.success(msg, patientResponseDTO, HttpStatus.ACCEPTED)
+    );
+  }
 
-    /**
-     * Attaches an insurance policy to a patient profile.
-     *
-     * @param hospitalId the hospital identifier
-     * @param patientId  the unique identifier of the patient
-     * @param request    the insurance information payload
-     * @return a {@link ResponseEntity} wrapping the created {@link InsuranceResponseDTO}
-     */
-    @PostMapping("/{id}/insurances")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
-    public ResponseEntity<ApiResponse<InsuranceResponseDTO>> assignInsuranceToPatient(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long patientId,
-            @RequestBody @Valid InsuranceRequestDTO request) {
-        InsuranceResponseDTO insurance = patientService.assignInsurance(patientId, hospitalId, request);
-        String msg = String.format("Successfully assigned insurance to patient for id : %d.", patientId);
-        return ResponseEntity.accepted().body(
-                ApiResponse.success(msg, insurance, HttpStatus.ACCEPTED)
-        );
-    }
+  /**
+   * Attaches an insurance policy to a patient profile.
+   *
+   * @param hospitalId the hospital identifier
+   * @param patientId  the unique identifier of the patient
+   * @param request    the insurance information payload
+   * @return a {@link ResponseEntity} wrapping the created {@link InsuranceResponseDTO}
+   */
+  @PostMapping("/{id}/insurances")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
+  public ResponseEntity<ApiResponse<InsuranceResponseDTO>> assignInsuranceToPatient(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long patientId,
+    @RequestBody @Valid InsuranceRequestDTO request) {
+    InsuranceResponseDTO insurance = patientService.assignInsurance(patientId, hospitalId, request);
+    String msg = String.format("Successfully assigned insurance to patient for id : %d.", patientId);
+    return ResponseEntity.accepted().body(
+      ApiResponse.success(msg, insurance, HttpStatus.ACCEPTED)
+    );
+  }
 
-    /**
-     * Retrieves all insurance policies linked to a patient.
-     *
-     * @param hospitalId the hospital identifier
-     * @param patientId  the unique identifier of the patient
-     * @return a {@link ResponseEntity} wrapping a list of {@link InsuranceResponseDTO}
-     */
-    @GetMapping("/{id}/insurances")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
-    public ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurancesOfPatient(
-            @RequestAttribute(value = "X-Hospital-Id")
-            @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
-            @PathVariable("id") Long patientId
-    ) {
-        List<InsuranceResponseDTO> insuranceByPatientId = patientService.getInsuranceByPatientId(patientId, hospitalId);
-        String msg = String.format("Successfully retrieved insurances for PatientId : %d.", patientId);
-        return ResponseEntity.ok(ApiResponse.success(msg, insuranceByPatientId));
-    }
+  /**
+   * Retrieves all insurance policies linked to a patient.
+   *
+   * @param hospitalId the hospital identifier
+   * @param patientId  the unique identifier of the patient
+   * @return a {@link ResponseEntity} wrapping a list of {@link InsuranceResponseDTO}
+   */
+  @GetMapping("/{id}/insurances")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'DOCTOR', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isSelfPatient(#patientId, authentication))")
+  public ResponseEntity<ApiResponse<List<InsuranceResponseDTO>>> getAllInsurancesOfPatient(
+    @RequestAttribute(value = "X-Hospital-Id")
+    @Min(value = 1, message = "Hospital ID must be a positive number greater than 0") Long hospitalId,
+    @PathVariable("id") Long patientId
+  ) {
+    List<InsuranceResponseDTO> insuranceByPatientId = patientService.getInsuranceByPatientId(patientId, hospitalId);
+    String msg = String.format("Successfully retrieved insurances for PatientId : %d.", patientId);
+    return ResponseEntity.ok(ApiResponse.success(msg, insuranceByPatientId));
+  }
 }

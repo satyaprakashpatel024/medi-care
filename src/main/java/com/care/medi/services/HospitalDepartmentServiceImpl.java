@@ -23,45 +23,45 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class HospitalDepartmentServiceImpl implements HospitalDepartmentService {
 
-    private final HospitalDepartmentRepository hospitalDepartmentRepository;
-    private final HospitalRepository hospitalRepository;
-    private final DepartmentRepository departmentRepository;
+  private final HospitalDepartmentRepository hospitalDepartmentRepository;
+  private final HospitalRepository hospitalRepository;
+  private final DepartmentRepository departmentRepository;
 
-    @Override
-    public List<HospitalDepartmentResponseDTO> findAll() {
-        return hospitalDepartmentRepository.findAll().stream()
-                .map(HospitalDepartmentResponseDTO::fromEntity)
-                .toList();
+  @Override
+  public List<HospitalDepartmentResponseDTO> findAll() {
+    return hospitalDepartmentRepository.findAll().stream()
+      .map(HospitalDepartmentResponseDTO::fromEntity)
+      .toList();
+  }
+
+  @Override
+  @Transactional
+  public HospitalDepartmentResponseDTO mapDepartmentToHospital(Long hospitalId, Long departmentId) {
+    if (hospitalDepartmentRepository.existsByHospitalIdAndDepartmentId(hospitalId, departmentId)) {
+      throw new DuplicateResourceException("Department ID " + departmentId + " is already mapped to Hospital ID " + hospitalId);
     }
 
-    @Override
-    @Transactional
-    public HospitalDepartmentResponseDTO mapDepartmentToHospital(Long hospitalId, Long departmentId) {
-        if (hospitalDepartmentRepository.existsByHospitalIdAndDepartmentId(hospitalId, departmentId)) {
-            throw new DuplicateResourceException("Department ID " + departmentId + " is already mapped to Hospital ID " + hospitalId);
-        }
+    Hospital hospital = hospitalRepository.findById(hospitalId)
+      .orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId));
 
-        Hospital hospital = hospitalRepository.findById(hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId));
+    Department department = departmentRepository.findById(departmentId)
+      .orElseThrow(() -> new ResourceNotFoundException(Constants.DEPARTMENT_NOT_FOUND + departmentId));
 
-        Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.DEPARTMENT_NOT_FOUND + departmentId));
+    HospitalDepartment hd = HospitalDepartment.builder()
+      .hospital(hospital)
+      .department(department)
+      .active(true)
+      .build();
 
-        HospitalDepartment hd = HospitalDepartment.builder()
-                .hospital(hospital)
-                .department(department)
-                .active(true)
-                .build();
+    return HospitalDepartmentResponseDTO.fromEntity(hospitalDepartmentRepository.save(hd));
+  }
 
-        return HospitalDepartmentResponseDTO.fromEntity(hospitalDepartmentRepository.save(hd));
-    }
+  @Override
+  @Transactional
+  public void unmapDepartmentFromHospital(Long hospitalId, Long departmentId) {
+    HospitalDepartment hd = hospitalDepartmentRepository.findByHospitalIdAndDepartmentId(hospitalId, departmentId)
+      .orElseThrow(() -> new ResourceNotFoundException("No mapping found between Hospital ID " + hospitalId + " and Department ID " + departmentId));
 
-    @Override
-    @Transactional
-    public void unmapDepartmentFromHospital(Long hospitalId, Long departmentId) {
-        HospitalDepartment hd = hospitalDepartmentRepository.findByHospitalIdAndDepartmentId(hospitalId, departmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("No mapping found between Hospital ID " + hospitalId + " and Department ID " + departmentId));
-
-        hospitalDepartmentRepository.delete(hd);
-    }
+    hospitalDepartmentRepository.delete(hd);
+  }
 }

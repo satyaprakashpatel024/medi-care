@@ -12,12 +12,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OtpNotificationEvent implements Serializable {
-    private String toEmail;
-    private String otp;
+  private String toEmail;
+  private String otp;
 
-    @Override
-    public String toString() {
-        return "OtpNotificationEvent{toEmail='%s', otp='%s'}"
-                .formatted(Helpers.maskEmail(toEmail), Helpers.maskOtp(otp));
-    }
+  @Override
+  public String toString() {
+    return "OtpNotificationEvent{toEmail='%s', otp='%s'}"
+      .formatted(Helpers.maskEmail(toEmail), Helpers.maskOtp(otp));
+  }
 }

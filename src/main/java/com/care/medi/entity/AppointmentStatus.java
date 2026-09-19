@@ -6,18 +6,18 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public enum AppointmentStatus {
-    SCHEDULED,
-    COMPLETED,
-    CANCELLED,
-    NO_SHOW;
+  SCHEDULED,
+  COMPLETED,
+  CANCELLED,
+  NO_SHOW;
 
-    @JsonCreator
-    public static AppointmentStatus fromString(String value) {
-        try {
-            return AppointmentStatus.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            log.error("Invalid appointment status [{}]: {}", value, e.getMessage(), e);
-            throw new InvalidRequestException(String.format("Invalid status: %s", value));
-        }
+  @JsonCreator
+  public static AppointmentStatus fromString(String value) {
+    try {
+      return AppointmentStatus.valueOf(value.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      log.error("Invalid appointment status [{}]: {}", value, e.getMessage(), e);
+      throw new InvalidRequestException(String.format("Invalid status: %s", value));
     }
+  }
 }

@@ -26,104 +26,104 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "appointments",
-        indexes = {
-                @Index(name = "idx_appt_patient_id", columnList = "patient_id"),
-                @Index(name = "idx_appt_doctor_id", columnList = "doctor_id"),
-                @Index(name = "idx_appt_date", columnList = "appointment_date")
-        },
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_appt_doctor_date_time", columnNames = {"doctor_id", "appointment_date", "start_time", "end_time"})
-        }
+  indexes = {
+    @Index(name = "idx_appt_patient_id", columnList = "patient_id"),
+    @Index(name = "idx_appt_doctor_id", columnList = "doctor_id"),
+    @Index(name = "idx_appt_date", columnList = "appointment_date")
+  },
+  uniqueConstraints = {
+    @UniqueConstraint(name = "uk_appt_doctor_date_time", columnNames = {"doctor_id", "appointment_date", "start_time", "end_time"})
+  }
 )
 @SQLDelete(sql = "UPDATE appointments SET is_deleted = true WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class Appointment extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_patient"))
-    private Patient patient;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "patient_id", nullable = false, foreignKey = @ForeignKey(name = "fk_appointment_patient"))
+  private Patient patient;
 
-    @NotNull(message = "Doctor is required")
-    @Column(name = "doctor_id")
-    private Long doctorId;
+  @NotNull(message = "Doctor is required")
+  @Column(name = "doctor_id")
+  private Long doctorId;
 
-    @NotNull(message = "Hospital is required")
-    @Column(name = "hospital_id")
-    private Long hospitalId;
+  @NotNull(message = "Hospital is required")
+  @Column(name = "hospital_id")
+  private Long hospitalId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", foreignKey = @ForeignKey(name = "fk_appointment_department"))
-    private Department department;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "department_id", foreignKey = @ForeignKey(name = "fk_appointment_department"))
+  private Department department;
 
-    @NotNull(message = "Appointment date is required")
-    @Column(name = "appointment_date", nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate appointmentDate;
+  @NotNull(message = "Appointment date is required")
+  @Column(name = "appointment_date", nullable = false)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+  private LocalDate appointmentDate;
 
-    @Column(name = "start_time")
-    @NotNull(message = "Start time is required")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss a")
-    private LocalTime startTime;
+  @Column(name = "start_time")
+  @NotNull(message = "Start time is required")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss a")
+  private LocalTime startTime;
 
-    @Column(name = "end_time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss a")
-    @NotNull(message = "End time is required")
-    private LocalTime endTime;
+  @Column(name = "end_time")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss a")
+  @NotNull(message = "End time is required")
+  private LocalTime endTime;
 
-    @NotNull(message = "Status is required")
-    @Column(nullable = false, length = 10)
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private AppointmentStatus status = AppointmentStatus.SCHEDULED;
+  @NotNull(message = "Status is required")
+  @Column(nullable = false, length = 10)
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private AppointmentStatus status = AppointmentStatus.SCHEDULED;
 
-    @Size(max = 500)
-    @Column(length = 500)
+  @Size(max = 500)
+  @Column(length = 500)
 
-    // ── Bidirectional mappings ──────────────────────────────────────────────
+  // ── Bidirectional mappings ──────────────────────────────────────────────
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "appointment", cascade = CascadeType.MERGE)
-    @Builder.Default
-    @BatchSize(size = 25)
-    private List<Prescription> prescription = new ArrayList<>();
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "appointment", cascade = CascadeType.MERGE)
+  @Builder.Default
+  @BatchSize(size = 25)
+  private List<Prescription> prescription = new ArrayList<>();
 
-    // Add the Entity relationship purely to generate the Foreign Key constraint
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hospital_id", foreignKey = @ForeignKey(name = "fk_appointment_hospital"), insertable = false, updatable = false)
-    private Hospital hospital;
+  // Add the Entity relationship purely to generate the Foreign Key constraint
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "hospital_id", foreignKey = @ForeignKey(name = "fk_appointment_hospital"), insertable = false, updatable = false)
+  private Hospital hospital;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", foreignKey = @ForeignKey(name = "fk_appointment_doctor"), insertable = false, updatable = false)
-    private Doctor doctor;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "doctor_id", foreignKey = @ForeignKey(name = "fk_appointment_doctor"), insertable = false, updatable = false)
+  private Doctor doctor;
 
-    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime, int slotDurationMinutes) {
-        return Appointment.builder()
-                .patient(patientEntity)
-                .doctorId(doctor.getId())
-                .doctor(doctor)
-                .department(department)
-                .hospitalId(hospitalId)
-                .appointmentDate(date)
-                .status(AppointmentStatus.SCHEDULED)
-                .startTime(startTime)
-                .endTime(startTime.plusMinutes(slotDurationMinutes > 0 ? slotDurationMinutes : 15))
-                .createdAt(ZonedDateTime.now(Constants.ZONE_ID))
-                .build();
-    }
+  public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime, int slotDurationMinutes) {
+    return Appointment.builder()
+      .patient(patientEntity)
+      .doctorId(doctor.getId())
+      .doctor(doctor)
+      .department(department)
+      .hospitalId(hospitalId)
+      .appointmentDate(date)
+      .status(AppointmentStatus.SCHEDULED)
+      .startTime(startTime)
+      .endTime(startTime.plusMinutes(slotDurationMinutes > 0 ? slotDurationMinutes : 15))
+      .createdAt(ZonedDateTime.now(Constants.ZONE_ID))
+      .build();
+  }
 
-    public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime) {
-        return toEntity(patientEntity, doctor, department, hospitalId, date, startTime, 15);
-    }
+  public static Appointment toEntity(Patient patientEntity, Doctor doctor, Department department, Long hospitalId, LocalDate date, LocalTime startTime) {
+    return toEntity(patientEntity, doctor, department, hospitalId, date, startTime, 15);
+  }
 
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
+  public void setEndTime(LocalTime endTime) {
+    this.endTime = endTime;
+  }
 
-    public LocalTime setEndTimeFromDuration(int slotDurationMinutes) {
-        this.endTime = this.startTime.plusMinutes(slotDurationMinutes > 0 ? slotDurationMinutes : 15);
-        return this.endTime;
-    }
+  public LocalTime setEndTimeFromDuration(int slotDurationMinutes) {
+    this.endTime = this.startTime.plusMinutes(slotDurationMinutes > 0 ? slotDurationMinutes : 15);
+    return this.endTime;
+  }
 
-    public LocalTime setEndTimeFromDuration() {
-        return setEndTimeFromDuration(15);
-    }
+  public LocalTime setEndTimeFromDuration() {
+    return setEndTimeFromDuration(15);
+  }
 }

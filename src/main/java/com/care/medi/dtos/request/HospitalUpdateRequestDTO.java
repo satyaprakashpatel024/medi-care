@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class HospitalUpdateRequestDTO implements java.io.Serializable {
 
-    @Size(max = 255)
-    private String name;
-    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
-            message = "Invalid phone number, Please provide valid Indian Phone number.")
-    private String phone;
-    private HospitalAddressRequestDTO address;
+  @Size(max = 255)
+  private String name;
+  @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+    message = "Invalid phone number, Please provide valid Indian Phone number.")
+  private String phone;
+  private HospitalAddressRequestDTO address;
 }

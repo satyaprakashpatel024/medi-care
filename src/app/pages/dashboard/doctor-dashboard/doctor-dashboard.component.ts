@@ -1,7 +1,7 @@
-import { Component, OnInit, inject,ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { AppointmentService, Appointment } from '../../../core/services/appointment.service';
-import { AuthService } from '../../../core/services/auth.service';
+import {ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Appointment, AppointmentService} from '../../../core/services/appointment.service';
+import {AuthService} from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-doctor-dashboard',
@@ -10,13 +10,12 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './doctor-dashboard.component.html'
 })
 export class DoctorDashboardComponent implements OnInit {
-  private appointmentService = inject(AppointmentService);
-  private authService = inject(AuthService);
-  private cdr = inject(ChangeDetectorRef);
-
   appointments: Appointment[] = [];
   totalAppointments = 0;
   loading = true;
+  private appointmentService = inject(AppointmentService);
+  private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit() {
     const userId = this.authService.currentUserId();

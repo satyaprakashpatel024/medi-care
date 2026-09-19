@@ -16,21 +16,21 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class HospitalAddressServiceImpl implements HospitalAddressService {
-    private final HospitalAddressRepository hospitalAddressRepository;
-    private final HospitalRepository hospitalRepository;
+  private final HospitalAddressRepository hospitalAddressRepository;
+  private final HospitalRepository hospitalRepository;
 
-    @Override
-    public HospitalAddressResponseDTO getHospitalAddressById(Long id) {
-        HospitalAddress hospitalAddress = hospitalAddressRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Hospital Address with id %d not found", id)));
-        return HospitalAddressResponseDTO.fromEntity(hospitalAddress);
-    }
+  @Override
+  public HospitalAddressResponseDTO getHospitalAddressById(Long id) {
+    HospitalAddress hospitalAddress = hospitalAddressRepository.findById(id)
+      .orElseThrow(() -> new ResourceNotFoundException(String.format("Hospital Address with id %d not found", id)));
+    return HospitalAddressResponseDTO.fromEntity(hospitalAddress);
+  }
 
-    @Override
-    public HospitalAddress createHospitalAddress(Long id, HospitalAddressRequestDTO request) {
-        Hospital hospital = hospitalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + id));
-        HospitalAddress entity = HospitalAddress.toEntity(hospital.getId(), request);
-        return hospitalAddressRepository.save(entity);
-    }
+  @Override
+  public HospitalAddress createHospitalAddress(Long id, HospitalAddressRequestDTO request) {
+    Hospital hospital = hospitalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + id));
+    HospitalAddress entity = HospitalAddress.toEntity(hospital.getId(), request);
+    return hospitalAddressRepository.save(entity);
+  }
 
 }

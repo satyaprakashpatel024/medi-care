@@ -35,122 +35,122 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @EnableMethodSecurity
 public class ObjectLevelAuthorizationSecurityTest {
 
-    @Autowired
-    private WebApplicationContext context;
+  @Autowired
+  private WebApplicationContext context;
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private DoctorServiceImpl doctorService;
+  @MockitoBean
+  private DoctorServiceImpl doctorService;
 
-    @MockitoBean
-    private DoctorScheduleService doctorScheduleService;
+  @MockitoBean
+  private DoctorScheduleService doctorScheduleService;
 
-    @MockitoBean
-    private PatientServiceImpl patientService;
+  @MockitoBean
+  private PatientServiceImpl patientService;
 
-    @MockitoBean(name = "userSecurity")
-    private UserSecurity userSecurity;
+  @MockitoBean(name = "userSecurity")
+  private UserSecurity userSecurity;
 
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockitoBean
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockitoBean
-    private RateLimitingFilter rateLimitingFilter;
+  @MockitoBean
+  private RateLimitingFilter rateLimitingFilter;
 
-    @MockitoBean
-    private CorrelationIdFilter correlationIdFilter;
+  @MockitoBean
+  private CorrelationIdFilter correlationIdFilter;
 
-    @SuppressWarnings("unused")
-    @MockitoBean
-    private JwtService jwtService;
+  @SuppressWarnings("unused")
+  @MockitoBean
+  private JwtService jwtService;
 
-    @SuppressWarnings("unused")
-    @MockitoBean
-    private UsersDetailsService usersDetailsService;
+  @SuppressWarnings("unused")
+  @MockitoBean
+  private UsersDetailsService usersDetailsService;
 
-    @SuppressWarnings("unused")
-    @BeforeEach
-    void setup() throws Exception {
-        org.mockito.Mockito.doAnswer(invocation -> {
-            jakarta.servlet.ServletRequest request = invocation.getArgument(0);
-            jakarta.servlet.ServletResponse response = invocation.getArgument(1);
-            jakarta.servlet.FilterChain chain = invocation.getArgument(2);
-            chain.doFilter(request, response);
-            return null;
-        }).when(jwtAuthenticationFilter).doFilter(any(), any(), any());
+  @SuppressWarnings("unused")
+  @BeforeEach
+  void setup() throws Exception {
+    org.mockito.Mockito.doAnswer(invocation -> {
+      jakarta.servlet.ServletRequest request = invocation.getArgument(0);
+      jakarta.servlet.ServletResponse response = invocation.getArgument(1);
+      jakarta.servlet.FilterChain chain = invocation.getArgument(2);
+      chain.doFilter(request, response);
+      return null;
+    }).when(jwtAuthenticationFilter).doFilter(any(), any(), any());
 
-        org.mockito.Mockito.doAnswer(invocation -> {
-            jakarta.servlet.ServletRequest request = invocation.getArgument(0);
-            jakarta.servlet.ServletResponse response = invocation.getArgument(1);
-            jakarta.servlet.FilterChain chain = invocation.getArgument(2);
-            chain.doFilter(request, response);
-            return null;
-        }).when(rateLimitingFilter).doFilter(any(), any(), any());
+    org.mockito.Mockito.doAnswer(invocation -> {
+      jakarta.servlet.ServletRequest request = invocation.getArgument(0);
+      jakarta.servlet.ServletResponse response = invocation.getArgument(1);
+      jakarta.servlet.FilterChain chain = invocation.getArgument(2);
+      chain.doFilter(request, response);
+      return null;
+    }).when(rateLimitingFilter).doFilter(any(), any(), any());
 
-        org.mockito.Mockito.doAnswer(invocation -> {
-            jakarta.servlet.ServletRequest request = invocation.getArgument(0);
-            jakarta.servlet.ServletResponse response = invocation.getArgument(1);
-            jakarta.servlet.FilterChain chain = invocation.getArgument(2);
-            chain.doFilter(request, response);
-            return null;
-        }).when(correlationIdFilter).doFilter(any(), any(), any());
+    org.mockito.Mockito.doAnswer(invocation -> {
+      jakarta.servlet.ServletRequest request = invocation.getArgument(0);
+      jakarta.servlet.ServletResponse response = invocation.getArgument(1);
+      jakarta.servlet.FilterChain chain = invocation.getArgument(2);
+      chain.doFilter(request, response);
+      return null;
+    }).when(correlationIdFilter).doFilter(any(), any(), any());
 
-        mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
-    }
+    mockMvc = MockMvcBuilders.webAppContextSetup(context)
+      .apply(springSecurity())
+      .build();
+  }
 
-    @Test
-    @DisplayName("Doctor A requesting Doctor B's endpoint should return HTTP 403 Forbidden")
-    @WithMockUser(username = "doctorA@hospital.com", roles = {"DOCTOR"})
-    void testDoctorA_RequestingDoctorB_Returns403() throws Exception {
-        when(userSecurity.isSelfDoctor(eq(2L), any())).thenReturn(false);
+  @Test
+  @DisplayName("Doctor A requesting Doctor B's endpoint should return HTTP 403 Forbidden")
+  @WithMockUser(username = "doctorA@hospital.com", roles = {"DOCTOR"})
+  void testDoctorA_RequestingDoctorB_Returns403() throws Exception {
+    when(userSecurity.isSelfDoctor(eq(2L), any())).thenReturn(false);
 
-        mockMvc.perform(get("/api/v1/doctors/2")
-                        .header("X-Hospital-Id", 1L))
-                .andExpect(status().isForbidden());
-    }
+    mockMvc.perform(get("/api/v1/doctors/2")
+        .header("X-Hospital-Id", 1L))
+      .andExpect(status().isForbidden());
+  }
 
-    @Test
-    @DisplayName("Doctor A requesting Doctor A's endpoint should return HTTP 200 OK")
-    @WithMockUser(username = "doctorA@hospital.com", roles = {"DOCTOR"})
-    void testDoctorA_RequestingDoctorA_Returns200() throws Exception {
-        when(userSecurity.isSelfDoctor(eq(1L), any())).thenReturn(true);
-        when(doctorService.getDoctorByIdAndHospital(1L, 1L))
-                .thenReturn(DoctorResponseDTO.builder().id(1L).build());
+  @Test
+  @DisplayName("Doctor A requesting Doctor A's endpoint should return HTTP 200 OK")
+  @WithMockUser(username = "doctorA@hospital.com", roles = {"DOCTOR"})
+  void testDoctorA_RequestingDoctorA_Returns200() throws Exception {
+    when(userSecurity.isSelfDoctor(eq(1L), any())).thenReturn(true);
+    when(doctorService.getDoctorByIdAndHospital(1L, 1L))
+      .thenReturn(DoctorResponseDTO.builder().id(1L).build());
 
-        mockMvc.perform(get("/api/v1/doctors/1")
-                        .header("X-Hospital-Id", 1L))
-                .andExpect(status().isOk());
-    }
+    mockMvc.perform(get("/api/v1/doctors/1")
+        .header("X-Hospital-Id", 1L))
+      .andExpect(status().isOk());
+  }
 
-    @Test
-    @DisplayName("Patient A requesting Patient B's endpoint should return HTTP 403 Forbidden")
-    @WithMockUser(username = "patientA@gmail.com", roles = {"PATIENT"})
-    void testPatientA_RequestingPatientB_Returns403() throws Exception {
-        when(userSecurity.isSelfPatient(eq(2L), any())).thenReturn(false);
+  @Test
+  @DisplayName("Patient A requesting Patient B's endpoint should return HTTP 403 Forbidden")
+  @WithMockUser(username = "patientA@gmail.com", roles = {"PATIENT"})
+  void testPatientA_RequestingPatientB_Returns403() throws Exception {
+    when(userSecurity.isSelfPatient(eq(2L), any())).thenReturn(false);
 
-        mockMvc.perform(get("/api/v1/patients/2")
-                        .requestAttr("X-Hospital-Id", 1L))
-                .andExpect(status().isForbidden());
-    }
+    mockMvc.perform(get("/api/v1/patients/2")
+        .requestAttr("X-Hospital-Id", 1L))
+      .andExpect(status().isForbidden());
+  }
 
-    @Test
-    @DisplayName("Admin requesting any endpoint should return HTTP 200 OK")
-    @WithMockUser(username = "admin@hospital.com", roles = {"SUPER_ADMIN"})
-    void testAdmin_RequestingAnyEndpoint_Returns200() throws Exception {
-        when(doctorService.getDoctorByIdAndHospital(2L, 1L))
-                .thenReturn(DoctorResponseDTO.builder().id(2L).build());
-        when(patientService.getPatientByIdAndHospitalId(1L, 2L))
-                .thenReturn(PatientResponseDTO.builder().id(2L).build());
+  @Test
+  @DisplayName("Admin requesting any endpoint should return HTTP 200 OK")
+  @WithMockUser(username = "admin@hospital.com", roles = {"SUPER_ADMIN"})
+  void testAdmin_RequestingAnyEndpoint_Returns200() throws Exception {
+    when(doctorService.getDoctorByIdAndHospital(2L, 1L))
+      .thenReturn(DoctorResponseDTO.builder().id(2L).build());
+    when(patientService.getPatientByIdAndHospitalId(1L, 2L))
+      .thenReturn(PatientResponseDTO.builder().id(2L).build());
 
-        mockMvc.perform(get("/api/v1/doctors/2")
-                        .header("X-Hospital-Id", 1L))
-                .andExpect(status().isOk());
+    mockMvc.perform(get("/api/v1/doctors/2")
+        .header("X-Hospital-Id", 1L))
+      .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/v1/patients/2")
-                        .requestAttr("X-Hospital-Id", 1L))
-                .andExpect(status().isOk());
-    }
+    mockMvc.perform(get("/api/v1/patients/2")
+        .requestAttr("X-Hospital-Id", 1L))
+      .andExpect(status().isOk());
+  }
 }

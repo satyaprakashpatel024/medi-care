@@ -5,32 +5,34 @@
       <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Patient Dashboard</h2>
       <p class="text-slate-500 dark:text-slate-400">Welcome to your health portal</p>
     </div>
-    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center text-white shadow-lg shadow-primary-500/20">
+    <div
+      class="w-11 h-11 rounded-full bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center text-white shadow-lg shadow-primary-500/20">
       <lucide-icon [img]="UserRound" size="22"></lucide-icon>
     </div>
   </div>
 
   <!-- Filters Section -->
-  <div class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-4 rounded-2xl shadow-lg">
+  <div
+    class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-4 rounded-2xl shadow-lg">
     <div class="flex flex-wrap items-center gap-3">
       <!-- Tab-style filter buttons -->
       <div class="flex bg-slate-100 dark:bg-slate-800/60 rounded-xl p-1 gap-1">
         <button (click)="setFilter('all')"
-          [class]="activeFilter === 'all' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
-          class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+                [class]="activeFilter === 'all' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">
           All
         </button>
         <button (click)="setFilter('upcoming')"
-          [class]="activeFilter === 'upcoming' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
-          class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+                [class]="activeFilter === 'upcoming' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">
           <span class="flex items-center gap-1.5">
             <lucide-icon [img]="CalendarClock" size="14"></lucide-icon>
             Upcoming
           </span>
         </button>
         <button (click)="setFilter('past')"
-          [class]="activeFilter === 'past' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
-          class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+                [class]="activeFilter === 'past' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">
           <span class="flex items-center gap-1.5">
             <lucide-icon [img]="History" size="14"></lucide-icon>
             Past
@@ -40,21 +42,23 @@
 
       <!-- Date Range Picker -->
       <div class="flex items-center gap-2 ml-auto">
-        <div class="flex items-center gap-2 bg-white/60 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
-          <lucide-icon [img]="CalendarDays" size="16" class="text-slate-400"></lucide-icon>
-          <input type="date" [(ngModel)]="startDate" (change)="applyDateRange()"
-            class="bg-transparent text-sm font-medium text-slate-700 dark:text-slate-300 outline-none w-[120px]"
-            placeholder="Start date" />
+        <div
+          class="flex items-center gap-2 bg-white/60 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
+          <lucide-icon [img]="CalendarDays" class="text-slate-400" size="16"></lucide-icon>
+          <input (change)="applyDateRange()" [(ngModel)]="startDate" class="bg-transparent text-sm font-medium text-slate-700 dark:text-slate-300 outline-none w-[120px]"
+                 placeholder="Start date"
+                 type="date"/>
         </div>
         <span class="text-slate-400 text-sm font-medium">to</span>
-        <div class="flex items-center gap-2 bg-white/60 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
-          <lucide-icon [img]="CalendarDays" size="16" class="text-slate-400"></lucide-icon>
-          <input type="date" [(ngModel)]="endDate" (change)="applyDateRange()"
-            class="bg-transparent text-sm font-medium text-slate-700 dark:text-slate-300 outline-none w-[120px]"
-            placeholder="End date" />
+        <div
+          class="flex items-center gap-2 bg-white/60 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
+          <lucide-icon [img]="CalendarDays" class="text-slate-400" size="16"></lucide-icon>
+          <input (change)="applyDateRange()" [(ngModel)]="endDate" class="bg-transparent text-sm font-medium text-slate-700 dark:text-slate-300 outline-none w-[120px]"
+                 placeholder="End date"
+                 type="date"/>
         </div>
-        <button *ngIf="startDate || endDate" (click)="clearDateRange()"
-          class="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+        <button (click)="clearDateRange()" *ngIf="startDate || endDate"
+                class="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
           Clear
         </button>
       </div>
@@ -64,7 +68,8 @@
   <!-- Results Count -->
   <div class="flex items-center justify-between">
     <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
-      Showing <span class="text-slate-800 dark:text-slate-200 font-bold">{{filteredAppointments.length}}</span> appointment{{filteredAppointments.length !== 1 ? 's' : ''}}
+      Showing <span class="text-slate-800 dark:text-slate-200 font-bold">{{filteredAppointments.length}}</span>
+      appointment{{filteredAppointments.length !== 1 ? 's' : ''}}
     </p>
   </div>
 
@@ -75,9 +80,10 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!loading && filteredAppointments.length === 0" class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-12 rounded-2xl shadow-lg text-center">
+  <div *ngIf="!loading && filteredAppointments.length === 0"
+       class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-12 rounded-2xl shadow-lg text-center">
     <div class="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center">
-      <lucide-icon [img]="CalendarX2" size="28" class="text-slate-400"></lucide-icon>
+      <lucide-icon [img]="CalendarX2" class="text-slate-400" size="28"></lucide-icon>
     </div>
     <p class="text-lg font-bold text-slate-700 dark:text-slate-300 mb-1">No appointments found</p>
     <p class="text-sm text-slate-500 dark:text-slate-400">Try adjusting your filters or date range.</p>
@@ -85,38 +91,40 @@
 
   <!-- Appointment Cards -->
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-    <div *ngFor="let apt of filteredAppointments"
-      (click)="openDetail(apt)"
-      class="group cursor-pointer bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/50 dark:border-slate-800/60 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
+    <div (click)="openDetail(apt)"
+         *ngFor="let apt of filteredAppointments"
+         class="group cursor-pointer bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/50 dark:border-slate-800/60 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
 
       <!-- Card Header with status stripe -->
-      <div class="h-1.5"
-        [ngClass]="{
+      <div [ngClass]="{
           'bg-gradient-to-r from-emerald-400 to-teal-500': apt.status === 'CONFIRMED' || apt.status === 'COMPLETED',
           'bg-gradient-to-r from-amber-400 to-orange-500': apt.status === 'PENDING' || apt.status === 'SCHEDULED',
           'bg-gradient-to-r from-red-400 to-rose-500': apt.status === 'CANCELLED',
           'bg-gradient-to-r from-primary-400 to-secondary-500': apt.status !== 'CONFIRMED' && apt.status !== 'COMPLETED' && apt.status !== 'PENDING' && apt.status !== 'SCHEDULED' && apt.status !== 'CANCELLED'
-        }"></div>
+        }"
+           class="h-1.5"></div>
 
       <div class="p-5">
         <!-- Top row: Doctor avatar + name + status badge -->
         <div class="flex items-start justify-between mb-4">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0">
+            <div
+              class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0">
               {{ getDoctorInitials(apt.doctorName) }}
             </div>
             <div>
-              <p class="font-bold text-slate-800 dark:text-slate-100 leading-tight">Dr. {{apt.doctorName || 'Unknown'}}</p>
+              <p class="font-bold text-slate-800 dark:text-slate-100 leading-tight">Dr. {{apt.doctorName ||
+                'Unknown'}}</p>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{apt.departmentName || 'General'}}</p>
             </div>
           </div>
-          <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg shrink-0"
-            [ngClass]="{
+          <span [ngClass]="{
               'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400': apt.status === 'CONFIRMED' || apt.status === 'COMPLETED',
               'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400': apt.status === 'PENDING' || apt.status === 'SCHEDULED',
               'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400': apt.status === 'CANCELLED',
               'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400': apt.status !== 'CONFIRMED' && apt.status !== 'COMPLETED' && apt.status !== 'PENDING' && apt.status !== 'SCHEDULED' && apt.status !== 'CANCELLED'
-            }">
+            }"
+                class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg shrink-0">
             {{apt.status}}
           </span>
         </div>
@@ -130,11 +138,11 @@
         <!-- Date & Time -->
         <div class="flex items-center gap-4 text-sm">
           <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-            <lucide-icon [img]="CalendarDays" size="15" class="text-primary-500"></lucide-icon>
+            <lucide-icon [img]="CalendarDays" class="text-primary-500" size="15"></lucide-icon>
             <span class="font-medium">{{apt.appointmentDate | date:'mediumDate'}}</span>
           </div>
           <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-            <lucide-icon [img]="Clock" size="15" class="text-primary-500"></lucide-icon>
+            <lucide-icon [img]="Clock" class="text-primary-500" size="15"></lucide-icon>
             <span class="font-medium">{{apt.appointmentTime}}</span>
           </div>
         </div>
@@ -144,8 +152,8 @@
 </div>
 
 <!-- ===== Appointment Detail Modal ===== -->
-<div *ngIf="selectedAppointment" class="modal-backdrop" (click)="closeDetail()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
+<div (click)="closeDetail()" *ngIf="selectedAppointment" class="modal-backdrop">
+  <div (click)="$event.stopPropagation()" class="modal-content">
 
     <!-- Modal Header with gradient stripe -->
     <div class="h-2 bg-gradient-to-r from-primary-500 to-secondary-500"></div>
@@ -153,37 +161,40 @@
     <div class="p-6">
       <!-- Close button -->
       <button (click)="closeDetail()"
-        class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors">
+              class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors">
         <lucide-icon [img]="X" size="18"></lucide-icon>
       </button>
 
       <!-- Doctor Info -->
       <div class="flex items-center gap-4 mb-6">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center text-white text-lg font-bold shadow-lg">
+        <div
+          class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center text-white text-lg font-bold shadow-lg">
           {{ getDoctorInitials(selectedAppointment.doctorName) }}
         </div>
         <div>
-          <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100">Dr. {{selectedAppointment.doctorName || 'Unknown'}}</h3>
-          <p class="text-sm text-slate-500 dark:text-slate-400">{{selectedAppointment.departmentName || 'General Department'}}</p>
+          <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100">Dr. {{selectedAppointment.doctorName ||
+            'Unknown'}}</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">{{selectedAppointment.departmentName || 'General
+            Department'}}</p>
         </div>
       </div>
 
       <!-- Status Badge (large) -->
       <div class="mb-6">
-        <span class="text-sm font-bold uppercase tracking-wider px-4 py-2 rounded-xl inline-flex items-center gap-2"
-          [ngClass]="{
+        <span [ngClass]="{
             'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400': selectedAppointment.status === 'CONFIRMED' || selectedAppointment.status === 'COMPLETED',
             'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400': selectedAppointment.status === 'PENDING' || selectedAppointment.status === 'SCHEDULED',
             'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400': selectedAppointment.status === 'CANCELLED',
             'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400': selectedAppointment.status !== 'CONFIRMED' && selectedAppointment.status !== 'COMPLETED' && selectedAppointment.status !== 'PENDING' && selectedAppointment.status !== 'SCHEDULED' && selectedAppointment.status !== 'CANCELLED'
-          }">
-          <span class="w-2 h-2 rounded-full"
-            [ngClass]="{
+          }"
+              class="text-sm font-bold uppercase tracking-wider px-4 py-2 rounded-xl inline-flex items-center gap-2">
+          <span [ngClass]="{
               'bg-emerald-500': selectedAppointment.status === 'CONFIRMED' || selectedAppointment.status === 'COMPLETED',
               'bg-amber-500': selectedAppointment.status === 'PENDING' || selectedAppointment.status === 'SCHEDULED',
               'bg-red-500': selectedAppointment.status === 'CANCELLED',
               'bg-primary-500': selectedAppointment.status !== 'CONFIRMED' && selectedAppointment.status !== 'COMPLETED' && selectedAppointment.status !== 'PENDING' && selectedAppointment.status !== 'SCHEDULED' && selectedAppointment.status !== 'CANCELLED'
-            }"></span>
+            }"
+                class="w-2 h-2 rounded-full"></span>
           {{selectedAppointment.status}}
         </span>
       </div>
@@ -192,14 +203,15 @@
       <div class="grid grid-cols-2 gap-4 mb-6">
         <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
           <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
-            <lucide-icon [img]="CalendarDays" size="16" class="text-primary-500"></lucide-icon>
+            <lucide-icon [img]="CalendarDays" class="text-primary-500" size="16"></lucide-icon>
             <span class="text-xs font-semibold uppercase tracking-wider">Date</span>
           </div>
-          <p class="font-bold text-slate-800 dark:text-slate-100">{{selectedAppointment.appointmentDate | date:'fullDate'}}</p>
+          <p class="font-bold text-slate-800 dark:text-slate-100">{{selectedAppointment.appointmentDate |
+            date:'fullDate'}}</p>
         </div>
         <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
           <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
-            <lucide-icon [img]="Clock" size="16" class="text-primary-500"></lucide-icon>
+            <lucide-icon [img]="Clock" class="text-primary-500" size="16"></lucide-icon>
             <span class="text-xs font-semibold uppercase tracking-wider">Time</span>
           </div>
           <p class="font-bold text-slate-800 dark:text-slate-100">{{selectedAppointment.appointmentTime}}</p>
@@ -209,24 +221,28 @@
       <!-- Treatment -->
       <div *ngIf="selectedAppointment.treatment" class="mb-4">
         <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-2">
-          <lucide-icon [img]="Stethoscope" size="16" class="text-primary-500"></lucide-icon>
+          <lucide-icon [img]="Stethoscope" class="text-primary-500" size="16"></lucide-icon>
           <span class="text-xs font-semibold uppercase tracking-wider">Treatment</span>
         </div>
-        <p class="text-slate-800 dark:text-slate-200 font-medium bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">{{selectedAppointment.treatment}}</p>
+        <p class="text-slate-800 dark:text-slate-200 font-medium bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
+          {{selectedAppointment.treatment}}</p>
       </div>
 
       <!-- Notes -->
       <div *ngIf="selectedAppointment.notes" class="mb-4">
         <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-2">
-          <lucide-icon [img]="FileText" size="16" class="text-primary-500"></lucide-icon>
+          <lucide-icon [img]="FileText" class="text-primary-500" size="16"></lucide-icon>
           <span class="text-xs font-semibold uppercase tracking-wider">Notes</span>
         </div>
-        <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">{{selectedAppointment.notes}}</p>
+        <p
+          class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
+          {{selectedAppointment.notes}}</p>
       </div>
 
       <!-- Appointment ID -->
       <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
-        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Appointment ID: #{{selectedAppointment.appointmentId}}</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Appointment ID:
+          #{{selectedAppointment.appointmentId}}</p>
       </div>
     </div>
   </div>

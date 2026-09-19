@@ -16,137 +16,137 @@ import java.util.Map;
 @Component
 public class Helpers {
 
-    private static String devEmail;
-    private static boolean isDevEnvironment;
+  private static String devEmail;
+  private static boolean isDevEnvironment;
 
-    public Helpers() {
-        // Default constructor for Spring component lifecycle
+  public Helpers() {
+    // Default constructor for Spring component lifecycle
+  }
+
+  public static void logDevConfig() {
+    log.info("[Health Check Test] devEmail = {}, isDevEnvironment = {}", devEmail, isDevEnvironment);
+  }
+
+  public static LocalDate getStartOfTheDay(LocalDate date) {
+    return date.atStartOfDay().toLocalDate();
+  }
+
+  public static LocalDate getEndOfTheDay(LocalDate date) {
+    return date.atTime(LocalTime.MAX).toLocalDate();
+  }
+
+  public static LocalDate parseAppointmentDate(String dateString, Map<String, String> errorMap) {
+    if (dateString == null || dateString.isBlank()) {
+      return null;
     }
-
-    public static void logDevConfig() {
-        log.info("[Health Check Test] devEmail = {}, isDevEnvironment = {}", devEmail, isDevEnvironment);
+    try {
+      // Standard ISO_LOCAL_DATE (yyyy-MM-dd)
+      return LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
+    } catch (Exception e) {
+      log.warn("Failed to parse appointment date [{}]: {}", dateString, e.getMessage());
+      errorMap.put("appointmentDate", "Invalid date format. Expected: yyyy-MM-dd (e.g., 2026-04-17)");
+      return null;
     }
+  }
 
-    public static LocalDate getStartOfTheDay(LocalDate date) {
-        return date.atStartOfDay().toLocalDate();
+  public static LocalTime parseAppointmentTime(String appointmentTime, Map<String, String> errorMap) {
+
+    if (appointmentTime == null || appointmentTime.trim().isEmpty()) {
+      errorMap.put("appointmentTime", "Time is required");
+      return null;
     }
-
-    public static LocalDate getEndOfTheDay(LocalDate date) {
-        return date.atTime(LocalTime.MAX).toLocalDate();
+    try {
+      String time = appointmentTime.trim().toUpperCase(Locale.ENGLISH);
+      return LocalTime.parse(time, Constants.HUMAN_TIME_FORMAT);
+    } catch (Exception e) {
+      log.warn("Failed to parse appointment time [{}]: {}", appointmentTime, e.getMessage());
+      errorMap.put("appointmentTime", "Invalid format. Expected: 10:00 AM");
+      return null;
     }
+  }
 
-    public static LocalDate parseAppointmentDate(String dateString, Map<String, String> errorMap) {
-        if (dateString == null || dateString.isBlank()) {
-            return null;
-        }
-        try {
-            // Standard ISO_LOCAL_DATE (yyyy-MM-dd)
-            return LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
-        } catch (Exception e) {
-            log.warn("Failed to parse appointment date [{}]: {}", dateString, e.getMessage());
-            errorMap.put("appointmentDate", "Invalid date format. Expected: yyyy-MM-dd (e.g., 2026-04-17)");
-            return null;
-        }
+  public static String getRecipientEmail(String email) {
+    if (Helpers.isDevEnvironment) {
+      // Dev/Test environment: Route everything to the developer group
+      return devEmail;
+    } else {
+      // Production environment: Send to the actual user email
+      return email;
     }
+  }
 
-    public static LocalTime parseAppointmentTime(String appointmentTime, Map<String, String> errorMap) {
-
-        if (appointmentTime == null || appointmentTime.trim().isEmpty()) {
-            errorMap.put("appointmentTime", "Time is required");
-            return null;
-        }
-        try {
-            String time = appointmentTime.trim().toUpperCase(Locale.ENGLISH);
-            return LocalTime.parse(time, Constants.HUMAN_TIME_FORMAT);
-        } catch (Exception e) {
-            log.warn("Failed to parse appointment time [{}]: {}", appointmentTime, e.getMessage());
-            errorMap.put("appointmentTime", "Invalid format. Expected: 10:00 AM");
-            return null;
-        }
+  public static String getRecipientEmail(Patient patientEntity) {
+    if (patientEntity == null || patientEntity.getUser() == null) {
+      return Helpers.isDevEnvironment ? devEmail : null;
     }
+    return getRecipientEmail(patientEntity.getUser().getEmail());
+  }
 
-    public static String getRecipientEmail(String email) {
-        if (Helpers.isDevEnvironment) {
-            // Dev/Test environment: Route everything to the developer group
-            return devEmail;
-        } else {
-            // Production environment: Send to the actual user email
-            return email;
-        }
+  public static String maskEmail(String email) {
+    if (email == null || email.isBlank()) {
+      return "***";
     }
+    int atIndex = email.indexOf('@');
+    if (atIndex <= 0) {
+      return "***";
+    }
+    String local = email.substring(0, atIndex);
+    String domain = email.substring(atIndex);
+    if (local.length() <= 2) {
+      return local.charAt(0) + "***" + domain;
+    }
+    return local.charAt(0) + "***" + local.charAt(local.length() - 1) + domain;
+  }
 
-    public static String getRecipientEmail(Patient patientEntity) {
-        if (patientEntity == null || patientEntity.getUser() == null) {
-            return Helpers.isDevEnvironment ? devEmail : null;
-        }
-        return getRecipientEmail(patientEntity.getUser().getEmail());
+  public static String maskName(String name) {
+    if (name == null || name.isBlank()) {
+      return "***";
     }
+    String[] parts = name.trim().split("\\s+");
+    StringBuilder masked = new StringBuilder();
+    for (int i = 0; i < parts.length; i++) {
+      String part = parts[i];
+      if (!part.isEmpty()) {
+        masked.append(part.charAt(0)).append("***");
+        if (i < parts.length - 1) {
+          masked.append(" ");
+        }
+      }
+    }
+    return masked.toString();
+  }
 
-    public static String maskEmail(String email) {
-        if (email == null || email.isBlank()) {
-            return "***";
-        }
-        int atIndex = email.indexOf('@');
-        if (atIndex <= 0) {
-            return "***";
-        }
-        String local = email.substring(0, atIndex);
-        String domain = email.substring(atIndex);
-        if (local.length() <= 2) {
-            return local.charAt(0) + "***" + domain;
-        }
-        return local.charAt(0) + "***" + local.charAt(local.length() - 1) + domain;
+  public static String maskOtp(String otp) {
+    if (otp == null || otp.isBlank()) {
+      return "******";
     }
+    return "******";
+  }
 
-    public static String maskName(String name) {
-        if (name == null || name.isBlank()) {
-            return "***";
-        }
-        String[] parts = name.trim().split("\\s+");
-        StringBuilder masked = new StringBuilder();
-        for (int i = 0; i < parts.length; i++) {
-            String part = parts[i];
-            if (!part.isEmpty()) {
-                masked.append(part.charAt(0)).append("***");
-                if (i < parts.length - 1) {
-                    masked.append(" ");
-                }
-            }
-        }
-        return masked.toString();
+  public static String maskKey(String key) {
+    if (key == null) {
+      return "***";
     }
+    if (key.contains("@")) {
+      return maskEmail(key);
+    }
+    return key;
+  }
 
-    public static String maskOtp(String otp) {
-        if (otp == null || otp.isBlank()) {
-            return "******";
-        }
-        return "******";
+  @Value("${app.dev.email}")
+  public void setDevEmail(String email) {
+    if (email != null && !email.isBlank()) {
+      devEmail = email.replace("\"", "").trim();
     }
+  }
 
-    public static String maskKey(String key) {
-        if (key == null) {
-            return "***";
-        }
-        if (key.contains("@")) {
-            return maskEmail(key);
-        }
-        return key;
-    }
+  @Value("${app.dev.environment}")
+  public void setIsDevEnvironment(boolean devEnv) {
+    isDevEnvironment = devEnv;
+  }
 
-    @Value("${app.dev.email}")
-    public void setDevEmail(String email) {
-        if (email != null && !email.isBlank()) {
-            devEmail = email.replace("\"", "").trim();
-        }
-    }
-
-    @Value("${app.dev.environment}")
-    public void setIsDevEnvironment(boolean devEnv) {
-        isDevEnvironment = devEnv;
-    }
-
-    @PostConstruct
-    public void init() {
-        log.info("Helpers initialized: devEmail = {}, devEnvironment = {}", devEmail, isDevEnvironment);
-    }
+  @PostConstruct
+  public void init() {
+    log.info("Helpers initialized: devEmail = {}, devEnvironment = {}", devEmail, isDevEnvironment);
+  }
 }

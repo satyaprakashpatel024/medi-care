@@ -15,51 +15,51 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class EmailNotificationConsumer {
 
-    private final EmailService emailService;
+  private final EmailService emailService;
 
-    @KafkaListener(
-            topics = Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION,
-            groupId = Constants.KAFKA_GROUP_APPOINTMENT_NOTIFICATION
-    )
-    public void consumeAppointmentNotification(EmailNotificationEvent event) {
-        log.info("Received Appointment Notification Event : {}", event);
-        try {
-            emailService.sendAppointmentConfirmation(
-                    event.getToEmail(),
-                    event.getPatientName(),
-                    event.getDoctorName(),
-                    event.getDate(),
-                    event.getTime(),
-                    event.getAppointmentId()
-            );
-        } catch (Exception e) {
-            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION, e.toString());
-        }
+  @KafkaListener(
+    topics = Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION,
+    groupId = Constants.KAFKA_GROUP_APPOINTMENT_NOTIFICATION
+  )
+  public void consumeAppointmentNotification(EmailNotificationEvent event) {
+    log.info("Received Appointment Notification Event : {}", event);
+    try {
+      emailService.sendAppointmentConfirmation(
+        event.getToEmail(),
+        event.getPatientName(),
+        event.getDoctorName(),
+        event.getDate(),
+        event.getTime(),
+        event.getAppointmentId()
+      );
+    } catch (Exception e) {
+      log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION, e.toString());
     }
+  }
 
-    @KafkaListener(
-            topics = Constants.KAFKA_TOPIC_OTP_NOTIFICATION,
-            groupId = Constants.KAFKA_GROUP_OTP_NOTIFICATION
-    )
-    public void consumeOtpNotification(OtpNotificationEvent event) {
-        log.info("Received OTP Notification Event : {}", event);
-        try {
-            emailService.sendOtpEmail(event.getToEmail(), event.getOtp());
-        } catch (Exception e) {
-            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_OTP_NOTIFICATION, e.toString());
-        }
+  @KafkaListener(
+    topics = Constants.KAFKA_TOPIC_OTP_NOTIFICATION,
+    groupId = Constants.KAFKA_GROUP_OTP_NOTIFICATION
+  )
+  public void consumeOtpNotification(OtpNotificationEvent event) {
+    log.info("Received OTP Notification Event : {}", event);
+    try {
+      emailService.sendOtpEmail(event.getToEmail(), event.getOtp());
+    } catch (Exception e) {
+      log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_OTP_NOTIFICATION, e.toString());
     }
+  }
 
-    @KafkaListener(
-            topics = Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION,
-            groupId = Constants.KAFKA_GROUP_PASSWORD_CHANGED_NOTIFICATION
-    )
-    public void consumePasswordChangedNotification(PasswordChangedNotificationEvent event) {
-        log.info("Received Password Changed Notification Event : {}", event);
-        try {
-            emailService.sendPasswordChangedEmail(event.getToEmail());
-        } catch (Exception e) {
-            log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION, e.toString());
-        }
+  @KafkaListener(
+    topics = Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION,
+    groupId = Constants.KAFKA_GROUP_PASSWORD_CHANGED_NOTIFICATION
+  )
+  public void consumePasswordChangedNotification(PasswordChangedNotificationEvent event) {
+    log.info("Received Password Changed Notification Event : {}", event);
+    try {
+      emailService.sendPasswordChangedEmail(event.getToEmail());
+    } catch (Exception e) {
+      log.error(Constants.LOG_KAFKA_CONSUME_ERROR, Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION, e.toString());
     }
+  }
 }

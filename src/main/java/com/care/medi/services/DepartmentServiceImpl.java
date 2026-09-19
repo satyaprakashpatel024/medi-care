@@ -24,54 +24,54 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DepartmentServiceImpl implements DepartmentService {
 
-    private final DepartmentRepository departmentRepository;
+  private final DepartmentRepository departmentRepository;
 //    private final
 
-    @Override
-    @Cacheable(value = "departmentsList")
-    public Page<DepartmentResponseDTO> getAllDepartments(int page, int size, String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<Department> all = departmentRepository.findAll(pageable);
-        return all.map(DepartmentResponseDTO::fromEntity);
-    }
+  @Override
+  @Cacheable(value = "departmentsList")
+  public Page<DepartmentResponseDTO> getAllDepartments(int page, int size, String sortBy) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+    Page<Department> all = departmentRepository.findAll(pageable);
+    return all.map(DepartmentResponseDTO::fromEntity);
+  }
 
-    @Override
-    @Transactional
-    @CacheEvict(value = {"departments", "departmentsList"}, allEntries = true)
-    public DepartmentResponseDTO createDepartment(DepartmentRequestDTO departmentRequestDTO) {
-        if (departmentRepository.existsByName(departmentRequestDTO.getName())) {
-            throw new DuplicateResourceException("Department already exists with this name.");
-        }
-        Department department = Department.builder()
-                .name(departmentRequestDTO.getName())
-                .description(departmentRequestDTO.getDescription())
-                .build();
-        department = departmentRepository.save(department);
-        return DepartmentResponseDTO.fromEntity(department);
+  @Override
+  @Transactional
+  @CacheEvict(value = {"departments", "departmentsList"}, allEntries = true)
+  public DepartmentResponseDTO createDepartment(DepartmentRequestDTO departmentRequestDTO) {
+    if (departmentRepository.existsByName(departmentRequestDTO.getName())) {
+      throw new DuplicateResourceException("Department already exists with this name.");
     }
+    Department department = Department.builder()
+      .name(departmentRequestDTO.getName())
+      .description(departmentRequestDTO.getDescription())
+      .build();
+    department = departmentRepository.save(department);
+    return DepartmentResponseDTO.fromEntity(department);
+  }
 
-    @Override
-    @Cacheable(value = "departments", key = "#id")
-    public DepartmentResponseDTO getDepartmentById(Long id) {
-        Optional<Department> byId = departmentRepository.findById(id);
-        if (byId.isPresent()) {
-            return DepartmentResponseDTO.fromEntity(byId.get());
-        }
-        throw new ResourceNotFoundException("Department with id: " + id + " not found.");
+  @Override
+  @Cacheable(value = "departments", key = "#id")
+  public DepartmentResponseDTO getDepartmentById(Long id) {
+    Optional<Department> byId = departmentRepository.findById(id);
+    if (byId.isPresent()) {
+      return DepartmentResponseDTO.fromEntity(byId.get());
     }
+    throw new ResourceNotFoundException("Department with id: " + id + " not found.");
+  }
 
-    @Override
-    @CacheEvict(value = {"departments", "departmentsList"}, allEntries = true)
-    public DepartmentResponseDTO updateDepartment(Long id, DepartmentRequestDTO request) {
-        Department byId = departmentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Department with id: " + id + " not found."));
-        if (request.getName() != null) {
-            byId.setName(request.getName());
-        }
-        if (request.getDescription() != null) {
-            byId.setDescription(request.getDescription());
-        }
-        departmentRepository.saveAndFlush(byId);
-        return DepartmentResponseDTO.fromEntity(byId);
+  @Override
+  @CacheEvict(value = {"departments", "departmentsList"}, allEntries = true)
+  public DepartmentResponseDTO updateDepartment(Long id, DepartmentRequestDTO request) {
+    Department byId = departmentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Department with id: " + id + " not found."));
+    if (request.getName() != null) {
+      byId.setName(request.getName());
     }
+    if (request.getDescription() != null) {
+      byId.setDescription(request.getDescription());
+    }
+    departmentRepository.saveAndFlush(byId);
+    return DepartmentResponseDTO.fromEntity(byId);
+  }
 
 }

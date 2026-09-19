@@ -34,107 +34,107 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class StaffControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private StaffService staffService;
+  @MockitoBean
+  private StaffService staffService;
 
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockitoBean
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockitoBean
-    private JwtService jwtService;
+  @MockitoBean
+  private JwtService jwtService;
 
-    @MockitoBean
-    private UsersDetailsService usersDetailsService;
+  @MockitoBean
+  private UsersDetailsService usersDetailsService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    private StaffResponseDTO staffResponseDTO;
+  private StaffResponseDTO staffResponseDTO;
 
-    @BeforeEach
-    void setUp() {
-        staffResponseDTO = StaffResponseDTO.builder().id(1L).build();
-    }
+  @BeforeEach
+  void setUp() {
+    staffResponseDTO = StaffResponseDTO.builder().id(1L).build();
+  }
 
-    @Test
-    @DisplayName("Should create staff")
-    void testCreateStaff() throws Exception {
-        StaffRequestDTO request = new StaffRequestDTO();
-        request.setFirstName("Alice");
-        request.setLastName("Smith");
-        request.setEmail("alice.smith@example.com");
-        request.setPhone("9876543210");
-        request.setGender("FEMALE");
-        request.setDateOfBirth(java.time.LocalDate.of(1990, 5, 15));
-        request.setHospitalId(1);
+  @Test
+  @DisplayName("Should create staff")
+  void testCreateStaff() throws Exception {
+    StaffRequestDTO request = new StaffRequestDTO();
+    request.setFirstName("Alice");
+    request.setLastName("Smith");
+    request.setEmail("alice.smith@example.com");
+    request.setPhone("9876543210");
+    request.setGender("FEMALE");
+    request.setDateOfBirth(java.time.LocalDate.of(1990, 5, 15));
+    request.setHospitalId(1);
 
-        when(staffService.createStaff(eq(1L), any(StaffRequestDTO.class))).thenReturn(staffResponseDTO);
+    when(staffService.createStaff(eq(1L), any(StaffRequestDTO.class))).thenReturn(staffResponseDTO);
 
-        mockMvc.perform(post("/api/v1/admin/staff")
-                        .requestAttr("X-Hospital-Id", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(post("/api/v1/admin/staff")
+        .requestAttr("X-Hospital-Id", 1L)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get all staff")
-    void testGetAllStaff() throws Exception {
-        Page<StaffResponseDTO> page = new PageImpl<>(Collections.singletonList(staffResponseDTO));
-        when(staffService.getAllStaff(anyInt(), anyInt(), anyString())).thenReturn(page);
+  @Test
+  @DisplayName("Should get all staff")
+  void testGetAllStaff() throws Exception {
+    Page<StaffResponseDTO> page = new PageImpl<>(Collections.singletonList(staffResponseDTO));
+    when(staffService.getAllStaff(anyInt(), anyInt(), anyString())).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/admin/staff"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/admin/staff"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.content[0].id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get staff by hospital")
-    void testGetStaffByHospital() throws Exception {
-        Page<StaffResponseDTO> page = new PageImpl<>(Collections.singletonList(staffResponseDTO));
-        when(staffService.getStaffByHospital(anyLong(), anyInt(), anyInt(), anyString())).thenReturn(page);
+  @Test
+  @DisplayName("Should get staff by hospital")
+  void testGetStaffByHospital() throws Exception {
+    Page<StaffResponseDTO> page = new PageImpl<>(Collections.singletonList(staffResponseDTO));
+    when(staffService.getStaffByHospital(anyLong(), anyInt(), anyInt(), anyString())).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/admin/staff/hospital/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/admin/staff/hospital/1"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.content[0].id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get staff by id")
-    void testGetStaffById() throws Exception {
-        when(staffService.getStaffById(1L)).thenReturn(staffResponseDTO);
+  @Test
+  @DisplayName("Should get staff by id")
+  void testGetStaffById() throws Exception {
+    when(staffService.getStaffById(1L)).thenReturn(staffResponseDTO);
 
-        mockMvc.perform(get("/api/v1/admin/staff/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/admin/staff/1"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should update staff")
-    void testUpdateStaff() throws Exception {
-        StaffUpdateRequestDTO request = new StaffUpdateRequestDTO();
-        request.setFirstName("Alice");
+  @Test
+  @DisplayName("Should update staff")
+  void testUpdateStaff() throws Exception {
+    StaffUpdateRequestDTO request = new StaffUpdateRequestDTO();
+    request.setFirstName("Alice");
 
-        when(staffService.updateStaff(eq(1L), any(StaffUpdateRequestDTO.class))).thenReturn(staffResponseDTO);
+    when(staffService.updateStaff(eq(1L), any(StaffUpdateRequestDTO.class))).thenReturn(staffResponseDTO);
 
-        mockMvc.perform(put("/api/v1/admin/staff/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(put("/api/v1/admin/staff/1")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isAccepted())
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should delete staff")
-    void testDeleteStaff() throws Exception {
-        doNothing().when(staffService).deleteStaff(1L);
+  @Test
+  @DisplayName("Should delete staff")
+  void testDeleteStaff() throws Exception {
+    doNothing().when(staffService).deleteStaff(1L);
 
-        mockMvc.perform(delete("/api/v1/admin/staff/1"))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.message").value("Staff member deleted successfully"));
-    }
+    mockMvc.perform(delete("/api/v1/admin/staff/1"))
+      .andExpect(status().isAccepted())
+      .andExpect(jsonPath("$.message").value("Staff member deleted successfully"));
+  }
 }

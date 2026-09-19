@@ -8,23 +8,23 @@ import java.util.List;
 
 @Builder
 public record DoctorDaySlotsResponseDTO(
-        Long doctorId,
+  Long doctorId,
 
-        String doctorName,
+  String doctorName,
 
-        Long hospitalId,
+  Long hospitalId,
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-        LocalDate date,
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+  LocalDate date,
 
-        String dayOfWeek,
+  String dayOfWeek,
 
-        int slotDurationMinutes,
+  int slotDurationMinutes,
 
-        int totalSlots,
+  int totalSlots,
 
-        int availableSlotsCount,
+  int availableSlotsCount,
 
-        List<AppointmentSlotDTO> slots
+  List<AppointmentSlotDTO> slots
 ) {
 }
