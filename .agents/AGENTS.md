@@ -32,3 +32,6 @@ the **Medi-Care** repository.
    `InvalidCredentialsException`, etc.) and let `GlobalExceptionHandler` format the response.
 5. **Database Entities**: Extend `BaseEntity` for all JPA entities to include `id`, `createdAt`, `updatedAt`, and
    `isDeleted`.
+6. **Database Schema Migration**: Whenever entity classes are modified or added, you MUST directly update
+   `db/migration/V1__initial_schema.sql` to reflect those changes. Keep all schema definitions merged in this single
+   file rather than creating new migration scripts.

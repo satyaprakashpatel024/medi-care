@@ -9,9 +9,9 @@ import java.util.Optional;
 @Repository
 public interface OtpTableRepository extends JpaRepository<OtpTable, Long> {
 
-    Optional<OtpTable> findTopByEmailOrderByCreatedAtDesc(String email);
+  Optional<OtpTable> findTopByEmailOrderByCreatedAtDesc(String email);
 
-    Optional<OtpTable> findByEmailAndOtp(String email, String otp);
+  Optional<OtpTable> findByEmailAndOtp(String email, String otp);
 
-    void deleteByEmail(String email);
+  void deleteByEmail(String email);
 }

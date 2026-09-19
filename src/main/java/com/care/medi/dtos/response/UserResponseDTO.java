@@ -10,22 +10,22 @@ import java.time.OffsetDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record UserResponseDTO(
-        Long id,
-        String email,
-        Role role,
-        Boolean isActive,
-        OffsetDateTime lastLogin,
-        OffsetDateTime createdAt
+  Long id,
+  String email,
+  Role role,
+  Boolean isActive,
+  OffsetDateTime lastLogin,
+  OffsetDateTime createdAt
 ) implements java.io.Serializable {
 
-    public static UserResponseDTO fromEntity(Users user) {
-        return UserResponseDTO.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .isActive(user.getIsActive())
-                .lastLogin(user.getLastLogin())
-                .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toOffsetDateTime() : null)
-                .build();
-    }
+  public static UserResponseDTO fromEntity(Users user) {
+    return UserResponseDTO.builder()
+      .id(user.getId())
+      .email(user.getEmail())
+      .role(user.getRole())
+      .isActive(user.getIsActive())
+      .lastLogin(user.getLastLogin())
+      .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toOffsetDateTime() : null)
+      .build();
+  }
 }

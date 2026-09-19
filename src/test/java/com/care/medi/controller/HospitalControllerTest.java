@@ -34,102 +34,102 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class HospitalControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private HospitalServiceImpl hospitalService;
+  @MockitoBean
+  private HospitalServiceImpl hospitalService;
 
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockitoBean
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockitoBean
-    private JwtService jwtService;
+  @MockitoBean
+  private JwtService jwtService;
 
-    @MockitoBean
-    private UsersDetailsService usersDetailsService;
+  @MockitoBean
+  private UsersDetailsService usersDetailsService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    private HospitalResponseDTO hospitalResponseDTO;
-    private HospitalListResponseDTO hospitalListResponseDTO;
+  private HospitalResponseDTO hospitalResponseDTO;
+  private HospitalListResponseDTO hospitalListResponseDTO;
 
-    @BeforeEach
-    void setUp() {
-        hospitalResponseDTO = HospitalResponseDTO.builder().id(1L).name("City Hospital").phone("9876543210").build();
-        hospitalListResponseDTO = HospitalListResponseDTO.builder().id(1L).name("City Hospital").phone("9876543210").build();
-    }
+  @BeforeEach
+  void setUp() {
+    hospitalResponseDTO = HospitalResponseDTO.builder().id(1L).name("City Hospital").phone("9876543210").build();
+    hospitalListResponseDTO = HospitalListResponseDTO.builder().id(1L).name("City Hospital").phone("9876543210").build();
+  }
 
-    @Test
-    @DisplayName("Should get all hospitals paginated")
-    void testGetAllHospitals() throws Exception {
-        Page<HospitalListResponseDTO> page = new PageImpl<>(Collections.singletonList(hospitalListResponseDTO));
-        when(hospitalService.getAllHospitals(anyInt(), anyInt(), anyString())).thenReturn(page);
+  @Test
+  @DisplayName("Should get all hospitals paginated")
+  void testGetAllHospitals() throws Exception {
+    Page<HospitalListResponseDTO> page = new PageImpl<>(Collections.singletonList(hospitalListResponseDTO));
+    when(hospitalService.getAllHospitals(anyInt(), anyInt(), anyString())).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/hospitals")
-                        .param("page", "0")
-                        .param("size", "5")
-                        .param("sortBy", "id"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Successfully retrieved All Hospital list."))
-                .andExpect(jsonPath("$.data.content[0].id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/hospitals")
+        .param("page", "0")
+        .param("size", "5")
+        .param("sortBy", "id"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value("Successfully retrieved All Hospital list."))
+      .andExpect(jsonPath("$.data.content[0].id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should get hospital by ID")
-    void testGetHospitalById() throws Exception {
-        when(hospitalService.getHospitalById(1L)).thenReturn(hospitalResponseDTO);
+  @Test
+  @DisplayName("Should get hospital by ID")
+  void testGetHospitalById() throws Exception {
+    when(hospitalService.getHospitalById(1L)).thenReturn(hospitalResponseDTO);
 
-        mockMvc.perform(get("/api/v1/hospitals/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Hospital fetched successfully"))
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(get("/api/v1/hospitals/1"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value("Hospital fetched successfully"))
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should create hospital")
-    void testCreateHospital() throws Exception {
-        HospitalAddressRequestDTO address = HospitalAddressRequestDTO.builder()
-                .phoneNumber("9876543210")
-                .addressLine1("123 Main St")
-                .city("Metropolis")
-                .state("State")
-                .postalCode("123456")
-                .country("India")
-                .build();
+  @Test
+  @DisplayName("Should create hospital")
+  void testCreateHospital() throws Exception {
+    HospitalAddressRequestDTO address = HospitalAddressRequestDTO.builder()
+      .phoneNumber("9876543210")
+      .addressLine1("123 Main St")
+      .city("Metropolis")
+      .state("State")
+      .postalCode("123456")
+      .country("India")
+      .build();
 
-        HospitalRequestDTO request = HospitalRequestDTO.builder()
-                .name("City Hospital")
-                .phone("9876543210")
-                .address(address)
-                .build();
+    HospitalRequestDTO request = HospitalRequestDTO.builder()
+      .name("City Hospital")
+      .phone("9876543210")
+      .address(address)
+      .build();
 
-        when(hospitalService.createHospital(any(HospitalRequestDTO.class))).thenReturn(hospitalResponseDTO);
+    when(hospitalService.createHospital(any(HospitalRequestDTO.class))).thenReturn(hospitalResponseDTO);
 
-        mockMvc.perform(post("/api/v1/hospitals")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("Hospital created successfully"))
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(post("/api/v1/hospitals")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.message").value("Hospital created successfully"))
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 
-    @Test
-    @DisplayName("Should update hospital")
-    void testUpdateHospital() throws Exception {
-        HospitalUpdateRequestDTO request = HospitalUpdateRequestDTO.builder()
-                .name("City Hospital Updated")
-                .phone("9876543210")
-                .build();
+  @Test
+  @DisplayName("Should update hospital")
+  void testUpdateHospital() throws Exception {
+    HospitalUpdateRequestDTO request = HospitalUpdateRequestDTO.builder()
+      .name("City Hospital Updated")
+      .phone("9876543210")
+      .build();
 
-        when(hospitalService.updateHospital(eq(1L), any(HospitalUpdateRequestDTO.class))).thenReturn(hospitalResponseDTO);
+    when(hospitalService.updateHospital(eq(1L), any(HospitalUpdateRequestDTO.class))).thenReturn(hospitalResponseDTO);
 
-        mockMvc.perform(put("/api/v1/hospitals/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.message").value("Hospital updated successfully"))
-                .andExpect(jsonPath("$.data.id").value(1));
-    }
+    mockMvc.perform(put("/api/v1/hospitals/1")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isAccepted())
+      .andExpect(jsonPath("$.message").value("Hospital updated successfully"))
+      .andExpect(jsonPath("$.data.id").value(1));
+  }
 }

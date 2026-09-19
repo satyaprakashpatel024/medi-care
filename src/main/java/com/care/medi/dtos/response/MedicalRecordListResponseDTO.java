@@ -18,15 +18,15 @@ import java.time.ZonedDateTime;
 public class MedicalRecordListResponseDTO implements java.io.Serializable {
 
 
-    private Long id;
-    private Long patientId;
-    private String patientName;
-    private Long doctorId;
-    private String doctorName;
-    private String doctorSpeciality;
-    private Long appointmentId;
-    private String diagnosis;           // truncated to 120 chars in mapper
-    private LocalDate recordDate;
-    private String status;
-    private ZonedDateTime createdAt;
+  private Long id;
+  private Long patientId;
+  private String patientName;
+  private Long doctorId;
+  private String doctorName;
+  private String doctorSpeciality;
+  private Long appointmentId;
+  private String diagnosis;           // truncated to 120 chars in mapper
+  private LocalDate recordDate;
+  private String status;
+  private ZonedDateTime createdAt;
 }

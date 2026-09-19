@@ -13,27 +13,27 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI mediCareOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Medi-Care Enterprise Backend API")
-                        .description("Comprehensive REST API for Hospital Infrastructure, Appointment Scheduling, Electronic Health Records (EHR), and User Security Management.")
-                        .version("v1.0.0")
-                        .contact(new Contact()
-                                .name("Medi-Care Engineering")
-                                .email("engineering@medi-care.com"))
-                        .license(new License()
-                                .name("Proprietary")
-                                .url("https://medi-care.com/terms")))
-                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-                .components(new Components()
-                        .addSecuritySchemes("bearerAuth",
-                                new SecurityScheme()
-                                        .name("bearerAuth")
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("Enter your valid JWT access token (without 'Bearer ' prefix).")));
-    }
+  @Bean
+  public OpenAPI mediCareOpenAPI() {
+    return new OpenAPI()
+      .info(new Info()
+        .title("Medi-Care Enterprise Backend API")
+        .description("Comprehensive REST API for Hospital Infrastructure, Appointment Scheduling, Electronic Health Records (EHR), and User Security Management.")
+        .version("v1.0.0")
+        .contact(new Contact()
+          .name("Medi-Care Engineering")
+          .email("engineering@medi-care.com"))
+        .license(new License()
+          .name("Proprietary")
+          .url("https://medi-care.com/terms")))
+      .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+      .components(new Components()
+        .addSecuritySchemes("bearerAuth",
+          new SecurityScheme()
+            .name("bearerAuth")
+            .type(SecurityScheme.Type.HTTP)
+            .scheme("bearer")
+            .bearerFormat("JWT")
+            .description("Enter your valid JWT access token (without 'Bearer ' prefix).")));
+  }
 }

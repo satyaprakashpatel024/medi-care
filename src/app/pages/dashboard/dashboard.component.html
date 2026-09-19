@@ -1,0 +1,120 @@
+<div class="dashboard-wrapper">
+  <ng-container [ngSwitch]="authService.currentUserRole()">
+
+    <!-- ADMIN DASHBOARD -->
+    <ng-container *ngSwitchCase="'SUPER_ADMIN'">
+      <ng-container *ngTemplateOutlet="adminDashboard"></ng-container>
+    </ng-container>
+    <ng-container *ngSwitchCase="'HOSPITAL_ADMIN'">
+      <ng-container *ngTemplateOutlet="adminDashboard"></ng-container>
+    </ng-container>
+
+    <!-- DOCTOR DASHBOARD -->
+    <ng-container *ngSwitchCase="'DOCTOR'">
+      <app-doctor-dashboard></app-doctor-dashboard>
+    </ng-container>
+
+    <!-- PATIENT DASHBOARD -->
+    <ng-container *ngSwitchCase="'PATIENT'">
+      <app-patient-dashboard></app-patient-dashboard>
+    </ng-container>
+
+    <!-- DEFAULT / OTHER ROLES (fallback to admin view for now) -->
+    <ng-container *ngSwitchDefault>
+      <ng-container *ngTemplateOutlet="adminDashboard"></ng-container>
+    </ng-container>
+  </ng-container>
+
+  <ng-template #adminDashboard>
+    <div class="header-section mb-8">
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Overview KPIs</h2>
+      <p class="text-slate-500 dark:text-slate-400">Real-time statistics of Medicare System</p>
+    </div>
+
+    <ng-container *ngIf="kpis$ | async as kpis; else loading">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div
+          class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-4">
+          <div
+            class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center text-2xl">
+            🏥
+          </div>
+          <div>
+            <span class="block text-sm text-slate-500 dark:text-slate-400 font-medium">Total Hospitals</span>
+            <span class="block text-2xl font-bold text-slate-800 dark:text-slate-100">{{ kpis.totalHospitals }}</span>
+          </div>
+        </div>
+
+        <div
+          class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-4">
+          <div
+            class="w-12 h-12 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center text-2xl">
+            👨‍⚕️
+          </div>
+          <div>
+            <span class="block text-sm text-slate-500 dark:text-slate-400 font-medium">Total Doctors</span>
+            <span class="block text-2xl font-bold text-slate-800 dark:text-slate-100">{{ kpis.totalDoctors }}</span>
+          </div>
+        </div>
+
+        <div
+          class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-4">
+          <div
+            class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center text-2xl">
+            🧑‍🤝‍🧑
+          </div>
+          <div>
+            <span class="block text-sm text-slate-500 dark:text-slate-400 font-medium">Total Patients</span>
+            <span class="block text-2xl font-bold text-slate-800 dark:text-slate-100">{{ kpis.totalPatients }}</span>
+          </div>
+        </div>
+
+        <div
+          class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-4">
+          <div
+            class="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 rounded-xl flex items-center justify-center text-2xl">
+            🧑‍💼
+          </div>
+          <div>
+            <span class="block text-sm text-slate-500 dark:text-slate-400 font-medium">Total Staff</span>
+            <span class="block text-2xl font-bold text-slate-800 dark:text-slate-100">{{ kpis.totalStaff }}</span>
+          </div>
+        </div>
+
+        <div
+          class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-4">
+          <div
+            class="w-12 h-12 bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 rounded-xl flex items-center justify-center text-2xl">
+            📅
+          </div>
+          <div>
+            <span class="block text-sm text-slate-500 dark:text-slate-400 font-medium">Appointments Today</span>
+            <span
+              class="block text-2xl font-bold text-slate-800 dark:text-slate-100">{{ kpis.totalAppointmentsToday }}</span>
+          </div>
+        </div>
+
+        <div
+          class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-4">
+          <div
+            class="w-12 h-12 bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 rounded-xl flex items-center justify-center text-2xl">
+            🏢
+          </div>
+          <div>
+            <span class="block text-sm text-slate-500 dark:text-slate-400 font-medium">Total Departments</span>
+            <span class="block text-2xl font-bold text-slate-800 dark:text-slate-100">{{ kpis.totalDepartments }}</span>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <ng-template #loading>
+      <div class="flex flex-col items-center justify-center py-20 text-slate-500">
+        <div class="text-4xl animate-spin mb-4">↻</div>
+        <p>Loading Dashboard KPIs...</p>
+      </div>
+    </ng-template>
+  </ng-template>
+</div>

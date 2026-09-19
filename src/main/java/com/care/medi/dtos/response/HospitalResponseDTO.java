@@ -9,19 +9,19 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record HospitalResponseDTO(
-        Long id,
-        String name,
-        String phone,
-        Set<HospitalAddressResponseDTO> address,
-        Set<HospitalDepartmentResponseDTO> departments
+  Long id,
+  String name,
+  String phone,
+  Set<HospitalAddressResponseDTO> address,
+  Set<HospitalDepartmentResponseDTO> departments
 ) implements java.io.Serializable {
-    public static HospitalResponseDTO fromEntity(Hospital entity) {
-        return HospitalResponseDTO.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .phone(entity.getPhone())
-                .address(HospitalAddressResponseDTO.fromEntity(entity.getAddresses()))
+  public static HospitalResponseDTO fromEntity(Hospital entity) {
+    return HospitalResponseDTO.builder()
+      .id(entity.getId())
+      .name(entity.getName())
+      .phone(entity.getPhone())
+      .address(HospitalAddressResponseDTO.fromEntity(entity.getAddresses()))
 //                .departments(HospitalDepartmentResponseDTO.fromEntity(entity.getHospitalDepartments()))
-                .build();
-    }
+      .build();
+  }
 }

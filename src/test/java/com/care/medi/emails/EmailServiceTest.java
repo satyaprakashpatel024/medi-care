@@ -15,130 +15,130 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
 
-    @Mock
-    private JavaMailSender mailSender;
+  @Mock
+  private JavaMailSender mailSender;
 
-    @InjectMocks
-    private EmailService emailService;
+  @InjectMocks
+  private EmailService emailService;
 
-    private MimeMessage mimeMessage;
+  private MimeMessage mimeMessage;
 
-    @BeforeEach
-    void setUp() {
-        mimeMessage = mock(MimeMessage.class);
-    }
+  @BeforeEach
+  void setUp() {
+    mimeMessage = mock(MimeMessage.class);
+  }
 
-    @Test
-    void testSendAppointmentConfirmation_Success() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+  @Test
+  void testSendAppointmentConfirmation_Success() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        emailService.sendAppointmentConfirmation("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
+    emailService.sendAppointmentConfirmation("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendAppointmentConfirmation_Exception() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
+  @Test
+  void testSendAppointmentConfirmation_Exception() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+    doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
 
-        emailService.sendAppointmentConfirmation("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
+    emailService.sendAppointmentConfirmation("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendAppointmentCancellation_Success() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+  @Test
+  void testSendAppointmentCancellation_Success() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        emailService.sendAppointmentCancellation("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
+    emailService.sendAppointmentCancellation("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendAppointmentCancellation_Exception() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
+  @Test
+  void testSendAppointmentCancellation_Exception() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+    doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
 
-        emailService.sendAppointmentCancellation("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
+    emailService.sendAppointmentCancellation("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendAppointmentReminder_Success() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+  @Test
+  void testSendAppointmentReminder_Success() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        emailService.sendAppointmentReminder("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
+    emailService.sendAppointmentReminder("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendAppointmentReminder_Exception() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
+  @Test
+  void testSendAppointmentReminder_Exception() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+    doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
 
-        emailService.sendAppointmentReminder("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
+    emailService.sendAppointmentReminder("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendAppointmentReschedule_Success() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+  @Test
+  void testSendAppointmentReschedule_Success() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        emailService.sendAppointmentReschedule("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
+    emailService.sendAppointmentReschedule("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendAppointmentReschedule_Exception() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
+  @Test
+  void testSendAppointmentReschedule_Exception() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+    doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
 
-        emailService.sendAppointmentReschedule("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
+    emailService.sendAppointmentReschedule("test@example.com", "Patient", "Doctor", "2024-12-25", "10:00 AM", 1L);
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendOtpEmail_Success() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+  @Test
+  void testSendOtpEmail_Success() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        emailService.sendOtpEmail("test@example.com", "123456");
+    emailService.sendOtpEmail("test@example.com", "123456");
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendOtpEmail_Exception() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
+  @Test
+  void testSendOtpEmail_Exception() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+    doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
 
-        emailService.sendOtpEmail("test@example.com", "123456");
+    emailService.sendOtpEmail("test@example.com", "123456");
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendPasswordChangedEmail_Success() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+  @Test
+  void testSendPasswordChangedEmail_Success() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        emailService.sendPasswordChangedEmail("test@example.com");
+    emailService.sendPasswordChangedEmail("test@example.com");
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 
-    @Test
-    void testSendPasswordChangedEmail_Exception() {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
+  @Test
+  void testSendPasswordChangedEmail_Exception() {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+    doThrow(new MailSendException("Failed")).when(mailSender).send(mimeMessage);
 
-        emailService.sendPasswordChangedEmail("test@example.com");
+    emailService.sendPasswordChangedEmail("test@example.com");
 
-        verify(mailSender).send(mimeMessage);
-    }
+    verify(mailSender).send(mimeMessage);
+  }
 }

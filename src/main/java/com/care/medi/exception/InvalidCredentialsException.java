@@ -1,12 +1,12 @@
 package com.care.medi.exception;
 
 public class InvalidCredentialsException extends RuntimeException {
-    public InvalidCredentialsException(String message) {
-        super(message);
-    }
+  public InvalidCredentialsException(String message) {
+    super(message);
+  }
 
-    public InvalidCredentialsException(String message, Exception cause) {
-        super(message, cause);
-    }
+  public InvalidCredentialsException(String message, Exception cause) {
+    super(message, cause);
+  }
 }
 

@@ -12,7 +12,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "address", indexes = {
-        @Index(name = "idx_address_user_id", columnList = "user_id")
+  @Index(name = "idx_address_user_id", columnList = "user_id")
 })
 @Schema(hidden = true)
 @Getter
@@ -24,56 +24,56 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("is_deleted = false")
 public class Address extends BaseEntity {
 
-    @NotNull(message = "User ID is required.")
-    @Column(name = "user_id")
-    private Long userId;
+  @NotNull(message = "User ID is required.")
+  @Column(name = "user_id")
+  private Long userId;
 
-    @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
-    @Column(name = "phone_number", length = 20)
-    private String phoneNumber;
+  @Pattern(regexp = "^\\+?[0-9\\-\\s]{7,15}$", message = "Invalid phone number")
+  @Column(name = "phone_number", length = 20)
+  private String phoneNumber;
 
-    @NotBlank(message = "Address line 1 is required")
-    @Size(max = 255)
-    @Column(name = "address_line1", nullable = false)
-    private String addressLine1;
+  @NotBlank(message = "Address line 1 is required")
+  @Size(max = 255)
+  @Column(name = "address_line1", nullable = false)
+  private String addressLine1;
 
-    @Size(max = 255)
-    @Column(name = "address_line2")
-    private String addressLine2;
+  @Size(max = 255)
+  @Column(name = "address_line2")
+  private String addressLine2;
 
-    @NotBlank(message = "City is required")
-    @Size(max = 100)
-    @Column(nullable = false, length = 100)
-    private String city;
+  @NotBlank(message = "City is required")
+  @Size(max = 100)
+  @Column(nullable = false, length = 100)
+  private String city;
 
-    @NotBlank(message = "State is required")
-    @Size(max = 100)
-    @Column(nullable = false, length = 100)
-    private String state;
+  @NotBlank(message = "State is required")
+  @Size(max = 100)
+  @Column(nullable = false, length = 100)
+  private String state;
 
-    @NotBlank(message = "Postal code is required")
-    @Size(max = 20)
-    @Column(name = "postal_code", nullable = false, length = 20)
-    private String postalCode;
+  @NotBlank(message = "Postal code is required")
+  @Size(max = 20)
+  @Column(name = "postal_code", nullable = false, length = 20)
+  private String postalCode;
 
-    @NotBlank(message = "Country is required")
-    @Size(max = 100)
-    @Column(nullable = false, length = 100)
-    private String country;
+  @NotBlank(message = "Country is required")
+  @Size(max = 100)
+  @Column(nullable = false, length = 100)
+  private String country;
 
-    @Size(max = 255)
-    @Column
-    private String landmark;
+  @Size(max = 255)
+  @Column
+  private String landmark;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "address_type", length = 10)
-    private AddressType addressType;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "address_type", length = 10)
+  private AddressType addressType;
 
-    @Column(name = "is_default", nullable = false)
-    @Builder.Default
-    private Boolean isDefault = false;
+  @Column(name = "is_default", nullable = false)
+  @Builder.Default
+  private Boolean isDefault = false;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_address_user"))
-    private Users user;
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_address_user"))
+  private Users user;
 }

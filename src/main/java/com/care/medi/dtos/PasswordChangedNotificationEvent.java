@@ -12,11 +12,11 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PasswordChangedNotificationEvent implements Serializable {
-    private String toEmail;
+  private String toEmail;
 
-    @Override
-    public String toString() {
-        return "PasswordChangedNotificationEvent{toEmail='%s'}"
-                .formatted(Helpers.maskEmail(toEmail));
-    }
+  @Override
+  public String toString() {
+    return "PasswordChangedNotificationEvent{toEmail='%s'}"
+      .formatted(Helpers.maskEmail(toEmail));
+  }
 }

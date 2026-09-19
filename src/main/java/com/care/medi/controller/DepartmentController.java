@@ -28,76 +28,74 @@ import java.net.URI;
 @Validated
 public class DepartmentController {
 
-    private final DepartmentService departmentService;
+  private final DepartmentService departmentService;
 
-    /**
-     * Retrieves a paginated list of all departments.
-     *
-     * @param page   the zero-based page index to retrieve
-     * @param size   the number of records per page
-     * @param sortBy the field name by which to sort results
-     * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DepartmentResponseDTO}
-     */
-    @GetMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Page<DepartmentResponseDTO>>> getAllDepartments(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy
-    ) {
-        Page<DepartmentResponseDTO> allDepartments = departmentService.getAllDepartments(page, size, sortBy);
-        return ResponseEntity.ok(ApiResponse.success("Departments fetched successfully", allDepartments));
-    }
+  /**
+   * Retrieves a paginated list of all departments.
+   *
+   * @param page   the zero-based page index to retrieve
+   * @param size   the number of records per page
+   * @param sortBy the field name by which to sort results
+   * @return a {@link ResponseEntity} wrapping a {@link Page} of {@link DepartmentResponseDTO}
+   */
+  @GetMapping
+  public ResponseEntity<ApiResponse<Page<DepartmentResponseDTO>>> getAllDepartments(
+    @RequestParam(value = "page", defaultValue = "0") int page,
+    @RequestParam(value = "size", defaultValue = "10") int size,
+    @RequestParam(defaultValue = "id") String sortBy
+  ) {
+    Page<DepartmentResponseDTO> allDepartments = departmentService.getAllDepartments(page, size, sortBy);
+    return ResponseEntity.ok(ApiResponse.success("Departments fetched successfully", allDepartments));
+  }
 
-    /**
-     * Creates a new department.
-     *
-     * @param departmentRequestDTO the payload containing department configuration details
-     * @return a {@link ResponseEntity} with status 201 Created and the created {@link DepartmentResponseDTO}
-     */
-    @PostMapping
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<ApiResponse<DepartmentResponseDTO>> createDepartment(
-            @RequestBody @Valid DepartmentRequestDTO departmentRequestDTO) {
-        DepartmentResponseDTO department = departmentService.createDepartment(departmentRequestDTO);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(department.id())
-                .toUri();
-        return ResponseEntity.created(location)
-                .body(ApiResponse.success("Department created successfully", department, HttpStatus.CREATED));
-    }
+  /**
+   * Creates a new department.
+   *
+   * @param departmentRequestDTO the payload containing department configuration details
+   * @return a {@link ResponseEntity} with status 201 Created and the created {@link DepartmentResponseDTO}
+   */
+  @PostMapping
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  public ResponseEntity<ApiResponse<DepartmentResponseDTO>> createDepartment(
+    @RequestBody @Valid DepartmentRequestDTO departmentRequestDTO) {
+    DepartmentResponseDTO department = departmentService.createDepartment(departmentRequestDTO);
+    URI location = ServletUriComponentsBuilder
+      .fromCurrentRequest()
+      .path("/{id}")
+      .buildAndExpand(department.id())
+      .toUri();
+    return ResponseEntity.created(location)
+      .body(ApiResponse.success("Department created successfully", department, HttpStatus.CREATED));
+  }
 
-    /**
-     * Retrieves a department by its unique identifier.
-     *
-     * @param id the unique identifier of the department
-     * @return a {@link ResponseEntity} wrapping the {@link DepartmentResponseDTO}
-     */
-    @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<DepartmentResponseDTO>> getDepartmentById(@PathVariable Long id) {
-        DepartmentResponseDTO departmentResponse = departmentService.getDepartmentById(id);
-        return ResponseEntity.ok(ApiResponse.success("Department found successfully", departmentResponse));
-    }
+  /**
+   * Retrieves a department by its unique identifier.
+   *
+   * @param id the unique identifier of the department
+   * @return a {@link ResponseEntity} wrapping the {@link DepartmentResponseDTO}
+   */
+  @GetMapping("/{id}")
+  public ResponseEntity<ApiResponse<DepartmentResponseDTO>> getDepartmentById(@PathVariable Long id) {
+    DepartmentResponseDTO departmentResponse = departmentService.getDepartmentById(id);
+    return ResponseEntity.ok(ApiResponse.success("Department found successfully", departmentResponse));
+  }
 
-    /**
-     * Updates an existing department by its identifier.
-     *
-     * @param id      the unique identifier of the department to update
-     * @param request the payload containing updated department details
-     * @return a {@link ResponseEntity} wrapping the updated {@link DepartmentResponseDTO}
-     */
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<ApiResponse<DepartmentResponseDTO>> updateDepartment(
-            @PathVariable("id") Long id,
-            @RequestBody @Valid DepartmentRequestDTO request
-    ) {
-        DepartmentResponseDTO response = departmentService.updateDepartment(id, request);
-        return ResponseEntity.accepted().body(
-                ApiResponse.success("Department updated successfully", response, HttpStatus.ACCEPTED)
-        );
-    }
+  /**
+   * Updates an existing department by its identifier.
+   *
+   * @param id      the unique identifier of the department to update
+   * @param request the payload containing updated department details
+   * @return a {@link ResponseEntity} wrapping the updated {@link DepartmentResponseDTO}
+   */
+  @PutMapping("/{id}")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  public ResponseEntity<ApiResponse<DepartmentResponseDTO>> updateDepartment(
+    @PathVariable("id") Long id,
+    @RequestBody @Valid DepartmentRequestDTO request
+  ) {
+    DepartmentResponseDTO response = departmentService.updateDepartment(id, request);
+    return ResponseEntity.accepted().body(
+      ApiResponse.success("Department updated successfully", response, HttpStatus.ACCEPTED)
+    );
+  }
 }

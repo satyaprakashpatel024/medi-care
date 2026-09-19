@@ -18,24 +18,24 @@ import java.util.List;
 @AllArgsConstructor
 public class DoctorScheduleRequestDTO {
 
-    @NotNull(message = "Work start time is required")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-    private LocalTime workStartTime;
+  @NotNull(message = "Work start time is required")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+  private LocalTime workStartTime;
 
-    @NotNull(message = "Work end time is required")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-    private LocalTime workEndTime;
+  @NotNull(message = "Work end time is required")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+  private LocalTime workEndTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-    private LocalTime breakStartTime;
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+  private LocalTime breakStartTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-    private LocalTime breakEndTime;
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+  private LocalTime breakEndTime;
 
-    @Min(value = 5, message = "Slot duration must be at least 5 minutes")
-    @Max(value = 120, message = "Slot duration must not exceed 120 minutes")
-    @Builder.Default
-    private Integer slotDurationMinutes = 15;
+  @Min(value = 5, message = "Slot duration must be at least 5 minutes")
+  @Max(value = 120, message = "Slot duration must not exceed 120 minutes")
+  @Builder.Default
+  private Integer slotDurationMinutes = 15;
 
-    private List<String> workingDays;
+  private List<String> workingDays;
 }

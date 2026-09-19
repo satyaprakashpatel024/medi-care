@@ -11,35 +11,35 @@ import java.util.Set;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record PatientResponseDTO(
-        Long id,
-        Long userId,
-        String firstName,
-        String lastName,
-        LocalDate dateOfBirth,
-        String gender,
-        String phone,
-        String emergencyContact,
-        String bloodGroup,
-        ZonedDateTime updatedAt,
-        Set<AppointmentResponseDTO> appointments
+  Long id,
+  Long userId,
+  String firstName,
+  String lastName,
+  LocalDate dateOfBirth,
+  String gender,
+  String phone,
+  String emergencyContact,
+  String bloodGroup,
+  ZonedDateTime updatedAt,
+  Set<AppointmentResponseDTO> appointments
 ) implements java.io.Serializable {
 
-    // ── Helper methods ──────────────────────────────────────────────
-    public static PatientResponseDTO fromEntity(Patient patient) {
-        return PatientResponseDTO
-                .builder()
-                .id(patient.getId())
-                .bloodGroup(patient.getBloodGroup().toString())
-                .gender(patient.getGender().toString())
-                .phone(patient.getPhone())
-                .emergencyContact(patient.getEmergencyContact())
-                .dateOfBirth(patient.getDateOfBirth())
-                .userId(patient.getUser().getId())
-                .firstName(patient.getFirstName())
-                .lastName(patient.getLastName())
-                .updatedAt(patient.getUpdatedAt())
-                .appointments(AppointmentResponseDTO.fromEntity(patient.getAppointments()))
-                .build();
-    }
+  // ── Helper methods ──────────────────────────────────────────────
+  public static PatientResponseDTO fromEntity(Patient patient) {
+    return PatientResponseDTO
+      .builder()
+      .id(patient.getId())
+      .bloodGroup(patient.getBloodGroup().toString())
+      .gender(patient.getGender().toString())
+      .phone(patient.getPhone())
+      .emergencyContact(patient.getEmergencyContact())
+      .dateOfBirth(patient.getDateOfBirth())
+      .userId(patient.getUser().getId())
+      .firstName(patient.getFirstName())
+      .lastName(patient.getLastName())
+      .updatedAt(patient.getUpdatedAt())
+      .appointments(AppointmentResponseDTO.fromEntity(patient.getAppointments()))
+      .build();
+  }
 
 }

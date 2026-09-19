@@ -1,0 +1,76 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center relative overflow-hidden">
+
+  <!-- Ambient glowing blobs -->
+  <div
+    class="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-cyan-400/20 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 dark:bg-cyan-900/30"></div>
+  <div
+    class="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-400/20 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 dark:bg-blue-900/30"></div>
+
+  <div
+    class="w-full max-w-md p-8 bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl border border-white/40 dark:border-slate-800/60 rounded-3xl shadow-xl z-10 mx-4">
+
+    <div class="text-center mb-8">
+      <div
+        class="w-16 h-16 mx-auto bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg mb-4 text-3xl">
+        ⚕️
+      </div>
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Medicare Portal</h2>
+      <p class="text-slate-500 dark:text-slate-400 mt-2">Sign in to your account</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" [formGroup]="loginForm" class="space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" for="email">Email</label>
+        <input
+          class="w-full px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:text-white"
+          formControlName="email"
+          id="email"
+          placeholder="admin@medicare.com"
+          type="email"
+        />
+        <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+             class="text-red-500 text-sm mt-1">
+          Valid email is required
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" for="password">Password</label>
+        <input
+          class="w-full px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:text-white"
+          formControlName="password"
+          id="password"
+          placeholder="••••••••"
+          type="password"
+        />
+        <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+             class="text-red-500 text-sm mt-1">
+          Password is required
+        </div>
+      </div>
+
+      <div
+        *ngIf="errorMessage"
+        class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm text-center border border-red-200 dark:border-red-800">
+        {{ errorMessage }}
+      </div>
+
+      <button
+        [disabled]="loginForm.invalid || isLoading"
+        class="w-full py-3 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        type="submit"
+      >
+        <span *ngIf="isLoading" class="animate-spin text-xl leading-none">↻</span>
+        <span *ngIf="!isLoading">Sign In</span>
+      </button>
+    </form>
+
+    <div class="mt-6 text-center">
+      <a
+        class="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
+        routerLink="/">
+        ← Back to Home
+      </a>
+    </div>
+  </div>
+</div>

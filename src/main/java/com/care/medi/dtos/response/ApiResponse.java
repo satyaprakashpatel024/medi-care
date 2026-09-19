@@ -10,52 +10,52 @@ import java.time.LocalDateTime;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponse<T>(
-        boolean success,
-        String message,
-        T data,
-        Object errors,
-        int statusCode,
-        HttpStatus status,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-        LocalDateTime timestamp
+  boolean success,
+  String message,
+  T data,
+  Object errors,
+  int statusCode,
+  HttpStatus status,
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  LocalDateTime timestamp
 ) implements java.io.Serializable {
 
 
-    // -------------------------------------------------------------------------
-    // Static Factory Methods for Clean Instantiation
-    // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Static Factory Methods for Clean Instantiation
+  // -------------------------------------------------------------------------
 
-    public static <T> ApiResponse<T> success(String message, T data, HttpStatus status) {
-        return ApiResponse.<T>builder()
-                .success(true)
-                .message(message)
-                .data(data)
-                .statusCode(status.value())
-                .status(status)
-                .timestamp(LocalDateTime.now())
-                .build();
-    }
+  public static <T> ApiResponse<T> success(String message, T data, HttpStatus status) {
+    return ApiResponse.<T>builder()
+      .success(true)
+      .message(message)
+      .data(data)
+      .statusCode(status.value())
+      .status(status)
+      .timestamp(LocalDateTime.now())
+      .build();
+  }
 
-    public static <T> ApiResponse<T> success(String message, T data) {
-        return success(message, data, HttpStatus.OK);
-    }
+  public static <T> ApiResponse<T> success(String message, T data) {
+    return success(message, data, HttpStatus.OK);
+  }
 
-    public static <T> ApiResponse<T> success(T data) {
-        return success("Success", data, HttpStatus.OK);
-    }
+  public static <T> ApiResponse<T> success(T data) {
+    return success("Success", data, HttpStatus.OK);
+  }
 
-    public static <T> ApiResponse<T> error(String message, Object errors, HttpStatus status) {
-        return ApiResponse.<T>builder()
-                .success(false)
-                .message(message)
-                .errors(errors)
-                .statusCode(status.value())
-                .status(status)
-                .timestamp(LocalDateTime.now())
-                .build();
-    }
+  public static <T> ApiResponse<T> error(String message, Object errors, HttpStatus status) {
+    return ApiResponse.<T>builder()
+      .success(false)
+      .message(message)
+      .errors(errors)
+      .statusCode(status.value())
+      .status(status)
+      .timestamp(LocalDateTime.now())
+      .build();
+  }
 
-    public static <T> ApiResponse<T> error(String message, HttpStatus status) {
-        return error(message, null, status);
-    }
+  public static <T> ApiResponse<T> error(String message, HttpStatus status) {
+    return error(message, null, status);
+  }
 }

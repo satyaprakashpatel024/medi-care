@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserStatusUpdateRequestDTO implements java.io.Serializable {
 
-    @NotNull(message = "isActive flag is required")
-    private Boolean isActive;
+  @NotNull(message = "isActive flag is required")
+  private Boolean isActive;
 }

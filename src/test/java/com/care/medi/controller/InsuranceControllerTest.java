@@ -23,39 +23,39 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class InsuranceControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private InsuranceService insuranceService;
+  @MockitoBean
+  private InsuranceService insuranceService;
 
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockitoBean
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockitoBean
-    private JwtService jwtService;
+  @MockitoBean
+  private JwtService jwtService;
 
-    @MockitoBean
-    private UsersDetailsService usersDetailsService;
+  @MockitoBean
+  private UsersDetailsService usersDetailsService;
 
-    @Test
-    @DisplayName("Should get insurance by policy number successfully")
-    void testGetInsuranceByPolicyNumber() throws Exception {
-        InsuranceResponseDTO response = InsuranceResponseDTO.builder()
-                .id(1L)
-                .policyNumber("POL123456")
-                .providerName("HealthCare Life")
-                .coverageAmount(500000.0)
-                .build();
+  @Test
+  @DisplayName("Should get insurance by policy number successfully")
+  void testGetInsuranceByPolicyNumber() throws Exception {
+    InsuranceResponseDTO response = InsuranceResponseDTO.builder()
+      .id(1L)
+      .policyNumber("POL123456")
+      .providerName("HealthCare Life")
+      .coverageAmount(500000.0)
+      .build();
 
-        when(insuranceService.getInsuranceByPolicyNumber("POL123456")).thenReturn(response);
+    when(insuranceService.getInsuranceByPolicyNumber("POL123456")).thenReturn(response);
 
-        mockMvc.perform(get("/api/v1/insurances/POL123456")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Insurance retrieved successfully for this policy number."))
-                .andExpect(jsonPath("$.data.id").value(1))
-                .andExpect(jsonPath("$.data.policyNumber").value("POL123456"))
-                .andExpect(jsonPath("$.data.providerName").value("HealthCare Life"));
-    }
+    mockMvc.perform(get("/api/v1/insurances/POL123456")
+        .contentType(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value("Insurance retrieved successfully for this policy number."))
+      .andExpect(jsonPath("$.data.id").value(1))
+      .andExpect(jsonPath("$.data.policyNumber").value("POL123456"))
+      .andExpect(jsonPath("$.data.providerName").value("HealthCare Life"));
+  }
 }

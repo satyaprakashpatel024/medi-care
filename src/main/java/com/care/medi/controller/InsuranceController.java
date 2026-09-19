@@ -19,19 +19,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class InsuranceController {
 
-    private final InsuranceService insuranceService;
+  private final InsuranceService insuranceService;
 
-    /**
-     * Retrieves insurance details matching a specific policy number.
-     *
-     * @param policyNumber the unique policy number identifier
-     * @return a {@link ResponseEntity} containing an {@link ApiResponse} wrapping the {@link InsuranceResponseDTO}
-     */
-    @GetMapping("/{policyNumber}")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isInsuranceOwner(#policyNumber, authentication))")
-    public ResponseEntity<ApiResponse<InsuranceResponseDTO>> getInsurancesByPolicyNumber(
-            @PathVariable("policyNumber") String policyNumber) {
-        InsuranceResponseDTO insuranceByPolicyNumber = insuranceService.getInsuranceByPolicyNumber(policyNumber);
-        return ResponseEntity.ok(ApiResponse.success("Insurance retrieved successfully for this policy number.", insuranceByPolicyNumber));
-    }
+  /**
+   * Retrieves insurance details matching a specific policy number.
+   *
+   * @param policyNumber the unique policy number identifier
+   * @return a {@link ResponseEntity} containing an {@link ApiResponse} wrapping the {@link InsuranceResponseDTO}
+   */
+  @GetMapping("/{policyNumber}")
+  @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'STAFF', 'RECEPTIONIST') or (hasRole('PATIENT') and @userSecurity.isInsuranceOwner(#policyNumber, authentication))")
+  public ResponseEntity<ApiResponse<InsuranceResponseDTO>> getInsurancesByPolicyNumber(
+    @PathVariable("policyNumber") String policyNumber) {
+    InsuranceResponseDTO insuranceByPolicyNumber = insuranceService.getInsuranceByPolicyNumber(policyNumber);
+    return ResponseEntity.ok(ApiResponse.success("Insurance retrieved successfully for this policy number.", insuranceByPolicyNumber));
+  }
 }

@@ -15,42 +15,42 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailNotificationProducer {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+  private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    /**
-     * Generic send method to publish any event type T to a specified topic with a key.
-     */
-    public <T> void sendEvent(String topic, String key, T event) {
-        try {
-            kafkaTemplate.send(topic, key, event).whenComplete((result, ex) -> {
-                if (ex != null) {
-                    log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, ex.toString());
-                } else {
-                    log.info("Published Kafka event to topic '{}' with key '{}': {}", topic, Helpers.maskKey(key), event);
-                }
-            });
-        } catch (Exception e) {
-            log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, e.toString());
+  /**
+   * Generic send method to publish any event type T to a specified topic with a key.
+   */
+  public <T> void sendEvent(String topic, String key, T event) {
+    try {
+      kafkaTemplate.send(topic, key, event).whenComplete((result, ex) -> {
+        if (ex != null) {
+          log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, ex.toString());
+        } else {
+          log.info("Published Kafka event to topic '{}' with key '{}': {}", topic, Helpers.maskKey(key), event);
         }
+      });
+    } catch (Exception e) {
+      log.error(Constants.LOG_KAFKA_PRODUCE_ERROR, topic, e.toString());
     }
+  }
 
-    public void sendEmailNotification(EmailNotificationEvent event) {
-        String key = event.getAppointmentId() != null ? event.getAppointmentId().toString() : event.getToEmail();
-        sendEvent(Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION, key, event);
-    }
+  public void sendEmailNotification(EmailNotificationEvent event) {
+    String key = event.getAppointmentId() != null ? event.getAppointmentId().toString() : event.getToEmail();
+    sendEvent(Constants.KAFKA_TOPIC_APPOINTMENT_NOTIFICATION, key, event);
+  }
 
-    public void sendOtpNotification(String toEmail, String otp) {
-        OtpNotificationEvent event = OtpNotificationEvent.builder()
-                .toEmail(toEmail)
-                .otp(otp)
-                .build();
-        sendEvent(Constants.KAFKA_TOPIC_OTP_NOTIFICATION, toEmail, event);
-    }
+  public void sendOtpNotification(String toEmail, String otp) {
+    OtpNotificationEvent event = OtpNotificationEvent.builder()
+      .toEmail(toEmail)
+      .otp(otp)
+      .build();
+    sendEvent(Constants.KAFKA_TOPIC_OTP_NOTIFICATION, toEmail, event);
+  }
 
-    public void sendPasswordChangedNotification(String toEmail) {
-        PasswordChangedNotificationEvent event = PasswordChangedNotificationEvent.builder()
-                .toEmail(toEmail)
-                .build();
-        sendEvent(Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION, toEmail, event);
-    }
+  public void sendPasswordChangedNotification(String toEmail) {
+    PasswordChangedNotificationEvent event = PasswordChangedNotificationEvent.builder()
+      .toEmail(toEmail)
+      .build();
+    sendEvent(Constants.KAFKA_TOPIC_PASSWORD_CHANGED_NOTIFICATION, toEmail, event);
+  }
 }

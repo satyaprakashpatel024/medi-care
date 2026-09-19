@@ -6,12 +6,12 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record SystemKpiResponseDTO(
-        long totalHospitals,
-        long totalDoctors,
-        long totalPatients,
-        long totalStaff,
-        long totalAppointmentsToday,
-        long totalDepartments
+  long totalHospitals,
+  long totalDoctors,
+  long totalPatients,
+  long totalStaff,
+  long totalAppointmentsToday,
+  long totalDepartments
 ) implements java.io.Serializable {
 
 }

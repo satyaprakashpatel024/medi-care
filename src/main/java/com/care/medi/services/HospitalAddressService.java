@@ -5,7 +5,7 @@ import com.care.medi.dtos.response.HospitalAddressResponseDTO;
 import com.care.medi.entity.HospitalAddress;
 
 public interface HospitalAddressService {
-    HospitalAddressResponseDTO getHospitalAddressById(Long id);
+  HospitalAddressResponseDTO getHospitalAddressById(Long id);
 
-    HospitalAddress createHospitalAddress(Long id, HospitalAddressRequestDTO request);
+  HospitalAddress createHospitalAddress(Long id, HospitalAddressRequestDTO request);
 }

@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthResponse implements java.io.Serializable {
 
-    private String refreshToken;
-    private String role;
-    private Long expiresIn;
+  private String refreshToken;
+  private String role;
+  private Long userId;
+  private Long expiresIn;
 }

@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserRoleUpdateRequestDTO implements java.io.Serializable {
 
-    @NotNull(message = "Role is required")
-    private Role role;
+  @NotNull(message = "Role is required")
+  private Role role;
 }

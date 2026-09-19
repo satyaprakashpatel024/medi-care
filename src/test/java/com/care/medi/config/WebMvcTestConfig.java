@@ -13,84 +13,84 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @TestConfiguration
 public class WebMvcTestConfig {
 
-    // Mock all repositories
-    @MockitoBean
-    private UsersRepository usersRepository;
+  // Mock all repositories
+  @MockitoBean
+  private UsersRepository usersRepository;
 
-    @MockitoBean
-    private PatientRepository patientRepository;
+  @MockitoBean
+  private PatientRepository patientRepository;
 
-    @MockitoBean
-    private DoctorRepository doctorRepository;
+  @MockitoBean
+  private DoctorRepository doctorRepository;
 
-    @MockitoBean
-    private HospitalRepository hospitalRepository;
+  @MockitoBean
+  private HospitalRepository hospitalRepository;
 
-    @MockitoBean
-    private DepartmentRepository departmentRepository;
+  @MockitoBean
+  private DepartmentRepository departmentRepository;
 
-    @MockitoBean
-    private AppointmentRepository appointmentRepository;
+  @MockitoBean
+  private AppointmentRepository appointmentRepository;
 
-    @MockitoBean
-    private MedicalRecordRepository medicalRecordRepository;
+  @MockitoBean
+  private MedicalRecordRepository medicalRecordRepository;
 
-    @MockitoBean
-    private PrescriptionRepository prescriptionRepository;
+  @MockitoBean
+  private PrescriptionRepository prescriptionRepository;
 
-    @MockitoBean
-    private StaffRepository staffRepository;
+  @MockitoBean
+  private StaffRepository staffRepository;
 
-    @MockitoBean
-    private InsuranceRepository insuranceRepository;
+  @MockitoBean
+  private InsuranceRepository insuranceRepository;
 
-    @MockitoBean
-    private OtpTableRepository otpTableRepository;
+  @MockitoBean
+  private OtpTableRepository otpTableRepository;
 
-    @MockitoBean
-    private AddressRepository addressRepository;
+  @MockitoBean
+  private AddressRepository addressRepository;
 
-    // Mock all services (except the ones being tested, which will be individually mocked in specific tests)
-    @MockitoBean
-    private AppointmentService appointmentService;
+  // Mock all services (except the ones being tested, which will be individually mocked in specific tests)
+  @MockitoBean
+  private AppointmentService appointmentService;
 
-    @MockitoBean
-    private PatientService patientService;
+  @MockitoBean
+  private PatientService patientService;
 
-    @MockitoBean
-    private DoctorService doctorService;
+  @MockitoBean
+  private DoctorService doctorService;
 
-    @MockitoBean
-    private HospitalService hospitalService;
+  @MockitoBean
+  private HospitalService hospitalService;
 
-    @MockitoBean
-    private DepartmentService departmentService;
+  @MockitoBean
+  private DepartmentService departmentService;
 
-    @MockitoBean
-    private MedicalRecordService medicalRecordService;
+  @MockitoBean
+  private MedicalRecordService medicalRecordService;
 
-    @MockitoBean
-    private AddressService addressService;
+  @MockitoBean
+  private AddressService addressService;
 
-    @MockitoBean
-    private StaffService staffService;
+  @MockitoBean
+  private StaffService staffService;
 
-    @MockitoBean
-    private InsuranceService insuranceService;
+  @MockitoBean
+  private InsuranceService insuranceService;
 
-    @MockitoBean
-    private AuthService authService;
+  @MockitoBean
+  private AuthService authService;
 
-    @MockitoBean
-    private EmailService emailService;
+  @MockitoBean
+  private EmailService emailService;
 
-    @MockitoBean
-    private AdminAnalyticsService adminAnalyticsService;
+  @MockitoBean
+  private AdminAnalyticsService adminAnalyticsService;
 
-    @MockitoBean
-    private HospitalDepartmentService hospitalDepartmentService;
+  @MockitoBean
+  private HospitalDepartmentService hospitalDepartmentService;
 
-    @MockitoBean
-    private UserAdminService userAdminService;
+  @MockitoBean
+  private UserAdminService userAdminService;
 }
 

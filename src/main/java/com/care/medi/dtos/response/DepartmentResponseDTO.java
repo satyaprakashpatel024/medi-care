@@ -7,16 +7,16 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record DepartmentResponseDTO(
-        Long id,
-        String name,
-        String description
+  Long id,
+  String name,
+  String description
 ) implements java.io.Serializable {
 
-    public static DepartmentResponseDTO fromEntity(Department department) {
-        return DepartmentResponseDTO.builder()
-                .id(department.getId())
-                .name(department.getName())
-                .description(department.getDescription())
-                .build();
-    }
+  public static DepartmentResponseDTO fromEntity(Department department) {
+    return DepartmentResponseDTO.builder()
+      .id(department.getId())
+      .name(department.getName())
+      .description(department.getDescription())
+      .build();
+  }
 }

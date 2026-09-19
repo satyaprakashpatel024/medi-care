@@ -12,21 +12,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface PatientService {
-    boolean existsByIdAndHospitalId(Long hospitalId, Long id);
+  boolean existsByIdAndHospitalId(Long hospitalId, Long id);
 
-    PatientResponseDTO getPatientByIdAndHospitalId(long hospitalId, Long id);
+  PatientResponseDTO getPatientByIdAndHospitalId(long hospitalId, Long id);
 
-    @Transactional
-    PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient);
+  @Transactional
+  PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient);
 
-    @Transactional
-    PatientResponseDTO updatePatientInHospital(Long patientId, Long hospitalId, PatientUpdateRequestDTO patientDTO);
+  @Transactional
+  PatientResponseDTO updatePatientInHospital(Long patientId, Long hospitalId, PatientUpdateRequestDTO patientDTO);
 
-    void deletePatientFromHospital(Long patientId, Long hospitalId);
+  void deletePatientFromHospital(Long patientId, Long hospitalId);
 
-    InsuranceResponseDTO assignInsurance(Long patientId, Long hospitalId, InsuranceRequestDTO insurance);
+  InsuranceResponseDTO assignInsurance(Long patientId, Long hospitalId, InsuranceRequestDTO insurance);
 
-    List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId, Long hospitalId);
+  List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId, Long hospitalId);
 
-    Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy);
+  Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy);
 }

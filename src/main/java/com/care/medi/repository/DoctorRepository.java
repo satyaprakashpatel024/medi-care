@@ -15,36 +15,39 @@ import java.util.Optional;
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
-    @Override
-    @NonNull
-    @EntityGraph(attributePaths = {"hospital", "department"})
-    Page<Doctor> findAll(@NonNull Pageable pageable);
+  @Override
+  @NonNull
+  @EntityGraph(attributePaths = {"hospital", "department"})
+  Page<Doctor> findAll(@NonNull Pageable pageable);
 
-    @NonNull
-    @EntityGraph(attributePaths = {"hospital", "department"})
-    Optional<Doctor> findByIdAndHospitalIdAndIsActiveTrue(@NonNull Long id, @NonNull Long hospitalId);
+  @NonNull
+  @EntityGraph(attributePaths = {"hospital", "department"})
+  Optional<Doctor> findByIdAndHospitalIdAndIsActiveTrue(@NonNull Long id, @NonNull Long hospitalId);
 
-    @EntityGraph(attributePaths = {"hospital", "department"})
-    Page<Doctor> findByHospitalIdAndIsActiveTrue(Long hospitalId, Pageable pageable);
+  @EntityGraph(attributePaths = {"hospital", "department"})
+  Page<Doctor> findByHospitalIdAndIsActiveTrue(Long hospitalId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"hospital", "department"})
-    Page<Doctor> findByHospitalIdAndDepartmentIdAndIsActiveTrue(Long hospitalId, Long departmentId, Pageable pageable);
+  @EntityGraph(attributePaths = {"hospital", "department"})
+  Page<Doctor> findByHospitalIdAndDepartmentIdAndIsActiveTrue(Long hospitalId, Long departmentId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"hospital", "department"})
-    Page<Doctor> findByHospitalIdAndSpecialityContainingIgnoreCaseAndIsActiveTrue(Long hospitalId, String speciality, Pageable pageable);
+  @EntityGraph(attributePaths = {"hospital", "department"})
+  Page<Doctor> findByHospitalIdAndSpecialityContainingIgnoreCaseAndIsActiveTrue(Long hospitalId, String speciality, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"hospital", "department"})
-    Page<Doctor> findByIsActiveTrue(Pageable pageable);
+  @EntityGraph(attributePaths = {"hospital", "department"})
+  Page<Doctor> findByIsActiveTrue(Pageable pageable);
 
-    boolean existsByIdAndHospitalId(Long id, Long hospitalId);
+  boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 
-    @Query("SELECT COUNT(d) > 0 FROM Doctor d WHERE d.id = :id AND d.userId = :userId")
-    boolean existsByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
+  @Query("SELECT COUNT(d) > 0 FROM Doctor d WHERE d.id = :id AND d.userId = :userId")
+  boolean existsByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 
-    @Query(value = "SELECT d.hospital_id FROM doctors d WHERE d.user_id = :userId AND d.is_deleted = false", nativeQuery = true)
-    Optional<Long> findHospitalIdByUserId(@Param("userId") Long userId);
+  @Query(value = "SELECT d.hospital_id FROM doctors d WHERE d.user_id = :userId AND d.is_deleted = false", nativeQuery = true)
+  Optional<Long> findHospitalIdByUserId(@Param("userId") Long userId);
 
-    long countByIsActiveTrue();
+  @Query(value = "SELECT d.id FROM doctors d WHERE d.user_id = :userId AND d.is_deleted = false", nativeQuery = true)
+  Optional<Long> findIdByUserId(@Param("userId") Long userId);
 
-    long countByHospitalIdAndIsActiveTrue(Long hospitalId);
+  long countByIsActiveTrue();
+
+  long countByHospitalIdAndIsActiveTrue(Long hospitalId);
 }

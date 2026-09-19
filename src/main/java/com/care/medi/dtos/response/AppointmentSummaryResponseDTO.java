@@ -7,33 +7,33 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record AppointmentSummaryResponseDTO(
-        Long appointmentId,
-        String appointmentDate,
-        String patientName,
-        String doctorName,
-        AppointmentStatus status,
-        String departmentName,
-        String appointmentTime
+  Long appointmentId,
+  String appointmentDate,
+  String patientName,
+  String doctorName,
+  AppointmentStatus status,
+  String departmentName,
+  String appointmentTime
 ) implements java.io.Serializable {
 
-    // Constructor called by JPQL — receives raw ZonedDateTime, formats it
-    public AppointmentSummaryResponseDTO(
-            Long id,
-            LocalDate appointmentDate,
-            String patientName,
-            String doctorName,
-            AppointmentStatus status,
-            String departmentName,
-            LocalTime appointmentTime
-    ) {
-        this(
-                id,
-                appointmentDate.format(Constants.HUMAN_DATE_FORMAT),
-                patientName,
-                doctorName,
-                status,
-                departmentName,
-                appointmentTime.format(Constants.HUMAN_TIME_FORMAT)
-        );
-    }
+  // Constructor called by JPQL — receives raw ZonedDateTime, formats it
+  public AppointmentSummaryResponseDTO(
+    Long id,
+    LocalDate appointmentDate,
+    String patientName,
+    String doctorName,
+    AppointmentStatus status,
+    String departmentName,
+    LocalTime appointmentTime
+  ) {
+    this(
+      id,
+      appointmentDate.format(Constants.HUMAN_DATE_FORMAT),
+      patientName,
+      doctorName,
+      status,
+      departmentName,
+      appointmentTime.format(Constants.HUMAN_TIME_FORMAT)
+    );
+  }
 }

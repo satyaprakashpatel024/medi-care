@@ -23,60 +23,60 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RateLimitingFilterTest {
 
-    @Mock
-    private HttpServletRequest request;
+  @Mock
+  private HttpServletRequest request;
 
-    @Mock
-    private HttpServletResponse response;
+  @Mock
+  private HttpServletResponse response;
 
-    @Mock
-    private FilterChain filterChain;
+  @Mock
+  private FilterChain filterChain;
 
-    private RateLimitingFilter rateLimitingFilter;
+  private RateLimitingFilter rateLimitingFilter;
 
-    @BeforeEach
-    void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        rateLimitingFilter = new RateLimitingFilter(objectMapper);
+  @BeforeEach
+  void setUp() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    rateLimitingFilter = new RateLimitingFilter(objectMapper);
 
-        ReflectionTestUtils.setField(rateLimitingFilter, "rateLimitEnabled", true);
-        ReflectionTestUtils.setField(rateLimitingFilter, "maxRequestsPerWindow", 3);
-        ReflectionTestUtils.setField(rateLimitingFilter, "windowSeconds", 60);
+    ReflectionTestUtils.setField(rateLimitingFilter, "rateLimitEnabled", true);
+    ReflectionTestUtils.setField(rateLimitingFilter, "maxRequestsPerWindow", 3);
+    ReflectionTestUtils.setField(rateLimitingFilter, "windowSeconds", 60);
+  }
+
+  @Test
+  @DisplayName("Requests under threshold should pass through filter")
+  void testRequestsUnderLimitPass() throws Exception {
+    when(request.getServletPath()).thenReturn("/api/v1/auth/login");
+    when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+
+    for (int i = 0; i < 3; i++) {
+      rateLimitingFilter.doFilterInternal(request, response, filterChain);
     }
 
-    @Test
-    @DisplayName("Requests under threshold should pass through filter")
-    void testRequestsUnderLimitPass() throws Exception {
-        when(request.getServletPath()).thenReturn("/api/v1/auth/login");
-        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+    verify(filterChain, times(3)).doFilter(request, response);
+  }
 
-        for (int i = 0; i < 3; i++) {
-            rateLimitingFilter.doFilterInternal(request, response, filterChain);
-        }
+  @Test
+  @DisplayName("Requests exceeding limit should return HTTP 429 and JSON error response")
+  void testRequestExceedingLimitReturns429() throws Exception {
+    when(request.getServletPath()).thenReturn("/api/v1/auth/login");
+    when(request.getRemoteAddr()).thenReturn("127.0.0.1");
 
-        verify(filterChain, times(3)).doFilter(request, response);
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter printWriter = new PrintWriter(stringWriter);
+    when(response.getWriter()).thenReturn(printWriter);
+
+    for (int i = 0; i < 4; i++) {
+      rateLimitingFilter.doFilterInternal(request, response, filterChain);
     }
 
-    @Test
-    @DisplayName("Requests exceeding limit should return HTTP 429 and JSON error response")
-    void testRequestExceedingLimitReturns429() throws Exception {
-        when(request.getServletPath()).thenReturn("/api/v1/auth/login");
-        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+    verify(filterChain, times(3)).doFilter(request, response);
+    verify(response).setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
 
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
-        when(response.getWriter()).thenReturn(printWriter);
-
-        for (int i = 0; i < 4; i++) {
-            rateLimitingFilter.doFilterInternal(request, response, filterChain);
-        }
-
-        verify(filterChain, times(3)).doFilter(request, response);
-        verify(response).setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-
-        String jsonResponse = stringWriter.toString();
-        assertTrue(jsonResponse.contains("TOO_MANY_REQUESTS"));
-        assertTrue(jsonResponse.contains("You have made too many requests. Please wait a moment before trying again."));
-    }
+    String jsonResponse = stringWriter.toString();
+    assertTrue(jsonResponse.contains("TOO_MANY_REQUESTS"));
+    assertTrue(jsonResponse.contains("You have made too many requests. Please wait a moment before trying again."));
+  }
 }

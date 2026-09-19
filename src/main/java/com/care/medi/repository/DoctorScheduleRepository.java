@@ -9,9 +9,9 @@ import java.util.Optional;
 @Repository
 public interface DoctorScheduleRepository extends JpaRepository<DoctorSchedule, Long> {
 
-    Optional<DoctorSchedule> findByDoctorIdAndHospitalIdAndIsActiveTrue(Long doctorId, Long hospitalId);
+  Optional<DoctorSchedule> findByDoctorIdAndHospitalIdAndIsActiveTrue(Long doctorId, Long hospitalId);
 
-    Optional<DoctorSchedule> findByDoctorId(Long doctorId);
+  Optional<DoctorSchedule> findByDoctorId(Long doctorId);
 
-    boolean existsByDoctorIdAndHospitalId(Long doctorId, Long hospitalId);
+  boolean existsByDoctorIdAndHospitalId(Long doctorId, Long hospitalId);
 }

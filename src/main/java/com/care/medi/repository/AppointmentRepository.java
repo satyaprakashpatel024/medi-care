@@ -22,121 +22,121 @@ import java.util.Optional;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    @Query("""
-            SELECT new com.care.medi.dtos.response.AppointmentSummaryResponseDTO(
-                a.id,
-                a.appointmentDate,
-                concat(p.firstName, ' ', p.lastName),
-                concat(d.firstName, ' ', d.lastName),
-                a.status,
-                dept.name,a.startTime) 
-            FROM Appointment a 
-            JOIN a.patient p 
-            JOIN a.doctor d
-            JOIN a.department dept 
-            WHERE a.hospitalId = :hospitalId AND a.appointmentDate BETWEEN :start AND :end""")
-    Page<AppointmentSummaryResponseDTO> findByHospitalIdAndAppointmentDateBetween(
-            @Param("hospitalId") Long hospitalId, @Param("start") LocalDate start, @Param("end") LocalDate end, Pageable pageable);
+  @Query("""
+    SELECT new com.care.medi.dtos.response.AppointmentSummaryResponseDTO(
+        a.id,
+        a.appointmentDate,
+        concat(p.firstName, ' ', p.lastName),
+        concat(d.firstName, ' ', d.lastName),
+        a.status,
+        dept.name,a.startTime)
+    FROM Appointment a
+    JOIN a.patient p
+    JOIN a.doctor d
+    JOIN a.department dept
+    WHERE a.hospitalId = :hospitalId AND a.appointmentDate BETWEEN :start AND :end""")
+  Page<AppointmentSummaryResponseDTO> findByHospitalIdAndAppointmentDateBetween(
+    @Param("hospitalId") Long hospitalId, @Param("start") LocalDate start, @Param("end") LocalDate end, Pageable pageable);
 
-    @Query("SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(" +
-            "a.id, " +
-            "concat(p.firstName, ' ', p.lastName), " +
-            "concat(d.firstName, ' ', d.lastName), " +
-            "dept.name, " +
-            "a.appointmentDate, " +
-            "a.status," +
-            "a.startTime) " +
-            "FROM Appointment a " +
-            "JOIN a.patient p " +
-            "JOIN a.doctor d " +
-            "JOIN a.department dept " +
-            "WHERE a.hospitalId = :hospitalId " +
-            "AND a.status = :status " +
-            "AND a.appointmentDate BETWEEN :start AND :end")
-    Page<AppointmentListResponseDTO> findByHospitalIdAndStatusAndAppointmentDateBetween(
-            @Param("hospitalId") Long hospitalId, @Param("status") AppointmentStatus status,
-            @Param("start") LocalDate start, @Param("end") LocalDate end, Pageable pageable);
+  @Query("SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(" +
+    "a.id, " +
+    "concat(p.firstName, ' ', p.lastName), " +
+    "concat(d.firstName, ' ', d.lastName), " +
+    "dept.name, " +
+    "a.appointmentDate, " +
+    "a.status," +
+    "a.startTime) " +
+    "FROM Appointment a " +
+    "JOIN a.patient p " +
+    "JOIN a.doctor d " +
+    "JOIN a.department dept " +
+    "WHERE a.hospitalId = :hospitalId " +
+    "AND a.status = :status " +
+    "AND a.appointmentDate BETWEEN :start AND :end")
+  Page<AppointmentListResponseDTO> findByHospitalIdAndStatusAndAppointmentDateBetween(
+    @Param("hospitalId") Long hospitalId, @Param("status") AppointmentStatus status,
+    @Param("start") LocalDate start, @Param("end") LocalDate end, Pageable pageable);
 
-    @Query("""
-                SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(
-                    a.id,
-                    concat(p.firstName, ' ', p.lastName),
-                    concat(d.firstName, ' ', d.lastName),
-                    dept.name,
-                    a.appointmentDate,
-                    a.status,
-                    a.startTime
-                )
-                FROM Appointment a
-                JOIN a.patient p
-                JOIN a.doctor d
-                JOIN d.department dept
-                WHERE d.id = :doctorId
-                AND d.hospitalId = :hospitalId
-            """)
-    Page<AppointmentListResponseDTO> findByDoctorIdAndHospitalId(@Param("doctorId") Long doctorId, @Param("hospitalId") Long hospitalId, Pageable pageable);
+  @Query("""
+        SELECT new com.care.medi.dtos.response.AppointmentListResponseDTO(
+            a.id,
+            concat(p.firstName, ' ', p.lastName),
+            concat(d.firstName, ' ', d.lastName),
+            dept.name,
+            a.appointmentDate,
+            a.status,
+            a.startTime
+        )
+        FROM Appointment a
+        JOIN a.patient p
+        JOIN a.doctor d
+        JOIN d.department dept
+        WHERE d.id = :doctorId
+        AND d.hospitalId = :hospitalId
+    """)
+  Page<AppointmentListResponseDTO> findByDoctorIdAndHospitalId(@Param("doctorId") Long doctorId, @Param("hospitalId") Long hospitalId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Page<Appointment> findByHospitalIdAndPatientId(@Param("hospitalId") Long hospitalId, @Param("patientId") Long patientId, Pageable pageable);
+  @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+  Page<Appointment> findByHospitalIdAndPatientId(@Param("hospitalId") Long hospitalId, @Param("patientId") Long patientId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Page<Appointment> findByDepartmentIdAndAppointmentDateBetween(@Param("departmentId") Long departmentId, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
+  @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+  Page<Appointment> findByDepartmentIdAndAppointmentDateBetween(@Param("departmentId") Long departmentId, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Page<Appointment> findByHospitalId(@Param("hospitalId") Long hospitalId, Pageable pageable);
+  @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+  Page<Appointment> findByHospitalId(@Param("hospitalId") Long hospitalId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Page<Appointment> findByDoctorIdAndStatus(@Param("doctorId") Long doctorId, AppointmentStatus status, Pageable pageable);
+  @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+  Page<Appointment> findByDoctorIdAndStatus(@Param("doctorId") Long doctorId, AppointmentStatus status, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Page<Appointment> findByPatientIdAndStatus(@Param("patientId") Long patientId, AppointmentStatus status, Pageable pageable);
+  @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+  Page<Appointment> findByPatientIdAndStatus(@Param("patientId") Long patientId, AppointmentStatus status, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Page<Appointment> findByDoctorIdAndHospitalIdAndAppointmentDateBetween(@Param("doctorId") Long doctorId, Long hospitalId, LocalDate start, LocalDate end, Pageable pageable);
+  @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+  Page<Appointment> findByDoctorIdAndHospitalIdAndAppointmentDateBetween(@Param("doctorId") Long doctorId, Long hospitalId, LocalDate start, LocalDate end, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Page<Appointment> findByDepartmentIdAndStatusAndAppointmentDateBetween(@Param("departmentId") Long departmentId, AppointmentStatus status, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
+  @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+  Page<Appointment> findByDepartmentIdAndStatusAndAppointmentDateBetween(@Param("departmentId") Long departmentId, AppointmentStatus status, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
 
-    @NonNull
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Optional<Appointment> findByIdAndHospitalId(@Param("id") Long id, @Param("hospitalId") Long hospitalId);
+  @NonNull
+  @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+  Optional<Appointment> findByIdAndHospitalId(@Param("id") Long id, @Param("hospitalId") Long hospitalId);
 
-    @EntityGraph(attributePaths = {"patient", "department", "doctor"})
-    Page<Appointment> findByPatientIdAndAppointmentDateBetween(@Param("patientId") Long patientId, LocalDate start, LocalDate end, Pageable pageable);
+  @EntityGraph(attributePaths = {"patient", "department", "doctor"})
+  Page<Appointment> findByPatientIdAndAppointmentDateBetween(@Param("patientId") Long patientId, LocalDate start, LocalDate end, Pageable pageable);
 
-    boolean existsByIdAndHospitalId(Long id, Long hospitalId);
+  boolean existsByIdAndHospitalId(Long id, Long hospitalId);
 
-    boolean existsByIdAndDoctorIdAndHospitalId(Long appointmentId, Long doctorId, Long hospitalId);
+  boolean existsByIdAndDoctorIdAndHospitalId(Long appointmentId, Long doctorId, Long hospitalId);
 
-    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :appointmentId AND a.hospitalId = :hospitalId AND a.doctor.id = :doctorId AND a.patient.id = :patientId")
-    boolean isAppointmentContextValid(@Param("appointmentId") Long appointmentId, @Param("hospitalId") Long hospitalId, @Param("doctorId") Long doctorId, @Param("patientId") Long patientId);
+  @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :appointmentId AND a.hospitalId = :hospitalId AND a.doctor.id = :doctorId AND a.patient.id = :patientId")
+  boolean isAppointmentContextValid(@Param("appointmentId") Long appointmentId, @Param("hospitalId") Long hospitalId, @Param("doctorId") Long doctorId, @Param("patientId") Long patientId);
 
-    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :id AND (a.patient.user.id = :userId OR a.doctor.userId = :userId)")
-    boolean isPatientOrDoctorOfAppointment(@Param("id") Long id, @Param("userId") Long userId);
+  @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :id AND (a.patient.user.id = :userId OR a.doctor.userId = :userId)")
+  boolean isPatientOrDoctorOfAppointment(@Param("id") Long id, @Param("userId") Long userId);
 
-    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :id AND a.doctor.userId = :userId")
-    boolean isDoctorOfAppointment(@Param("id") Long id, @Param("userId") Long userId);
+  @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :id AND a.doctor.userId = :userId")
+  boolean isDoctorOfAppointment(@Param("id") Long id, @Param("userId") Long userId);
 
-    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :id AND a.patient.user.id = :userId")
-    boolean isPatientOfAppointment(@Param("id") Long id, @Param("userId") Long userId);
+  @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.id = :id AND a.patient.user.id = :userId")
+  boolean isPatientOfAppointment(@Param("id") Long id, @Param("userId") Long userId);
 
-    @Query(value = """
-                    SELECT EXISTS ( SELECT 1 FROM appointments a WHERE a.hospital_id = :hospitalId
-            AND a.doctor_id = :doctorId AND a.appointment_date = :date AND a.start_time < :endTime
-            AND a.end_time > :startTime AND a.status <> 'CANCELLED' AND a.is_deleted = false )""",
-            nativeQuery = true)
-    boolean existsConflictingAppointment(Long doctorId, Long hospitalId, LocalDate date, LocalTime startTime, LocalTime endTime);
+  @Query(value = """
+            SELECT EXISTS ( SELECT 1 FROM appointments a WHERE a.hospital_id = :hospitalId
+    AND a.doctor_id = :doctorId AND a.appointment_date = :date AND a.start_time < :endTime
+    AND a.end_time > :startTime AND a.status <> 'CANCELLED' AND a.is_deleted = false )""",
+    nativeQuery = true)
+  boolean existsConflictingAppointment(Long doctorId, Long hospitalId, LocalDate date, LocalTime startTime, LocalTime endTime);
 
-    java.util.List<Appointment> findByDoctorIdAndHospitalIdAndAppointmentDateAndStatusNot(Long doctorId, Long hospitalId, LocalDate date, AppointmentStatus status);
+  java.util.List<Appointment> findByDoctorIdAndHospitalIdAndAppointmentDateAndStatusNot(Long doctorId, Long hospitalId, LocalDate date, AppointmentStatus status);
 
-    @Query("SELECT a FROM Appointment a WHERE a.id = :id AND a.status IN :statuses")
-    Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);
+  @Query("SELECT a FROM Appointment a WHERE a.id = :id AND a.status IN :statuses")
+  Optional<Appointment> findByIdAndStatusIn(Long id, Collection<AppointmentStatus> statuses);
 
-    long countByAppointmentDate(LocalDate date);
+  long countByAppointmentDate(LocalDate date);
 
-    long countByHospitalId(Long hospitalId);
+  long countByHospitalId(Long hospitalId);
 
-    long countByHospitalIdAndAppointmentDate(Long hospitalId, LocalDate date);
+  long countByHospitalIdAndAppointmentDate(Long hospitalId, LocalDate date);
 
-    long countByHospitalIdAndStatus(Long hospitalId, AppointmentStatus status);
+  long countByHospitalIdAndStatus(Long hospitalId, AppointmentStatus status);
 }

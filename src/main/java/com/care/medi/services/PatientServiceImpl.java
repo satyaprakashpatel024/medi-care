@@ -31,121 +31,121 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PatientServiceImpl implements PatientService {
 
-    private final PatientRepository patientRepository;
-    private final UsersRepository usersRepository;
-    private final InsuranceRepository insuranceRepository;
-    private final HospitalService hospitalService;
+  private final PatientRepository patientRepository;
+  private final UsersRepository usersRepository;
+  private final InsuranceRepository insuranceRepository;
+  private final HospitalService hospitalService;
 
-    @Transactional(readOnly = true)
-    @Override
-    @Cacheable(value = "patients", key = "{#patientId, #hospitalId}")
-    public PatientResponseDTO getPatientByIdAndHospitalId(long hospitalId, Long patientId) {
-        Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
-        if (byId.isEmpty()) {
-            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
-        }
-        return PatientResponseDTO.fromEntity(byId.get());
+  @Transactional(readOnly = true)
+  @Override
+  @Cacheable(value = "patients", key = "{#patientId, #hospitalId}")
+  public PatientResponseDTO getPatientByIdAndHospitalId(long hospitalId, Long patientId) {
+    Optional<Patient> byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId);
+    if (byId.isEmpty()) {
+      throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
+    }
+    return PatientResponseDTO.fromEntity(byId.get());
+  }
+
+  @Transactional
+  @Override
+  @CacheEvict(value = {"patients", "patientsList"}, allEntries = true)
+  public PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient) {
+    if (usersRepository.existsByEmail(patient.getEmail())) {
+      throw new DuplicateResourceException(Constants.DUPLICATE_EMAIL + patient.getEmail());
+    }
+    Users user = Users.toEntity(patient.getEmail(), "Password@123", Role.PATIENT);
+    user = usersRepository.save(user);
+    Patient save = patientRepository.save(Patient.toEntity(patient, user));
+    return PatientResponseDTO.fromEntity(save);
+  }
+
+  @Transactional
+  @Override
+  @CacheEvict(value = {"patients", "patientsList"}, allEntries = true)
+  public PatientResponseDTO updatePatientInHospital(Long patientId, Long hospitalId, PatientUpdateRequestDTO patientDTO) {
+    // 1. Fetch the existing entity
+    Patient existingPatient = patientRepository.findByIdAndHospitalId(patientId, hospitalId)
+      .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
+
+    // 2. Conditionally update fields (Check for null before setting)
+    if (patientDTO.getFirstName() != null) {
+      existingPatient.setFirstName(patientDTO.getFirstName());
+    }
+    if (patientDTO.getLastName() != null) {
+      existingPatient.setLastName(patientDTO.getLastName());
+    }
+    if (patientDTO.getDateOfBirth() != null) {
+      existingPatient.setDateOfBirth(patientDTO.getDateOfBirth());
+    }
+    if (patientDTO.getGender() != null) {
+      existingPatient.setGender(Gender.valueOf(patientDTO.getGender().toUpperCase()));
+    }
+    if (patientDTO.getPhone() != null) {
+      existingPatient.setPhone(patientDTO.getPhone());
+    }
+    if (patientDTO.getEmergencyContact() != null) {
+      existingPatient.setEmergencyContact(patientDTO.getEmergencyContact());
+    }
+    if (patientDTO.getBloodType() != null) {
+      existingPatient.setBloodGroup(BloodGroup.valueOf(patientDTO.getBloodType().toUpperCase()));
     }
 
-    @Transactional
-    @Override
-    @CacheEvict(value = {"patients", "patientsList"}, allEntries = true)
-    public PatientResponseDTO createPatientInHospital(Long hospitalId, PatientRequestDTO patient) {
-        if (usersRepository.existsByEmail(patient.getEmail())) {
-            throw new DuplicateResourceException(Constants.DUPLICATE_EMAIL + patient.getEmail());
-        }
-        Users user = Users.toEntity(patient.getEmail(), "Password@123", Role.PATIENT);
-        user = usersRepository.save(user);
-        Patient save = patientRepository.save(Patient.toEntity(patient, user));
-        return PatientResponseDTO.fromEntity(save);
+    // 3. Save the updated entity
+    Patient updatedPatient = patientRepository.saveAndFlush(existingPatient);
+
+    // 4. Return the converted Response DTO
+    return PatientResponseDTO.fromEntity(updatedPatient);
+  }
+
+  @Transactional
+  @Override
+  @CacheEvict(value = {"patients", "patientsList"}, allEntries = true)
+  public void deletePatientFromHospital(Long patientId, Long hospitalId) {
+    Patient patient = patientRepository.findByIdAndHospitalId(patientId, hospitalId)
+      .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
+    patientRepository.delete(patient);
+  }
+
+  @Transactional
+  @Override
+  public InsuranceResponseDTO assignInsurance(Long patientId, Long hospitalId, InsuranceRequestDTO request) {
+    Patient byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId).orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
+
+    if (insuranceRepository.existsByPolicyNumber(request.getPolicyNumber())) {
+      throw new DuplicateResourceException(Constants.DUPLICATE_POLICY);
     }
 
-    @Transactional
-    @Override
-    @CacheEvict(value = {"patients", "patientsList"}, allEntries = true)
-    public PatientResponseDTO updatePatientInHospital(Long patientId, Long hospitalId, PatientUpdateRequestDTO patientDTO) {
-        // 1. Fetch the existing entity
-        Patient existingPatient = patientRepository.findByIdAndHospitalId(patientId, hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
+    Insurance insurance = Insurance.toEntity(request, byId);
+    insurance = insuranceRepository.save(insurance);
+    return InsuranceResponseDTO.fromEntity(insurance);
+  }
 
-        // 2. Conditionally update fields (Check for null before setting)
-        if (patientDTO.getFirstName() != null) {
-            existingPatient.setFirstName(patientDTO.getFirstName());
-        }
-        if (patientDTO.getLastName() != null) {
-            existingPatient.setLastName(patientDTO.getLastName());
-        }
-        if (patientDTO.getDateOfBirth() != null) {
-            existingPatient.setDateOfBirth(patientDTO.getDateOfBirth());
-        }
-        if (patientDTO.getGender() != null) {
-            existingPatient.setGender(Gender.valueOf(patientDTO.getGender().toUpperCase()));
-        }
-        if (patientDTO.getPhone() != null) {
-            existingPatient.setPhone(patientDTO.getPhone());
-        }
-        if (patientDTO.getEmergencyContact() != null) {
-            existingPatient.setEmergencyContact(patientDTO.getEmergencyContact());
-        }
-        if (patientDTO.getBloodType() != null) {
-            existingPatient.setBloodGroup(BloodGroup.valueOf(patientDTO.getBloodType().toUpperCase()));
-        }
-
-        // 3. Save the updated entity
-        Patient updatedPatient = patientRepository.saveAndFlush(existingPatient);
-
-        // 4. Return the converted Response DTO
-        return PatientResponseDTO.fromEntity(updatedPatient);
+  @Override
+  public List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId, Long hospitalId) {
+    boolean b = patientRepository.existsById(patientId);
+    if (!b) {
+      throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
     }
-
-    @Transactional
-    @Override
-    @CacheEvict(value = {"patients", "patientsList"}, allEntries = true)
-    public void deletePatientFromHospital(Long patientId, Long hospitalId) {
-        Patient patient = patientRepository.findByIdAndHospitalId(patientId, hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
-        patientRepository.delete(patient);
+    List<Insurance> byPatientId = insuranceRepository.findByPatientId(patientId);
+    if (byPatientId.isEmpty()) {
+      throw new ResourceNotFoundException(Constants.INSURANCE_NOT_FOUND);
     }
+    return byPatientId.stream().map(InsuranceResponseDTO::fromEntity).toList();
+  }
 
-    @Transactional
-    @Override
-    public InsuranceResponseDTO assignInsurance(Long patientId, Long hospitalId, InsuranceRequestDTO request) {
-        Patient byId = patientRepository.findByIdAndHospitalId(patientId, hospitalId).orElseThrow(() -> new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId));
-
-        if (insuranceRepository.existsByPolicyNumber(request.getPolicyNumber())) {
-            throw new DuplicateResourceException(Constants.DUPLICATE_POLICY);
-        }
-
-        Insurance insurance = Insurance.toEntity(request, byId);
-        insurance = insuranceRepository.save(insurance);
-        return InsuranceResponseDTO.fromEntity(insurance);
+  @Override
+  @Cacheable(value = "patientsList")
+  public Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy) {
+    if (!hospitalService.existsById(hospitalId)) {
+      throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId);
     }
+    return patientRepository.findAllByHospitalId(hospitalId, PageRequest.of(page, size, Sort.by(sortBy)));
+  }
 
-    @Override
-    public List<InsuranceResponseDTO> getInsuranceByPatientId(Long patientId, Long hospitalId) {
-        boolean b = patientRepository.existsById(patientId);
-        if (!b) {
-            throw new ResourceNotFoundException(Constants.PATIENT_NOT_FOUND + patientId);
-        }
-        List<Insurance> byPatientId = insuranceRepository.findByPatientId(patientId);
-        if (byPatientId.isEmpty()) {
-            throw new ResourceNotFoundException(Constants.INSURANCE_NOT_FOUND);
-        }
-        return byPatientId.stream().map(InsuranceResponseDTO::fromEntity).toList();
-    }
-
-    @Override
-    @Cacheable(value = "patientsList")
-    public Page<PatientListResponseDTO> getAllPatientsByHospital(Long hospitalId, Integer page, Integer size, String sortBy) {
-        if (!hospitalService.existsById(hospitalId)) {
-            throw new ResourceNotFoundException(Constants.HOSPITAL_NOT_FOUND + hospitalId);
-        }
-        return patientRepository.findAllByHospitalId(hospitalId, PageRequest.of(page, size, Sort.by(sortBy)));
-    }
-
-    @Override
-    public boolean existsByIdAndHospitalId(Long patientId, Long hospitalId) {
-        return patientRepository.existsByIdAndHospitalId(patientId, hospitalId);
-    }
+  @Override
+  public boolean existsByIdAndHospitalId(Long patientId, Long hospitalId) {
+    return patientRepository.existsByIdAndHospitalId(patientId, hospitalId);
+  }
 
 }

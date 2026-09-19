@@ -13,33 +13,33 @@ import lombok.*;
 public class HospitalAddressRequestDTO implements java.io.Serializable {
 
 
-    @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
-            message = "Invalid phone number, Please provide valid Indian Phone number.")
-    private String phoneNumber;
+  @Pattern(regexp = "^(?:(?:\\+|00)91[\\-\\s]?)?[6-9]\\d{9}$",
+    message = "Invalid phone number, Please provide valid Indian Phone number.")
+  private String phoneNumber;
 
-    @NotBlank(message = "Address line 1 is required")
-    @Size(max = 255)
-    private String addressLine1;
+  @NotBlank(message = "Address line 1 is required")
+  @Size(max = 255)
+  private String addressLine1;
 
-    @Size(max = 255)
-    private String addressLine2;
+  @Size(max = 255)
+  private String addressLine2;
 
-    @NotBlank(message = "City is required")
-    @Size(max = 100)
-    private String city;
+  @NotBlank(message = "City is required")
+  @Size(max = 100)
+  private String city;
 
-    @NotBlank(message = "State is required")
-    @Size(max = 100)
-    private String state;
+  @NotBlank(message = "State is required")
+  @Size(max = 100)
+  private String state;
 
-    @NotBlank(message = "Postal code is required")
-    @Size(max = 20)
-    private String postalCode;
+  @NotBlank(message = "Postal code is required")
+  @Size(max = 20)
+  private String postalCode;
 
-    @NotBlank(message = "Country is required")
-    @Size(max = 100)
-    private String country;
+  @NotBlank(message = "Country is required")
+  @Size(max = 100)
+  private String country;
 
-    @Size(max = 255)
-    private String landmark;
+  @Size(max = 255)
+  private String landmark;
 }

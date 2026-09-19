@@ -20,36 +20,36 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserAdminServiceImpl implements UserAdminService {
 
-    private final UsersRepository usersRepository;
+  private final UsersRepository usersRepository;
 
-    @Override
-    public Page<UserResponseDTO> getAllUsers(int page, int size, String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return usersRepository.findAll(pageable).map(UserResponseDTO::fromEntity);
-    }
+  @Override
+  public Page<UserResponseDTO> getAllUsers(int page, int size, String sortBy) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+    return usersRepository.findAll(pageable).map(UserResponseDTO::fromEntity);
+  }
 
-    @Override
-    public UserResponseDTO getUserById(Long id) {
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
-        return UserResponseDTO.fromEntity(user);
-    }
+  @Override
+  public UserResponseDTO getUserById(Long id) {
+    Users user = usersRepository.findById(id)
+      .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+    return UserResponseDTO.fromEntity(user);
+  }
 
-    @Override
-    @Transactional
-    public UserResponseDTO updateUserRole(Long id, Role role) {
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
-        user.setRole(role);
-        return UserResponseDTO.fromEntity(usersRepository.save(user));
-    }
+  @Override
+  @Transactional
+  public UserResponseDTO updateUserRole(Long id, Role role) {
+    Users user = usersRepository.findById(id)
+      .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+    user.setRole(role);
+    return UserResponseDTO.fromEntity(usersRepository.save(user));
+  }
 
-    @Override
-    @Transactional
-    public UserResponseDTO updateUserStatus(Long id, Boolean isActive) {
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
-        user.setIsActive(isActive);
-        return UserResponseDTO.fromEntity(usersRepository.save(user));
-    }
+  @Override
+  @Transactional
+  public UserResponseDTO updateUserStatus(Long id, Boolean isActive) {
+    Users user = usersRepository.findById(id)
+      .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+    user.setIsActive(isActive);
+    return UserResponseDTO.fromEntity(usersRepository.save(user));
+  }
 }

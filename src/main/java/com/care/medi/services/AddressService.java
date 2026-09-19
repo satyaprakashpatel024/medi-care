@@ -9,21 +9,21 @@ import java.util.List;
 
 public interface AddressService {
 
-    @Transactional
-    AddressResponseDTO createAddress(Users user, AddressRequestDTO request);
+  @Transactional
+  AddressResponseDTO createAddress(Users user, AddressRequestDTO request);
 
-    AddressResponseDTO getAddressById(Long id);
+  AddressResponseDTO getAddressById(Long id);
 
-    List<AddressResponseDTO> getAddressesByUser(Long userId);
+  List<AddressResponseDTO> getAddressesByUser(Long userId);
 
-    AddressResponseDTO getDefaultAddressByUser(Long userId);
+  AddressResponseDTO getDefaultAddressByUser(Long userId);
 
-    @Transactional
-    AddressResponseDTO updateAddress(Long id, AddressRequestDTO request);
+  @Transactional
+  AddressResponseDTO updateAddress(Long id, AddressRequestDTO request);
 
-    @Transactional
-    void setDefaultAddress(Long addressId, Long userId);
+  @Transactional
+  void setDefaultAddress(Long addressId, Long userId);
 
-    @Transactional
-    void deleteAddress(Long id);
+  @Transactional
+  void deleteAddress(Long id);
 }

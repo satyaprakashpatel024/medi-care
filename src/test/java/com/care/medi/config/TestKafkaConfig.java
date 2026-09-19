@@ -12,21 +12,21 @@ import org.springframework.kafka.core.ProducerFactory;
 @Profile("test")
 public class TestKafkaConfig {
 
-    @Bean
-    @SuppressWarnings("unchecked")
-    public ConsumerFactory<String, Object> consumerFactory() {
-        return Mockito.mock(ConsumerFactory.class);
-    }
+  @Bean
+  @SuppressWarnings("unchecked")
+  public ConsumerFactory<String, Object> consumerFactory() {
+    return Mockito.mock(ConsumerFactory.class);
+  }
 
-    @Bean
-    @SuppressWarnings("unchecked")
-    public ProducerFactory<String, Object> producerFactory() {
-        return Mockito.mock(ProducerFactory.class);
-    }
+  @Bean
+  @SuppressWarnings("unchecked")
+  public ProducerFactory<String, Object> producerFactory() {
+    return Mockito.mock(ProducerFactory.class);
+  }
 
-    @Bean
-    @SuppressWarnings("unchecked")
-    public KafkaTemplate<String, Object> kafkaTemplate() {
-        return Mockito.mock(KafkaTemplate.class);
-    }
+  @Bean
+  @SuppressWarnings("unchecked")
+  public KafkaTemplate<String, Object> kafkaTemplate() {
+    return Mockito.mock(KafkaTemplate.class);
+  }
 }
